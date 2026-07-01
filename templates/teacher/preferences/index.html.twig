@@ -1,0 +1,121 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Preferences{% endblock %}
+{% block page_title %}Personalization & Preferences{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-th-large"></i></div>
+        <div><div class="stat-value">3</div><div class="stat-label">Layout Presets</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-language"></i></div>
+        <div><div class="stat-value">{{ preferences.language }}</div><div class="stat-label">Preferred Language</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-bell"></i></div>
+        <div><div class="stat-value">{{ preferences.notificationTypes|filter(v => v)|length }}</div><div class="stat-label">Active Notification Types</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-universal-access"></i></div>
+        <div><div class="stat-value">{{ preferences.accessibility|filter(v => v)|length }}</div><div class="stat-label">Accessibility Aids</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-columns t-accent" style="margin-right:6px;"></i>Customize Dashboard Layout</span>
+        </div>
+        <form method="post" action="{{ path('teacher_preferences') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_preferences_layout') }}">
+            <input type="hidden" name="action" value="save_layout">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;">
+                <label style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;cursor:pointer;">
+                    <input type="radio" name="layout" value="focus-first" {% if preferences.layout == 'focus-first' %}checked{% endif %}> Focus-first
+                    <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Prioritize grading, alerts, and next tasks.</div>
+                </label>
+                <label style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;cursor:pointer;">
+                    <input type="radio" name="layout" value="analytics" {% if preferences.layout == 'analytics' %}checked{% endif %}> Analytics
+                    <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Keep performance charts and summaries above the fold.</div>
+                </label>
+                <label style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;cursor:pointer;">
+                    <input type="radio" name="layout" value="communication" {% if preferences.layout == 'communication' %}checked{% endif %}> Communication
+                    <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Bring meetings, messages, and announcements forward.</div>
+                </label>
+            </div>
+            <button class="btn-teal" type="submit"><i class="fa fa-save"></i> Save Layout</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-language t-accent" style="margin-right:6px;"></i>Set Preferred Language</span>
+        </div>
+        <form method="post" action="{{ path('teacher_preferences') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_preferences_language') }}">
+            <input type="hidden" name="action" value="save_language">
+            <div class="form-group">
+                <label class="form-label">Portal Language</label>
+                <select name="language" class="form-control">
+                    <option {% if preferences.language == 'English' %}selected{% endif %}>English</option>
+                    <option>French</option>
+                    <option>Spanish</option>
+                    <option>Arabic</option>
+                </select>
+            </div>
+            <button class="btn-teal" type="submit"><i class="fa fa-check"></i> Update Language</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bell-o t-accent" style="margin-right:6px;"></i>Manage Notification Types</span>
+        </div>
+        <form method="post" action="{{ path('teacher_preferences') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_preferences_notifications') }}">
+            <input type="hidden" name="action" value="save_notification_types">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.notificationTypes.grades %}checked{% endif %}> Grades posted</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.notificationTypes.attendance %}checked{% endif %}> Attendance issues</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.notificationTypes.assignments %}checked{% endif %}> New assignments</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.notificationTypes.announcements %}checked{% endif %}> Announcements</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.notificationTypes.meetings %}checked{% endif %}> Meetings & reminders</label>
+            </div>
+            <button class="btn-teal" type="submit"><i class="fa fa-save"></i> Save Notification Types</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond t-accent" style="margin-right:6px;"></i>Premium Preferences</span>
+        </div>
+
+        <form method="post" action="{{ path('teacher_preferences') }}" style="margin-bottom:16px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_preferences_personalization') }}">
+            <input type="hidden" name="action" value="save_personalization_mode">
+            <div style="font-size:13px;font-weight:800;margin-bottom:8px;">Role-based personalization</div>
+            <div style="display:grid;gap:8px;margin-bottom:10px;">
+                <label style="font-size:13px;"><input type="radio" name="mode" value="busy-teacher" {% if preferences.personalizationMode == 'busy-teacher' %}checked{% endif %}> Busy teacher view</label>
+                <label style="font-size:13px;"><input type="radio" name="mode" value="detailed-view" {% if preferences.personalizationMode == 'detailed-view' %}checked{% endif %}> Detailed view</label>
+            </div>
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-sliders"></i> Save Personalization</button>
+        </form>
+
+        <form method="post" action="{{ path('teacher_preferences') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_preferences_accessibility') }}">
+            <input type="hidden" name="action" value="save_accessibility">
+            <div style="font-size:13px;font-weight:800;margin-bottom:8px;">Accessibility options</div>
+            <div style="display:grid;gap:8px;margin-bottom:10px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.accessibility.highContrast %}checked{% endif %}> High contrast</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.accessibility.largeText %}checked{% endif %}> Large text</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.accessibility.reducedMotion %}checked{% endif %}> Reduced motion</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if preferences.accessibility.keyboardShortcuts %}checked{% endif %}> Keyboard shortcut hints</label>
+            </div>
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-universal-access"></i> Save Accessibility</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

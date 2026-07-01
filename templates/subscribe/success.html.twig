@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subscription Confirmed – City School</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f0f6fc;font-family:'Montserrat',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.card{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(15,58,96,.14);max-width:520px;width:100%;padding:40px 36px;text-align:center}
+.check-circle{width:72px;height:72px;border-radius:50%;background:#e3f5ed;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px}
+h1{margin:0 0 8px;font-size:28px;color:#0f3a60;font-family:'Arvo',serif}
+.sub-desc{color:#5c849e;font-size:14px;line-height:1.7;margin:0 0 24px}
+.details{background:#f0f8ff;border:1px solid #c2dff0;border-radius:12px;padding:16px;margin-bottom:24px;text-align:left}
+.details-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px dashed #d6eaf7}
+.details-row:last-child{border-bottom:0}
+.details-row .lbl{color:#5c849e}
+.details-row .val{font-weight:700;color:#0f3a60}
+.trial-badge{display:inline-block;background:#e3f5ed;color:#1a7a4f;font-size:12px;font-weight:800;border-radius:999px;padding:6px 16px;margin-bottom:20px;letter-spacing:.04em}
+.actions{display:flex;flex-direction:column;gap:10px}
+.btn{border-radius:10px;padding:13px 22px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0}
+.btn-primary{background:#1a7aa3;color:#fff}
+.btn-primary:hover{background:#135b7b}
+.btn-outline{background:#fff;color:#1a7aa3;border:2px solid #1a7aa3}
+.btn-outline:hover{background:#e8f5fb}
+.email-note{font-size:12px;color:#8faec3;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="card">
+    <div class="check-circle">✅</div>
+    <h1>You're all set, {{ school_name }}!</h1>
+    <p class="sub-desc">
+        {% if mode == 'trial' %}
+            Your free trial is now <strong>active</strong>. A confirmation has been sent to <strong>{{ email }}</strong>. Upgrade before the countdown ends to keep using the platform.
+        {% else %}
+            Your subscription is now <strong>active</strong>. A confirmation has been sent to <strong>{{ email }}</strong>. Your 14-day free trial starts today.
+        {% endif %}
+    </p>
+
+    <div class="trial-badge">🎉 {{ mode == 'trial' ? '14-Day Free Trial Active' : 'Subscription Active' }}</div>
+
+    <div class="details">
+        <div class="details-row"><span class="lbl">School</span><span class="val">{{ school_name }}</span></div>
+        <div class="details-row"><span class="lbl">Plan</span><span class="val">{{ plan }}</span></div>
+        <div class="details-row"><span class="lbl">Billing</span><span class="val">{{ billing_cycle|capitalize }} — ${{ amount }}</span></div>
+        <div class="details-row"><span class="lbl">Status</span><span class="val" style="color:#1a7a4f">{{ mode == 'trial' ? 'Trialing' : 'Active' }}</span></div>
+    </div>
+
+    <div class="actions">
+        <a href="{{ mode == 'trial' ? path('subscribe_trial_dashboard') : path('admin_login') }}" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            {{ mode == 'trial' ? 'Open Trial Dashboard' : 'Go to School Dashboard' }}
+        </a>
+        <a href="{{ path('index') }}" class="btn btn-outline">Back to Home</a>
+    </div>
+
+    <p class="email-note">Didn't receive the email? Check your spam folder or contact <a href="mailto:support@cityschool.edu" style="color:#1a7aa3">support@cityschool.edu</a></p>
+</div>
+</body>
+</html>

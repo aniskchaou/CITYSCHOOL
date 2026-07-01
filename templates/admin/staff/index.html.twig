@@ -1,0 +1,112 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Staff Management{% endblock %}
+{% block page_title %}Staff Management{% endblock %}
+
+{% block content %}
+{% set teachers = staff|filter(s => s.role == 'Teacher') %}
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-id-badge"></i></div><div class="stat-body"><div class="stat-value">{{ staff|length }}</div><div class="stat-label">Total Staff</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-user-circle"></i></div><div class="stat-body"><div class="stat-value">{{ teachers|length }}</div><div class="stat-label">Teachers</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#22c55e;"><i class="fa fa-clock-o"></i></div><div class="stat-body"><div class="stat-value">{{ (staff|map(s => s.hours)|reduce((c,v) => c+v, 0)) }}</div><div class="stat-label">Teaching Hours</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-line-chart"></i></div><div class="stat-body"><div class="stat-value">{{ (staff|map(s => s.performance)|reduce((c,v) => c+v, 0) / staff|length)|round }}</div><div class="stat-label">Avg Performance</div></div></div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+    <button class="btn-purple" onclick="openModal('modal-add-staff')"><i class="fa fa-user-plus"></i> Add Staff</button>
+    <form method="post" action="{{ path('admin_staff') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="suggest_balance"><i class="fa fa-balance-scale"></i> Workload Suggestions</button></form>
+    <form method="post" action="{{ path('admin_staff') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="auto_substitute"><i class="fa fa-random"></i> Auto-Assign Substitute</button></form>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+    <table class="portal-table">
+        <thead><tr><th>Staff</th><th>Role</th><th>Subject</th><th>Classes</th><th>Hours</th><th>Attendance</th><th>Contract</th><th>Performance</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for s in staff %}
+        <tr>
+            <td style="font-weight:700;">{{ s.name }}</td>
+            <td><span class="role-badge role-{{ s.role == 'Teacher' ? 'teacher' : 'admin' }}">{{ s.role }}</span></td>
+            <td>{{ s.subject }}</td>
+            <td>{{ s.classes|join(', ') }}</td>
+            <td>{{ s.hours }} hrs</td>
+            <td>{{ s.attendance }}</td>
+            <td><span class="role-badge status-active">{{ s.contract }}</span></td>
+            <td>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ s.performance }}%;background:#7c3aed;"></div></div>
+                <div style="font-size:11px;color:#64748b;margin-top:3px;">{{ s.performance }}%</div>
+            </td>
+            <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <form method="post" action="{{ path('admin_staff') }}" style="display:inline;"><input type="hidden" name="staff_id" value="{{ s.id }}"><button class="btn btn-outline btn-sm" name="action" value="assign_subject"><i class="fa fa-book"></i></button></form>
+                    <form method="post" action="{{ path('admin_staff') }}" style="display:inline;"><input type="hidden" name="staff_id" value="{{ s.id }}"><button class="btn btn-outline btn-sm" name="action" value="allocate_class"><i class="fa fa-th-large"></i></button></form>
+                    <form method="post" action="{{ path('admin_staff') }}" style="display:inline;"><input type="hidden" name="staff_id" value="{{ s.id }}"><button class="btn btn-outline btn-sm" name="action" value="update_workload"><i class="fa fa-clock-o"></i></button></form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-calendar-check-o a-accent" style="margin-right:6px;"></i>Staff Attendance Tracking</span></div>
+        <form method="post" action="{{ path('admin_staff') }}">
+            <input type="hidden" name="action" value="mark_attendance">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Staff Member</label><select class="form-control" name="staff_id">{% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Status</label><select class="form-control" name="attendance"><option>Present</option><option>Absent</option><option>Late</option></select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Save Attendance</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-file-text-o a-accent" style="margin-right:6px;"></i>Contracts & Assignments</span></div>
+        <form method="post" action="{{ path('admin_staff') }}">
+            <input type="hidden" name="action" value="save_contract">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Staff</label><select class="form-control" name="staff_id">{% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Contract Type</label><select class="form-control" name="contract"><option>Permanent</option><option>Contract</option><option>Part-time</option></select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Contract</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Insights</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div style="padding:12px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;">
+            <div style="font-size:13px;font-weight:700;color:#4c1d95;">Workload Balancing Suggestion</div>
+            <div style="font-size:12px;color:#6d28d9;margin-top:6px;">Reassign one Grade 11 section from Mr. Tom Clark to Ms. Sarah Lee to reduce overload.</div>
+        </div>
+        <div style="padding:12px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;">
+            <div style="font-size:13px;font-weight:700;color:#4c1d95;">Teacher Performance Analytics</div>
+            <div style="font-size:12px;color:#6d28d9;margin-top:6px;">Mathematics department shows +6% engagement trend over last month.</div>
+        </div>
+        <div style="padding:12px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;">
+            <div style="font-size:13px;font-weight:700;color:#4c1d95;">Substitution Recommendation</div>
+            <div style="font-size:12px;color:#6d28d9;margin-top:6px;">If Ms. Sarah Lee is absent, auto-assign Mr. James Smith (subject overlap: Science Lab).</div>
+        </div>
+    </div>
+</div>
+
+<div class="a-modal-overlay" id="modal-add-staff">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-user-plus a-accent" style="margin-right:6px;"></i>Add Staff Profile</span>
+            <button class="a-modal-close" onclick="closeModal('modal-add-staff')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_staff') }}">
+            <input type="hidden" name="action" value="add_staff">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Full Name</label><input class="form-control" name="name" required></div>
+                <div class="form-group"><label class="form-label">Role</label><select class="form-control" name="role"><option>Teacher</option><option>Counselor</option><option>Coordinator</option></select></div>
+                <div class="form-group"><label class="form-label">Primary Subject</label><select class="form-control" name="subject">{% for sb in subjects %}<option>{{ sb.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Class/Section</label><select class="form-control" name="class">{% for c in classes %}<option>{{ c.name }}</option>{% endfor %}</select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Staff</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

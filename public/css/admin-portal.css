@@ -1,0 +1,323 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Admin Portal CSS  —  extends portal.css
+   Accent: #7c3aed (purple)  |  Sidebar bg: #1a0533
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Override sidebar ─────────────────────────────────────────── */
+.admin-portal-body .portal-sidebar {
+    background: #1a0533;
+}
+.admin-portal-body .brand-icon {
+    color: #7c3aed;
+}
+.admin-portal-body .portal-main {
+    background: #f5f3ff;
+}
+.admin-portal-body .sidebar-nav a:hover,
+.admin-portal-body .sidebar-nav a.active {
+    background: rgba(124,58,237,.18);
+    color: #a78bfa;
+}
+.admin-portal-body .sidebar-nav a.active {
+    border-left: 3px solid #7c3aed;
+}
+.admin-portal-body .sidebar-section-label {
+    color: rgba(167,139,250,.55);
+}
+
+/* ── Topbar ────────────────────────────────────────────────────── */
+.admin-portal-body .portal-topbar {
+    border-bottom: 2px solid #ede9fe;
+}
+
+/* ── Primary button ────────────────────────────────────────────── */
+.btn-purple {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+}
+.btn-purple:hover { background: #6d28d9; }
+
+.btn-danger-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn-danger-sm:hover { background: #fecaca; }
+
+/* ── Role badges ───────────────────────────────────────────────── */
+.role-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.role-student  { background: #ede9fe; color: #7c3aed; }
+.role-teacher  { background: #e0f2fe; color: #0891b2; }
+.role-parent   { background: #dcfce7; color: #16a34a; }
+.role-admin    { background: #fef9c3; color: #b45309; }
+
+/* ── Status pills ──────────────────────────────────────────────── */
+.status-active   { background: #dcfce7; color: #16a34a; }
+.status-inactive { background: #f1f5f9; color: #64748b; }
+.status-paid     { background: #dcfce7; color: #16a34a; }
+.status-pending  { background: #fef9c3; color: #b45309; }
+.status-overdue  { background: #fee2e2; color: #ef4444; }
+.status-completed{ background: #e0f2fe; color: #0891b2; }
+.status-upcoming { background: #f3e8ff; color: #7c3aed; }
+
+/* ── Avatar initials ───────────────────────────────────────────── */
+.av-init {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.av-student { background: #ede9fe; color: #7c3aed; }
+.av-teacher { background: #e0f2fe; color: #0891b2; }
+.av-parent  { background: #dcfce7; color: #16a34a; }
+.av-admin   { background: #fef9c3; color: #b45309; }
+
+/* ── KPI / stat override ────────────────────────────────────────── */
+.admin-portal-body .stat-card { border-top: 3px solid #7c3aed; }
+.admin-portal-body .stat-card.green  { border-top-color: #22c55e; }
+.admin-portal-body .stat-card.amber  { border-top-color: #f59e0b; }
+.admin-portal-body .stat-card.red    { border-top-color: #ef4444; }
+.admin-portal-body .stat-card.teal   { border-top-color: #0891b2; }
+
+/* ── Filter bar ─────────────────────────────────────────────────── */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #ede9fe;
+}
+.filter-bar select,
+.filter-bar input[type="text"],
+.filter-bar input[type="search"] {
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    min-width: 160px;
+}
+.filter-bar select:focus,
+.filter-bar input:focus {
+    border-color: #7c3aed;
+}
+
+/* ── Bulk action bar ────────────────────────────────────────────── */
+.bulk-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    background: #ede9fe;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7c3aed;
+    margin-bottom: 10px;
+}
+.bulk-bar.visible { display: flex; }
+
+/* ── Schedule grid ──────────────────────────────────────────────── */
+.schedule-table-wrap { overflow-x: auto; }
+.schedule-pill {
+    display: block;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Audit log ──────────────────────────────────────────────────── */
+.audit-row-info    { border-left: 3px solid #0891b2; }
+.audit-row-warning { border-left: 3px solid #f59e0b; }
+.audit-row-danger  { border-left: 3px solid #ef4444; }
+
+.audit-badge-info    { background: #e0f2fe; color: #0891b2; }
+.audit-badge-warning { background: #fef9c3; color: #b45309; }
+.audit-badge-danger  { background: #fee2e2; color: #ef4444; }
+
+/* ── Payment summary cards ──────────────────────────────────────── */
+.pay-card {
+    padding: 16px 18px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+}
+.pay-card .pay-amount {
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 4px;
+}
+.pay-card .pay-label  { font-size: 12px; color: #64748b; }
+
+/* ── Settings sections ──────────────────────────────────────────── */
+.settings-section {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+}
+.settings-section-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 13px;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row label { color: #475569; font-weight: 600; }
+
+/* ── Toggle switch ──────────────────────────────────────────────── */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 22px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #cbd5e1;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: .2s;
+}
+.toggle-slider:before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .2s;
+}
+.toggle input:checked + .toggle-slider { background: #7c3aed; }
+.toggle input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+/* ── Academic term cards ────────────────────────────────────────── */
+.term-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+}
+.term-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: #7c3aed;
+}
+.term-card.completed::before { background: #0891b2; }
+.term-card.upcoming::before  { background: #94a3b8; }
+
+/* ── Admin modal ────────────────────────────────────────────────── */
+.a-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.a-modal-overlay.open { display: flex; }
+.a-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px 30px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(124,58,237,.18);
+    position: relative;
+}
+.a-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f3e8ff;
+}
+.a-modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+}
+.a-modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
+}
+.a-modal-close:hover { color: #7c3aed; }
+
+/* ── Trend bar for reports ──────────────────────────────────────── */
+.trend-up   { color: #22c55e; }
+.trend-down { color: #ef4444; }
+.a-accent { color: #7c3aed; }

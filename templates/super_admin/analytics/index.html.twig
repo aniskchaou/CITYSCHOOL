@@ -1,0 +1,79 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Advanced Analytics{% endblock %}
+{% block page_title %}Advanced Analytics & Intelligence{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;">
+    <div class="super-kpi"><div class="kpi-value">{{ analytics.totals.activeUsers|number_format }}</div><div class="kpi-label">Active Users</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ analytics.totals.attendanceRate }}%</div><div class="kpi-label">Global Attendance</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ analytics.totals.avgGrade }}%</div><div class="kpi-label">Average Grade</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ analytics.totals.engagementScore }}%</div><div class="kpi-label">Engagement</div></div>
+    <div class="super-kpi"><div class="kpi-value" style="font-size:18px;">{{ analytics.totals.peakTime }}</div><div class="kpi-label">Peak Usage Window</div></div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header" style="justify-content:space-between;">
+        <span class="card-title"><i class="fa fa-balance-scale" style="margin-right:6px;color:#f97316;"></i>School Performance Comparison</span>
+        <form method="post" action="{{ path('super_admin_analytics') }}" style="display:flex;gap:8px;">
+            <button class="btn-orange" name="format" value="CSV" type="submit"><i class="fa fa-file-text-o"></i> Export CSV</button>
+            <button class="btn-orange" name="format" value="PDF" type="submit"><i class="fa fa-file-pdf-o"></i> Export PDF</button>
+        </form>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>School</th><th>Attendance</th><th>Grades</th><th>Engagement</th></tr></thead>
+        <tbody>
+        {% for s in analytics.schoolComparison %}
+        <tr>
+            <td><strong>{{ s.school }}</strong></td>
+            <td>{{ s.attendance }}%</td>
+            <td>{{ s.grade }}%</td>
+            <td>{{ s.engagement }}%</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-search-plus" style="margin-right:6px;color:#f97316;"></i>Drill-Down Analytics (School -> Class -> Student)</span></div>
+        {% for d in analytics.drilldown %}
+        <div style="margin-bottom:14px;padding:12px;border:1px solid #fed7aa;border-radius:8px;background:#fff7ed;">
+            <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:8px;">{{ d.school }}</div>
+            {% for c in d.classes %}
+            <div style="font-size:12px;color:#7c2d12;line-height:1.6;">{{ c.name }} · Avg {{ c.avg }}% · Attendance {{ c.attendance }}% · Sample Student: {{ c.student }}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-fire" style="margin-right:6px;color:#f97316;"></i>Activity Heatmap (Premium)</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+            {% for row in analytics.heatmap %}
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:36px;font-size:11px;color:#7c2d12;font-weight:700;">{{ row.label }}</div>
+                <div style="display:flex;gap:5px;">
+                    {% for v in row.slots %}
+                    <div style="width:24px;height:18px;border-radius:4px;background:rgba(249,115,22,{{ (v / 100) > 0.15 ? (v / 100) : 0.15 }});" title="{{ v }}%"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-lightbulb-o" style="margin-right:6px;color:#f97316;"></i>Predictive Analytics & AI Insights (Premium)</span></div>
+    {% for p in analytics.predictions %}
+    <div style="padding:12px;border:1px solid #fed7aa;border-radius:8px;margin-bottom:10px;background:#fff7ed;display:flex;justify-content:space-between;gap:10px;">
+        <div>
+            <div style="font-size:13px;font-weight:800;color:#9a3412;">{{ p.school }}</div>
+            <div style="font-size:12px;color:#7c2d12;">{{ p.insight }}</div>
+        </div>
+        <span class="super-tag {{ p.risk == 'high' ? 'suspended' : (p.risk == 'medium' ? 'trial' : 'active') }}">{{ p.risk }} risk</span>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

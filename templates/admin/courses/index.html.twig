@@ -1,0 +1,144 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Course & Content Oversight{% endblock %}
+{% block page_title %}Course & Content Oversight{% endblock %}
+
+{% block content %}
+
+{% set pending_materials = materials|filter(m => m.status == 'pending') %}
+{% set review_compliance = compliance_checks|filter(c => c.status == 'review') %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-book"></i></div><div class="stat-body"><div class="stat-value">{{ courses|length }}</div><div class="stat-label">Teacher Courses</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-clock-o"></i></div><div class="stat-body"><div class="stat-value">{{ pending_materials|length }}</div><div class="stat-label">Pending Materials</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div><div class="stat-body"><div class="stat-value">{{ review_compliance|length }}</div><div class="stat-label">Compliance Reviews</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-archive"></i></div><div class="stat-body"><div class="stat-value">{{ archived_courses|length }}</div><div class="stat-label">Archived Courses</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-database"></i></div><div class="stat-body"><div class="stat-value">{{ resource_library|length }}</div><div class="stat-label">Shared Resources</div></div></div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+    <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="monitor_courses"><i class="fa fa-refresh"></i> Monitor Teacher Courses</button></form>
+    <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="check_compliance"><i class="fa fa-check-square-o"></i> Run Compliance Check</button></form>
+    <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><button class="btn-purple" name="action" value="run_quality_scoring"><i class="fa fa-star"></i> Run Content Quality Scoring</button></form>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-list a-accent" style="margin-right:6px;"></i>Monitor All Courses Created by Teachers</span></div>
+    <table class="portal-table">
+        <thead><tr><th>Course</th><th>Teacher</th><th>Class</th><th>Materials</th><th>Compliance</th><th>Last Updated</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for c in courses %}
+        <tr>
+            <td style="font-weight:700;">{{ c.course }}</td>
+            <td>{{ c.teacher }}</td>
+            <td>{{ c.class }}</td>
+            <td>{{ c.materials }}</td>
+            <td><span class="role-badge {{ c.compliance == 'compliant' ? 'status-active' : 'status-pending' }}">{{ c.compliance }}</span></td>
+            <td>{{ c.last_updated }}</td>
+            <td><span class="role-badge {{ c.status == 'active' ? 'status-active' : 'status-inactive' }}">{{ c.status }}</span></td>
+            <td>
+                <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><input type="hidden" name="action" value="archive_course"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-archive"></i></button></form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-upload a-accent" style="margin-right:6px;"></i>Approve/Review Uploaded Materials</span></div>
+        <table class="portal-table">
+            <thead><tr><th>Material</th><th>Course</th><th>Teacher</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for m in materials %}
+            <tr>
+                <td style="font-weight:700;">{{ m.title }}</td>
+                <td>{{ m.course }}</td>
+                <td>{{ m.teacher }}</td>
+                <td>{{ m.type }}</td>
+                <td><span class="role-badge {{ m.status == 'approved' ? 'status-active' : 'status-pending' }}">{{ m.status }}</span></td>
+                <td style="display:flex;gap:6px;">
+                    <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><input type="hidden" name="action" value="review_material"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-search"></i></button></form>
+                    <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><input type="hidden" name="action" value="approve_material"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-check"></i></button></form>
+                    <form method="post" action="{{ path('admin_courses') }}" style="display:inline;"><input type="hidden" name="action" value="reject_material"><button class="btn-danger-sm" type="submit"><i class="fa fa-ban"></i></button></form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-check-circle a-accent" style="margin-right:6px;"></i>Ensure Curriculum Compliance</span></div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Course</th><th>Framework</th><th>Coverage</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for cc in compliance_checks %}
+            <tr>
+                <td style="font-weight:700;">{{ cc.course }}</td>
+                <td>{{ cc.framework }}</td>
+                <td>{{ cc.coverage }}%</td>
+                <td><span class="role-badge {{ cc.status == 'compliant' ? 'status-active' : 'status-pending' }}">{{ cc.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_courses') }}"><input type="hidden" name="action" value="check_compliance"><button class="btn-purple" type="submit"><i class="fa fa-refresh"></i> Re-run Compliance</button></form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-archive a-accent" style="margin-right:6px;"></i>Archive Old Courses</span></div>
+    <table class="portal-table">
+        <thead><tr><th>Course</th><th>Teacher</th><th>Archived On</th></tr></thead>
+        <tbody>
+        {% for a in archived_courses %}
+        <tr>
+            <td style="font-weight:700;">{{ a.course }}</td>
+            <td>{{ a.teacher }}</td>
+            <td>{{ a.archived_on }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium: Content Intelligence</span></div>
+    <div class="grid-2" style="gap:20px;">
+        <div>
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:8px;">Content Quality Scoring</div>
+            <table class="portal-table">
+                <thead><tr><th>Course</th><th>Score</th><th>Quality</th></tr></thead>
+                <tbody>
+                {% for q in quality_scores %}
+                <tr>
+                    <td style="font-weight:700;">{{ q.course }}</td>
+                    <td>{{ q.score }}%</td>
+                    <td><span class="role-badge {{ q.score >= 85 ? 'status-active' : 'status-pending' }}">{{ q.quality }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:8px;">Central Resource Library (Shared)</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>Resource</th><th>Category</th><th>Owner</th><th>Downloads</th></tr></thead>
+                <tbody>
+                {% for r in resource_library %}
+                <tr>
+                    <td style="font-weight:700;">{{ r.resource }}</td>
+                    <td>{{ r.category }}</td>
+                    <td>{{ r.owner }}</td>
+                    <td>{{ r.downloads }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form method="post" action="{{ path('admin_courses') }}"><input type="hidden" name="action" value="save_resource_library"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-save"></i> Save Library Updates</button></form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

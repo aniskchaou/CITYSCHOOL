@@ -1,0 +1,138 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Grading{% endblock %}
+{% block page_title %}Grade Submissions{% endblock %}
+
+{% block content %}
+
+{% set pending = submissions|filter(s => s.status == 'pending') %}
+{% set graded  = submissions|filter(s => s.status == 'graded') %}
+
+{# ── Stats ── #}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa fa-clock-o"></i></div>
+        <div><div class="stat-value">{{ pending|length }}</div><div class="stat-label">Pending</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check-circle"></i></div>
+        <div><div class="stat-value">{{ graded|length }}</div><div class="stat-label">Graded</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-bolt"></i></div>
+        <div><div class="stat-value">{{ pending|filter(s => s.auto_score is not null)|length }}</div><div class="stat-label">AI Suggestions Ready</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-list-alt"></i></div>
+        <div><div class="stat-value">{{ submissions|length }}</div><div class="stat-label">Total Submissions</div></div>
+    </div>
+</div>
+
+{# ── Pending Grading ── #}
+{% if pending|length > 0 %}
+<div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+    <h2 style="font-size:15px;font-weight:700;color:#f59e0b;">
+        <i class="fa fa-clock-o"></i> Pending Grading ({{ pending|length }})
+    </h2>
+    <span style="font-size:12px;color:#64748b;"><i class="fa fa-bolt" style="color:#0891b2;"></i> AI suggestions shown where available</span>
+</div>
+
+{% for s in pending %}
+<div class="grade-card pending" style="margin-bottom:14px;">
+    <form method="post" action="{{ path('teacher_grading') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('grade_save') }}">
+        <input type="hidden" name="submission_id" value="{{ s.id }}">
+        <input type="hidden" name="student" value="{{ s.student }}">
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                    <div style="width:38px;height:38px;border-radius:50%;background:#fef9c3;display:flex;align-items:center;justify-content:center;font-weight:700;color:#a16207;flex-shrink:0;">
+                        {{ s.student|split(' ')|first|slice(0,1) }}{{ s.student|split(' ')|last|slice(0,1) }}
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;">{{ s.student }}</div>
+                        <div style="font-size:12px;color:#64748b;">{{ s.assignment }} · {{ s.course }}</div>
+                    </div>
+                </div>
+                <div style="font-size:12px;color:#64748b;margin-bottom:10px;">
+                    <i class="fa fa-calendar"></i> Submitted: {{ s.submitted_at }}
+                    &nbsp;·&nbsp;
+                    <i class="fa fa-file-pdf-o"></i>
+                    <a href="#" style="color:#0891b2;" onclick="return false;">{{ s.file }}</a>
+                </div>
+                {% if s.auto_score is not null %}
+                <div style="margin-bottom:10px;padding:10px 14px;background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;">
+                    <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:4px;">
+                        <i class="fa fa-bolt"></i> AI Auto-Grade Suggestion
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="auto-chip"><i class="fa fa-bolt"></i> Suggested: {{ s.auto_score }}/{{ s.max_score }}</span>
+                        <button type="button" class="btn btn-outline btn-sm" style="font-size:11px;"
+                            onclick="this.closest('form').querySelector('.score-input').value='{{ s.auto_score }}'">
+                            Accept Suggestion
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="number" name="score" class="score-input" placeholder="—" min="0" max="{{ s.max_score }}" required>
+                    <span style="font-size:14px;color:#64748b;">/ {{ s.max_score }}</span>
+                </div>
+                <span style="font-size:11px;color:#94a3b8;">points</span>
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;margin-bottom:12px;">
+            <label class="form-label" style="font-size:12px;">Feedback for student</label>
+            <textarea name="feedback" class="form-control" rows="2" placeholder="Leave constructive feedback..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button type="submit" class="btn-teal"><i class="fa fa-save"></i> Save Grade</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="alert('Preview submission: {{ s.file }}')">
+                <i class="fa fa-eye"></i> Preview
+            </button>
+        </div>
+    </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="card" style="text-align:center;padding:40px;margin-bottom:24px;">
+    <i class="fa fa-check-circle" style="font-size:48px;color:#22c55e;display:block;margin-bottom:12px;"></i>
+    <div style="font-size:16px;font-weight:700;color:#16a34a;">All caught up!</div>
+    <div style="font-size:13px;color:#64748b;margin-top:4px;">No pending submissions to grade.</div>
+</div>
+{% endif %}
+
+{# ── Already Graded ── #}
+{% if graded|length > 0 %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-check-circle" style="color:#22c55e;margin-right:6px;"></i>Recently Graded ({{ graded|length }})</span>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>Student</th><th>Assignment</th><th>Score</th><th>Feedback</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for s in graded %}
+        <tr>
+            <td style="font-size:13px;font-weight:600;">{{ s.student }}</td>
+            <td style="font-size:12px;color:#64748b;">{{ s.assignment }}</td>
+            <td>
+                <span style="font-size:14px;font-weight:800;color:{% if s.score/s.max_score>=0.8 %}#16a34a{% elseif s.score/s.max_score>=0.6 %}#2563eb{% else %}#f59e0b{% endif %};">
+                    {{ s.score }}/{{ s.max_score }}
+                </span>
+            </td>
+            <td style="font-size:12px;color:#64748b;max-width:220px;">{{ s.feedback|slice(0,60) }}{% if s.feedback|length > 60 %}…{% endif %}</td>
+            <td>
+                <button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="alert('Edit grade for {{ s.student }}')">
+                    <i class="fa fa-pencil"></i> Edit
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

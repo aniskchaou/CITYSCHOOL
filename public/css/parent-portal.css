@@ -1,0 +1,241 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Parent Portal CSS  —  extends portal.css
+   Accent: #16a34a (green)  |  Sidebar bg: #052e16
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar override ─────────────────────────────────────────── */
+.parent-portal-body .portal-sidebar { background: #052e16; }
+.parent-portal-body .brand-icon     { color: #16a34a; }
+.parent-portal-body .portal-main    { background: #f0fdf4; }
+
+.parent-portal-body .sidebar-nav a:hover,
+.parent-portal-body .sidebar-nav a.active {
+    background: rgba(22,163,74,.18);
+    color: #86efac;
+}
+.parent-portal-body .sidebar-nav a.active { border-left: 3px solid #16a34a; }
+.parent-portal-body .sidebar-section-label { color: rgba(134,239,172,.45); }
+
+/* ── Topbar ────────────────────────────────────────────────────── */
+.parent-portal-body .portal-topbar { border-bottom: 2px solid #dcfce7; }
+
+/* ── Primary button ────────────────────────────────────────────── */
+.btn-green {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+    text-decoration: none;
+}
+.btn-green:hover { background: #15803d; }
+
+/* ── KPI stat card override ────────────────────────────────────── */
+.parent-portal-body .stat-card { border-top: 3px solid #16a34a; }
+.parent-portal-body .stat-card.amber { border-top-color: #f59e0b; }
+.parent-portal-body .stat-card.red   { border-top-color: #ef4444; }
+.parent-portal-body .stat-card.blue  { border-top-color: #0891b2; }
+
+/* ── Accent helper ─────────────────────────────────────────────── */
+.p-accent { color: #16a34a; }
+
+/* ── Child selector tab bar ────────────────────────────────────── */
+.child-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.child-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 30px;
+    border: 2px solid #d1fae5;
+    background: #fff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+}
+.child-tab:hover  { border-color: #16a34a; color: #16a34a; }
+.child-tab.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+.child-tab .child-av {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+}
+.child-tab.active .child-av { background: rgba(255,255,255,.3); color: #fff; }
+
+/* ── Grade score pill ──────────────────────────────────────────── */
+.grade-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+}
+.grade-A  { background: #dcfce7; color: #16a34a; }
+.grade-B  { background: #dbeafe; color: #1d4ed8; }
+.grade-C  { background: #fef9c3; color: #b45309; }
+.grade-D  { background: #fee2e2; color: #ef4444; }
+.grade-F  { background: #f1f5f9; color: #64748b; }
+
+/* ── Attendance status pills ───────────────────────────────────── */
+.att-present { background: #dcfce7; color: #16a34a; }
+.att-absent  { background: #fee2e2; color: #ef4444; }
+.att-late    { background: #fef9c3; color: #b45309; }
+.att-weekend { background: #f1f5f9; color: #94a3b8; }
+
+/* ── Notification card ─────────────────────────────────────────── */
+.notif-card {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    margin-bottom: 10px;
+    transition: box-shadow .15s;
+    position: relative;
+}
+.notif-card:hover { box-shadow: 0 4px 16px rgba(22,163,74,.1); }
+.notif-card.unread { border-left: 3px solid #16a34a; }
+.notif-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+}
+.notif-alert   { background: #fee2e2; color: #ef4444; }
+.notif-grade   { background: #fef9c3; color: #b45309; }
+.notif-absent  { background: #fee2e2; color: #ef4444; }
+.notif-payment { background: #ede9fe; color: #7c3aed; }
+.notif-report  { background: #e0f2fe; color: #0891b2; }
+.notif-behavior{ background: #dcfce7; color: #16a34a; }
+.notif-dot {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+
+/* ── Message thread ────────────────────────────────────────────── */
+.msg-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0fdf4;
+    cursor: pointer;
+    transition: background .15s;
+}
+.msg-item:hover    { background: #f0fdf4; }
+.msg-item.unread   { border-left: 3px solid #16a34a; background: #fafffe; }
+.msg-av {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+/* ── Announcement card ─────────────────────────────────────────── */
+.ann-card {
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    margin-bottom: 10px;
+    transition: box-shadow .15s;
+}
+.ann-card:hover { box-shadow: 0 4px 12px rgba(22,163,74,.08); }
+.ann-card.pinned { border-left: 3px solid #16a34a; }
+
+/* ── Payment row ───────────────────────────────────────────────── */
+.p-status-paid    { background: #dcfce7; color: #16a34a; }
+.p-status-pending { background: #fef9c3; color: #b45309; }
+.p-status-overdue { background: #fee2e2; color: #ef4444; }
+
+/* ── Summary strip ─────────────────────────────────────────────── */
+.child-summary {
+    display: flex;
+    gap: 16px;
+    padding: 12px 18px;
+    background: #fff;
+    border: 1px solid #dcfce7;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.child-summary .cs-val { font-size: 20px; font-weight: 900; color: #16a34a; }
+.child-summary .cs-lbl { font-size: 11px; color: #64748b; }
+
+/* ── Parent modal ──────────────────────────────────────────────── */
+.p-modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.p-modal-overlay.open { display: flex; }
+.p-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px 30px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(22,163,74,.18);
+}
+.p-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #dcfce7;
+}
+.p-modal-title  { font-size: 16px; font-weight: 800; color: #1e293b; }
+.p-modal-close  { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+.p-modal-close:hover { color: #16a34a; }
+
+/* ── Weekly report card ────────────────────────────────────────── */
+.week-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+}
+.week-card .wc-grade { font-size: 30px; font-weight: 900; color: #16a34a; margin-bottom: 2px; }
+.week-card .wc-label { font-size: 11px; color: #64748b; }
+
+/* ── Mobile responsive ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .parent-portal-body .portal-sidebar { transform: translateX(-100%); }
+    .parent-portal-body .portal-content { margin-left: 0 !important; }
+    .child-tabs { flex-direction: column; }
+}

@@ -1,0 +1,112 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Integrations & Tools{% endblock %}
+{% block page_title %}Integrations & Tools{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-video-camera"></i></div><div class="stat-body"><div class="stat-value">1</div><div class="stat-label">Video Tools</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-cloud"></i></div><div class="stat-body"><div class="stat-value">1</div><div class="stat-label">Cloud Connected</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-puzzle-piece"></i></div><div class="stat-body"><div class="stat-value">{{ external_tools|length }}</div><div class="stat-label">External Tools</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-key"></i></div><div class="stat-body"><div class="stat-value">{{ api_clients|length }}</div><div class="stat-label">API Clients</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-plug"></i></div><div class="stat-body"><div class="stat-value">{{ plugins|length }}</div><div class="stat-label">Plugins</div></div></div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-video-camera a-accent" style="margin-right:6px;"></i>Enable Video Class Tools</span></div>
+        <form method="post" action="{{ path('admin_integrations') }}">
+            <input type="hidden" name="action" value="enable_video_tools">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Provider</label><select class="form-control" name="provider"><option>Built-in</option><option>Zoom</option><option>Google Meet</option><option>Microsoft Teams</option></select></div>
+                <div class="form-group"><label class="form-label">Recording</label><select class="form-control" name="recording"><option>Enabled</option><option>Disabled</option></select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Video Tool Settings</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-cloud a-accent" style="margin-right:6px;"></i>Connect Cloud Storage</span></div>
+        <form method="post" action="{{ path('admin_integrations') }}">
+            <input type="hidden" name="action" value="connect_cloud_storage">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Storage Provider</label><select class="form-control" name="storage"><option>OneDrive</option><option>Google Drive</option><option>Dropbox</option></select></div>
+                <div class="form-group"><label class="form-label">Sync Mode</label><select class="form-control" name="sync"><option>Two-way</option><option>One-way</option></select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Connect Storage</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-wrench a-accent" style="margin-right:6px;"></i>Manage External Tools</span></div>
+    <table class="portal-table" style="margin-bottom:10px;">
+        <thead><tr><th>Tool</th><th>Category</th><th>Scope</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for t in external_tools %}
+        <tr>
+            <td style="font-weight:700;">{{ t.tool }}</td>
+            <td>{{ t.category }}</td>
+            <td>{{ t.scope }}</td>
+            <td><span class="role-badge {{ t.status == 'active' ? 'status-active' : 'status-pending' }}">{{ t.status }}</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="post" action="{{ path('admin_integrations') }}"><input type="hidden" name="action" value="manage_external_tools"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-save"></i> Save External Tools</button></form>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-key a-accent" style="margin-right:6px;"></i>Configure APIs (Limited Access)</span></div>
+    <table class="portal-table" style="margin-bottom:10px;">
+        <thead><tr><th>Client</th><th>Access Scope</th><th>Rate Limit</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for c in api_clients %}
+        <tr>
+            <td style="font-weight:700;">{{ c.client }}</td>
+            <td>{{ c.access }}</td>
+            <td>{{ c.rate_limit }}</td>
+            <td><span class="role-badge {{ c.status == 'active' ? 'status-active' : 'status-pending' }}">{{ c.status }}</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="post" action="{{ path('admin_integrations') }}"><input type="hidden" name="action" value="configure_limited_api"><button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save API Policy</button></form>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Integrations</span></div>
+    <div class="grid-2" style="gap:20px;">
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Google Classroom Integration</div>
+            <form method="post" action="{{ path('admin_integrations') }}"><input type="hidden" name="action" value="connect_google_classroom"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-google"></i> Connect Google Classroom</button></form>
+        </div>
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Calendar Sync (Google / Outlook)</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>Account</th><th>Platform</th><th>Scope</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for s in calendar_sync %}
+                <tr><td style="font-weight:700;">{{ s.account }}</td><td>{{ s.platform }}</td><td>{{ s.scope }}</td><td><span class="role-badge status-active">{{ s.status }}</span></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form method="post" action="{{ path('admin_integrations') }}"><input type="hidden" name="action" value="sync_calendar"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-calendar"></i> Sync Calendars</button></form>
+        </div>
+    </div>
+
+    <div style="margin-top:16px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+        <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Plugin System</div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Plugin</th><th>Version</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for p in plugins %}
+            <tr><td style="font-weight:700;">{{ p.plugin }}</td><td>{{ p.version }}</td><td><span class="role-badge {{ p.status == 'installed' ? 'status-active' : 'status-pending' }}">{{ p.status }}</span></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_integrations') }}"><input type="hidden" name="action" value="save_plugin_system"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-save"></i> Save Plugin System</button></form>
+    </div>
+</div>
+
+{% endblock %}

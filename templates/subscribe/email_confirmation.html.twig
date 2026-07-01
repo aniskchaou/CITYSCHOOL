@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Subscription Confirmed – City School</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f8fc;color:#14324d;margin:0;padding:20px}
+.wrap{max-width:560px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;border:1px solid #d6eaf7}
+h1{color:#0f3a60;font-size:24px;margin-top:0}
+.badge{background:#e3f5ed;color:#1a7a4f;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;margin:16px 0}
+td{padding:8px 0;font-size:14px;border-bottom:1px solid #e8f0f7}
+td:first-child{color:#5c849e}
+td:last-child{font-weight:700;text-align:right}
+.footer{color:#8faec3;font-size:12px;margin-top:20px;border-top:1px solid #e8f0f7;padding-top:14px}
+.btn{display:inline-block;background:#1a7aa3;color:#fff;text-decoration:none;border-radius:8px;padding:12px 24px;font-size:14px;font-weight:700;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Welcome to City School SaaS! 🎉</h1>
+    <span class="badge">{{ mode == 'trial' ? 'Free Trial Activated' : 'Subscription Confirmed' }}</span>
+    <p>Hi <strong>{{ school_name }}</strong>,</p>
+    <p>
+        {% if mode == 'trial' %}
+            Your school free trial is now active. No payment was required today. Below is a summary of your trial access:
+        {% else %}
+            Your school subscription is now active. Below is a summary of your plan:
+        {% endif %}
+    </p>
+
+    <table>
+        <tr><td>School</td><td>{{ school_name }}</td></tr>
+        <tr><td>Plan</td><td>{{ plan }}</td></tr>
+        <tr><td>Billing Cycle</td><td>{{ billing_cycle|capitalize }}</td></tr>
+        <tr><td>Amount</td><td>{{ mode == 'trial' ? '$0 today' : '$' ~ amount ~ ' / ' ~ billing_cycle }}</td></tr>
+        <tr><td>Trial Period</td><td>{{ trialLengthDays ?? 14 }} days free{% if trialEndsAt %} until {{ trialEndsAt|date('M d, Y') }}{% endif %}</td></tr>
+        <tr><td>Status</td><td style="color:#1a7a4f">{{ mode == 'trial' ? 'Trialing' : 'Active' }}</td></tr>
+    </table>
+
+    <p>
+        {% if mode == 'trial' %}
+            You can now explore the core platform. We'll send reminder emails before the trial ends so you can upgrade in time.
+        {% else %}
+            You can now sign in to your school admin dashboard and start setting up your school.
+        {% endif %}
+    </p>
+
+    <a href="#" class="btn">{{ mode == 'trial' ? 'Open Trial Dashboard →' : 'Go to Dashboard →' }}</a>
+
+    <div class="footer">
+        <p>Questions? Contact us at <a href="mailto:support@cityschool.edu" style="color:#1a7aa3">support@cityschool.edu</a></p>
+        <p>City School SaaS Platform &copy; 2026</p>
+    </div>
+</div>
+</body>
+</html>

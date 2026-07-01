@@ -1,0 +1,119 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Analytics & Reporting{% endblock %}
+{% block page_title %}Analytics & Reporting{% endblock %}
+
+{% block content %}
+
+{% set students = users|filter(u => u.role == 'ROLE_STUDENT') %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-users"></i></div><div class="stat-body"><div class="stat-value">{{ students|length }}</div><div class="stat-label">Student Population</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check-square-o"></i></div><div class="stat-body"><div class="stat-value">87%</div><div class="stat-label">Attendance Dashboard</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-book"></i></div><div class="stat-body"><div class="stat-value">79%</div><div class="stat-label">Grades Dashboard</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-heartbeat"></i></div><div class="stat-body"><div class="stat-value">74%</div><div class="stat-label">Engagement Index</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div><div class="stat-body"><div class="stat-value">{{ at_risk_students|length }}</div><div class="stat-label">At-Risk Students</div></div></div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+    <form method="post" action="{{ path('admin_reports') }}" style="display:inline;"><button class="btn-purple" name="action" value="view_dashboard"><i class="fa fa-dashboard"></i> Refresh Dashboards</button></form>
+    <form method="post" action="{{ path('admin_reports') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="export_csv"><i class="fa fa-file-excel-o"></i> Export CSV</button></form>
+    <form method="post" action="{{ path('admin_reports') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="export_pdf"><i class="fa fa-file-pdf-o"></i> Export PDF</button></form>
+    <form method="post" action="{{ path('admin_reports') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="monitor_usage"><i class="fa fa-signal"></i> Monitor System Usage</button></form>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-sitemap a-accent" style="margin-right:6px;"></i>Drill Down (School -> Class -> Student)</span></div>
+        <form method="post" action="{{ path('admin_reports') }}">
+            <input type="hidden" name="action" value="drilldown">
+            <div class="grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                <div class="form-group"><label class="form-label">School</label><select class="form-control" name="school"><option>City School</option></select></div>
+                <div class="form-group"><label class="form-label">Class</label><select class="form-control" name="class">{% for c in classes %}<option>{{ c.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Student</label><select class="form-control" name="student">{% for s in students %}<option>{{ s.name }}</option>{% endfor %}</select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-search"></i> Open Drill-Down View</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-signal a-accent" style="margin-right:6px;"></i>System Usage Monitoring</span></div>
+        <table class="portal-table">
+            <thead><tr><th>Module</th><th>Daily Active</th><th>Sessions</th><th>Avg Minutes</th></tr></thead>
+            <tbody>
+            {% for u in system_usage %}
+            <tr>
+                <td style="font-weight:700;">{{ u.module }}</td>
+                <td>{{ u.daily_active }}</td>
+                <td>{{ u.sessions }}</td>
+                <td>{{ u.avg_minutes }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-area-chart a-accent" style="margin-right:6px;"></i>Visual Dashboards (Graphs & KPIs)</span></div>
+    <div class="grid-2" style="gap:18px;">
+        <div>
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:8px;">Grade Trend (Class vs School)</div>
+            {% for t in trend_series %}
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>{{ t.period }}</span><span><b>Class {{ t.class_avg }}%</b> / School {{ t.school_avg }}%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ t.class_avg }}%;background:#7c3aed;"></div></div>
+            </div>
+            {% endfor %}
+        </div>
+        <div>
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:8px;">Subject KPIs</div>
+            {% for s in subjects|slice(0,5) %}
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;">
+                <span style="font-weight:700;">{{ s.name }}</span>
+                <span class="role-badge" style="background:#ede9fe;color:#7c3aed;">{{ 70 + loop.index * 4 }}%</span>
+            </div>
+            {% endfor %}
+            <form method="post" action="{{ path('admin_reports') }}" style="margin-top:10px;"><input type="hidden" name="action" value="visual_dashboard"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-refresh"></i> Refresh Visuals</button></form>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Analytics</span></div>
+    <div class="grid-2" style="gap:20px;">
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Predictive Insights (At-Risk Students)</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>Student</th><th>Class</th><th>Attendance</th><th>Avg Grade</th><th>Risk</th></tr></thead>
+                <tbody>
+                {% for a in at_risk_students %}
+                <tr>
+                    <td style="font-weight:700;">{{ a.student }}</td>
+                    <td>{{ a.class }}</td>
+                    <td>{{ a.attendance }}%</td>
+                    <td>{{ a.avg_grade }}%</td>
+                    <td><span class="role-badge {{ a.risk == 'high' ? 'status-overdue' : 'status-pending' }}">{{ a.risk }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form method="post" action="{{ path('admin_reports') }}"><input type="hidden" name="action" value="predictive_insights"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-magic"></i> Generate Insights</button></form>
+        </div>
+
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Custom Report Builder</div>
+            <form method="post" action="{{ path('admin_reports') }}">
+                <input type="hidden" name="action" value="save_custom_report">
+                {% for b in custom_report_blocks %}
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;">
+                    <input type="checkbox" {{ b.selected ? 'checked' : '' }}> {{ b.name }}
+                    <span style="font-size:11px;color:#64748b;">({{ b.category }})</span>
+                </label>
+                {% endfor %}
+                <button class="btn btn-outline btn-sm" type="submit" style="margin-top:8px;"><i class="fa fa-save"></i> Save Report Layout</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Student Login – City School{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/css/portal.css">
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="logo-circle"><i class="fa fa-book"></i></div>
+            <h1>City School</h1>
+            <p>Student Portal — Sign in to continue</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="fa fa-exclamation-circle"></i>
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+        </div>
+        {% endif %}
+
+        {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">
+            <i class="fa fa-check-circle"></i>
+            {{ msg }}
+        </div>
+        {% endfor %}
+
+        <div class="login-demo-hint">
+            <i class="fa fa-info-circle"></i>
+            Demo credentials: <strong>student</strong> / <strong>student123</strong>
+        </div>
+
+        <form method="post" action="{{ path('portal_login') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <div class="form-group">
+                <label class="form-label" for="username"><i class="fa fa-user"></i> Username</label>
+                <input id="username" type="text" name="_username" class="form-control"
+                       value="{{ last_username }}" autocomplete="username" autofocus required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password"><i class="fa fa-lock"></i> Password</label>
+                <input id="password" type="password" name="_password" class="form-control"
+                       autocomplete="current-password" required>
+            </div>
+            <div class="form-group d-flex align-center justify-between" style="margin-top:6px;">
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="checkbox" name="_remember_me"> Remember me
+                </label>
+                <a href="#" style="font-size:13px;color:#4361ee;text-decoration:none;">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary w-full" style="margin-top:8px;justify-content:center;padding:12px;">
+                <i class="fa fa-sign-in"></i> Sign In
+            </button>
+        </form>
+
+        <p style="text-align:center;margin-top:14px;">
+            <a href="{{ path('home') }}" style="font-size:13px;color:#4361ee;text-decoration:none;font-weight:600;">
+                <i class="fa fa-home"></i> Return to Homepage
+            </a>
+        </p>
+
+        <p style="text-align:center;margin-top:8px;">
+            <a href="{{ path('portal_register') }}" style="font-size:13px;color:#4361ee;text-decoration:none;font-weight:600;">
+                <i class="fa fa-user-plus"></i> New student? Request account
+            </a>
+        </p>
+
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:#94a3b8;">
+            Having trouble? Contact <a href="mailto:support@cityschool.edu" style="color:#4361ee;">support@cityschool.edu</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

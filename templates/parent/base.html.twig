@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Parent Portal{% endblock %} – City School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('fonts/font-awesome.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/portal.css') }}">
+<link rel="stylesheet" href="{{ asset('css/parent-portal.css') }}">
+</head>
+<body class="portal-body parent-portal-body">
+<div class="portal-wrapper">
+
+    {# ── Sidebar ──────────────────────────────────────────────────── #}
+    <aside class="portal-sidebar">
+        <a href="{{ path('parent_dashboard') }}" class="sidebar-brand">
+            <div class="brand-icon"><i class="fa fa-leaf"></i></div>
+            <div>
+                <div class="brand-name">City School</div>
+                <div class="brand-sub">Parent Panel</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="sidebar-section-label">Overview</li>
+            <li><a href="{{ path('parent_dashboard') }}" class="{{ app.request.get('_route') == 'parent_dashboard' ? 'active' : '' }}">
+                <i class="fa fa-home"></i> Dashboard
+            </a></li>
+            <li><a href="{{ path('parent_daily_overview') }}" class="{{ app.request.get('_route') == 'parent_daily_overview' ? 'active' : '' }}">
+                <i class="fa fa-sun-o"></i> Daily Overview
+            </a></li>
+
+            <li class="sidebar-section-label">My Children</li>
+            <li><a href="{{ path('parent_grades') }}" class="{{ app.request.get('_route') == 'parent_grades' ? 'active' : '' }}">
+                <i class="fa fa-star"></i> Grades &amp; Results
+            </a></li>
+            <li><a href="{{ path('parent_attendance') }}" class="{{ app.request.get('_route') == 'parent_attendance' ? 'active' : '' }}">
+                <i class="fa fa-calendar-check-o"></i> Attendance
+            </a></li>
+            <li><a href="{{ path('parent_reports') }}" class="{{ app.request.get('_route') == 'parent_reports' ? 'active' : '' }}">
+                <i class="fa fa-bar-chart"></i> Progress Reports
+            </a></li>
+
+            <li class="sidebar-section-label">Communication</li>
+            <li><a href="{{ path('parent_notifications') }}" class="{{ app.request.get('_route') == 'parent_notifications' ? 'active' : '' }}" style="position:relative;">
+                <i class="fa fa-bell"></i> Notifications
+                <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:10px;">3</span>
+            </a></li>
+            <li><a href="{{ path('parent_messages') }}" class="{{ app.request.get('_route') == 'parent_messages' ? 'active' : '' }}">
+                <i class="fa fa-comments"></i> Messages
+            </a></li>
+            <li><a href="{{ path('parent_announcements') }}" class="{{ app.request.get('_route') == 'parent_announcements' ? 'active' : '' }}">
+                <i class="fa fa-bullhorn"></i> Announcements
+            </a></li>
+
+            <li class="sidebar-section-label">Finance</li>
+            <li><a href="{{ path('parent_payments') }}" class="{{ app.request.get('_route') == 'parent_payments' ? 'active' : '' }}">
+                <i class="fa fa-credit-card"></i> Fees &amp; Payments
+            </a></li>
+
+            <li class="sidebar-section-label">Account</li>
+            <li><a href="{{ path('parent_account_children') }}" class="{{ app.request.get('_route') == 'parent_account_children' ? 'active' : '' }}">
+                <i class="fa fa-users"></i> Account &amp; Children
+            </a></li>
+            <li><a href="{{ path('parent_profile') }}" class="{{ app.request.get('_route') == 'parent_profile' ? 'active' : '' }}">
+                <i class="fa fa-user-circle-o"></i> My Profile
+            </a></li>
+            <li><a href="{{ path('parent_logout') }}">
+                <i class="fa fa-sign-out"></i> Sign Out
+            </a></li>
+        </ul>
+    </aside>
+
+    {# ── Main ─────────────────────────────────────────────────────── #}
+    <div class="portal-content" style="margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;">
+
+        {# Topbar #}
+        <header class="portal-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#fff;position:sticky;top:0;z-index:50;">
+            <h2 style="font-size:18px;font-weight:800;color:#1e293b;">{% block page_title %}{% endblock %}</h2>
+            <div style="display:flex;align-items:center;gap:14px;">
+                <a href="{{ path('parent_notifications') }}" style="position:relative;color:#64748b;font-size:18px;">
+                    <i class="fa fa-bell-o"></i>
+                    <span style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:#ef4444;border-radius:50%;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;">3</span>
+                </a>
+                <a href="{{ path('parent_messages') }}" style="color:#64748b;font-size:18px;"><i class="fa fa-envelope-o"></i></a>
+                <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;border:2px solid #16a34a;">SJ</div>
+                    <div style="font-size:13px;font-weight:700;color:#1e293b;line-height:1.2;">
+                        <a href="{{ path('parent_profile') }}" style="text-decoration:none;color:inherit;">Mrs. Jones</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        {# Flash messages #}
+        <div style="padding: 0 28px;">
+        {% for msg in app.flashes('success') %}
+        <div style="margin-top:14px;padding:12px 16px;background:#dcfce7;border-radius:10px;color:#166534;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fa fa-check-circle"></i> {{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('error') %}
+        <div style="margin-top:14px;padding:12px 16px;background:#fee2e2;border-radius:10px;color:#ef4444;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fa fa-times-circle"></i> {{ msg }}</div>
+        {% endfor %}
+        </div>
+
+        {# Content #}
+        <main class="parent-main" style="padding:24px 28px;flex:1;">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script>
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('p-modal-overlay')) closeModal(e.target.id);
+});
+</script>
+</body>
+</html>

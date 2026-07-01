@@ -1,0 +1,287 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Good morning, {{ student.name|split(' ')|first }}! 👋{% endblock %}
+
+{% block content %}
+
+{# ── Smart Reminders ── #}
+{% if reminders %}
+<div class="reminder-list">
+    {% for reminder in reminders %}
+    <div class="reminder-item reminder-{{ reminder.type }}">
+        <i class="fa fa-{% if reminder.type == 'danger' %}exclamation-triangle{% elseif reminder.type == 'warning' %}clock-o{% else %}info-circle{% endif %}"></i>
+        {{ reminder.text }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ── Stats ── #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-star"></i></div>
+        <div>
+            <div class="stat-value">{{ student.gpa }}</div>
+            <div class="stat-label">Current GPA</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-calendar-check-o"></i></div>
+        <div>
+            <div class="stat-value">{{ student.attendance }}%</div>
+            <div class="stat-label">Attendance Rate</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa fa-tasks"></i></div>
+        <div>
+            <div class="stat-value">{{ upcoming|length }}</div>
+            <div class="stat-label">Pending Tasks</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8;"><i class="fa fa-book"></i></div>
+        <div>
+            <div class="stat-value">{{ courses|length }}</div>
+            <div class="stat-label">Active Courses</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fce7f3;color:#9d174d;"><i class="fa fa-trophy"></i></div>
+        <div>
+            <div class="stat-value">#{{ student.rank }}</div>
+            <div class="stat-label">Class Rank</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:24px;gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar" style="color:#4361ee;margin-right:6px;"></i>Today&rsquo;s Schedule</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="refresh_schedule">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for class in today_classes %}
+        <div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #e2e8f0;align-items:flex-start;">
+            <div>
+                <div style="font-size:13px;font-weight:700;">{{ class.course }}</div>
+                <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ class.room }} &middot; {{ class.teacher }} &middot; {{ class.type|capitalize }}</div>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:#0f766e;white-space:nowrap;">{{ class.time }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-tasks" style="color:#f59e0b;margin-right:6px;"></i>Upcoming Assignments & Tests</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="open_upcoming">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for item in upcomingAssessments %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ item.title }}</div>
+                <span class="badge badge-{{ item.kind == 'test' ? 'danger' : 'warning' }}">{{ item.kind|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ item.course }} &middot; Due {{ item.due }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ── Main Grid ── #}
+<div class="grid-2" style="margin-bottom:24px;">
+
+    {# Today's Classes #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar" style="color:#4361ee;margin-right:6px;"></i>Today's Classes</span>
+            <a href="{{ path('portal_live') }}" class="btn btn-sm btn-outline">View All</a>
+        </div>
+        <ul class="schedule-list">
+            {% for class in today_classes %}
+            <li class="schedule-item">
+                <div class="schedule-time">{{ class.time|split('–')|first }}</div>
+                <div class="schedule-dot" style="background:#4361ee;"></div>
+                <div class="schedule-info">
+                    <div class="course-title">{{ class.course }}</div>
+                    <div class="course-detail">{{ class.room }} &middot; {{ class.teacher }}</div>
+                    {% if class.live %}
+                    <div style="margin-top:4px;">
+                        <span class="live-badge"><span class="dot"></span> LIVE NOW</span>
+                        <a href="{{ path('portal_live') }}" class="btn btn-live btn-sm" style="margin-left:8px;">Join</a>
+                    </div>
+                    {% else %}
+                    <div style="margin-top:4px;font-size:11px;color:#94a3b8;">{{ class.time }}</div>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {# Announcements #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bullhorn" style="color:#f59e0b;margin-right:6px;"></i>Announcements</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="refresh_announcements">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for ann in announcements %}
+        <div class="announcement-item">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+                <span class="badge {% if ann.type == 'exam' %}badge-danger{% elseif ann.type == 'event' %}badge-primary{% elseif ann.type == 'club' %}badge-info{% else %}badge-secondary{% endif %}" style="flex-shrink:0;margin-top:2px;">{{ ann.type }}</span>
+                <div>
+                    <div class="announcement-title">{{ ann.title }}</div>
+                    <div class="announcement-meta">{{ ann.body }}</div>
+                    <div class="announcement-meta" style="margin-top:4px;">{{ ann.author }} &middot; {{ ann.date }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ── Upcoming Deadlines + Course Overview ── #}
+<div class="grid-2">
+
+    {# Deadlines #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-clock-o" style="color:#ef4444;margin-right:6px;"></i>Upcoming Deadlines</span>
+            <a href="{{ path('portal_assignments') }}" class="btn btn-sm btn-outline">All Tasks</a>
+        </div>
+        <table class="portal-table">
+            <thead>
+                <tr><th>Assignment</th><th>Course</th><th>Due</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for a in upcoming %}
+                <tr>
+                    <td class="fw-bold" style="font-size:13px;">{{ a.title }}</td>
+                    <td style="font-size:12px;color:#64748b;">{{ a.course }}</td>
+                    <td style="font-size:12px;">{{ a.due }}</td>
+                    <td>
+                        {% if a.status == 'overdue' %}
+                        <span class="badge badge-danger">Overdue</span>
+                        {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Course Progress #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-signal" style="color:#22c55e;margin-right:6px;"></i>Course Progress</span>
+            <a href="{{ path('portal_courses') }}" class="btn btn-sm btn-outline">All Courses</a>
+        </div>
+        {% for course in courses %}
+        <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span style="font-size:13px;font-weight:600;">{{ course.name }}</span>
+                <span style="font-size:12px;color:#64748b;">{{ course.progress }}%
+                    <span class="badge badge-{% if course.grade starts with 'A' %}success{% elseif course.grade starts with 'B' %}primary{% else %}warning{% endif %}" style="margin-left:4px;">{{ course.grade }}</span>
+                </span>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:{{ course.progress }}%;background:{{ course.color }};"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div class="grid-2" style="margin-top:24px;gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-link" style="color:#0891b2;margin-right:6px;"></i>Quick Links to Courses</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="open_quick_links">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            {% for course in courses %}
+            <a href="{{ path('portal_course_show', {id: course.id}) }}" class="btn btn-sm btn-outline" style="border-color:{{ course.color }};color:{{ course.color }};">
+                <i class="fa fa-book"></i> {{ course.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium: Today&rsquo;s Focus</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="refresh_focus">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="padding:10px;background:#f5f3ff;border-radius:8px;font-size:12px;color:#475569;line-height:1.5;margin-bottom:10px;">{{ todayFocus.headline }}</div>
+        {% for item in todayFocus.priorities %}
+        <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-check-circle" style="color:#7c3aed;margin-right:5px;"></i>{{ item }}</div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="margin-top:24px;gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-line-chart" style="color:#16a34a;margin-right:6px;"></i>Premium: Progress Snapshot</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="refresh_snapshot">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#7c3aed;">{{ progressSnapshot.gradeAverage }}</div>
+                <div style="font-size:10px;color:#64748b;">Average Grade</div>
+            </div>
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#0891b2;">{{ progressSnapshot.attendanceRate }}</div>
+                <div style="font-size:10px;color:#64748b;">Attendance</div>
+            </div>
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#f59e0b;">{{ progressSnapshot.tasksOpen }}</div>
+                <div style="font-size:10px;color:#64748b;">Open Tasks</div>
+            </div>
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#16a34a;">{{ progressSnapshot.courseCompletion }}</div>
+                <div style="font-size:10px;color:#64748b;">Completion</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-exclamation-triangle" style="color:#ef4444;margin-right:6px;"></i>Premium: Urgent Alerts</span>
+            <form method="post" action="{{ path('portal_dashboard') }}">
+                <input type="hidden" name="action" value="refresh_urgent_alerts">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for alert in urgentAlerts %}
+        <div style="padding:10px;border-left:4px solid {{ alert.severity == 'high' ? '#ef4444' : '#f59e0b' }};background:#fff7ed;border-radius:6px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:700;">{{ alert.label }}</div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ alert.message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

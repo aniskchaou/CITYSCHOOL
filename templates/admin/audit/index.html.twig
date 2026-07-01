@@ -1,0 +1,89 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Audit Logs{% endblock %}
+{% block page_title %}Audit Logs{% endblock %}
+
+{% block content %}
+
+{# ── Stats ───────────────────────────────────────────────────── #}
+{% set danger_logs  = logs|filter(l => l.severity == 'danger') %}
+{% set warning_logs = logs|filter(l => l.severity == 'warning') %}
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-history"></i></div><div class="stat-body"><div class="stat-value">{{ logs|length }}</div><div class="stat-label">Total Events</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-exclamation-triangle"></i></div><div class="stat-body"><div class="stat-value">{{ warning_logs|length }}</div><div class="stat-label">Warnings</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-shield"></i></div><div class="stat-body"><div class="stat-value">{{ danger_logs|length }}</div><div class="stat-label">Security Events</div></div></div>
+</div>
+
+{# ── Filters ─────────────────────────────────────────────────── #}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div class="filter-bar" style="flex:1;margin-bottom:0;">
+        <i class="fa fa-search" style="color:#94a3b8;"></i>
+        <input type="search" id="log-search" placeholder="Search user, action, description…" oninput="filterLogs()">
+        <select id="sev-filter" onchange="filterLogs()">
+            <option value="">All Severity</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="danger">Security / Danger</option>
+        </select>
+    </div>
+    <button class="btn btn-outline btn-sm" style="margin-left:12px;" onclick="alert('Exporting audit log…')"><i class="fa fa-download"></i> Export CSV</button>
+</div>
+
+<div class="card">
+    <table class="portal-table" id="audit-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>IP Address</th>
+                <th>Timestamp</th>
+                <th>Severity</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for log in logs %}
+        <tr class="log-row audit-row-{{ log.severity }}" data-severity="{{ log.severity }}" data-search="{{ log.user|lower }} {{ log.action|lower }} {{ log.description|lower }}">
+            <td style="color:#94a3b8;font-size:12px;">{{ log.id }}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="av-init av-admin" style="width:28px;height:28px;font-size:10px;">{{ log.user|slice(0,2)|upper }}</div>
+                    <code style="font-size:12px;">{{ log.user }}</code>
+                </div>
+            </td>
+            <td>
+                <span class="role-badge audit-badge-{{ log.severity }}" style="font-size:10px;font-family:monospace;">{{ log.action }}</span>
+            </td>
+            <td style="font-size:13px;max-width:280px;">{{ log.description }}</td>
+            <td><code style="font-size:11px;color:#64748b;">{{ log.ip }}</code></td>
+            <td style="font-size:11px;color:#94a3b8;white-space:nowrap;">{{ log.timestamp }}</td>
+            <td>
+                <span class="role-badge audit-badge-{{ log.severity }}" style="font-size:10px;">
+                    {{ log.severity == 'danger' ? 'SECURITY' : log.severity|upper }}
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Info Banner ─────────────────────────────────────────────── #}
+<div style="margin-top:16px;padding:14px 16px;background:#f3e8ff;border-radius:10px;font-size:13px;color:#5b21b6;display:flex;align-items:center;gap:10px;">
+    <i class="fa fa-info-circle" style="font-size:16px;"></i>
+    <div>Audit logs are retained for <strong>365 days</strong>. All user actions, role changes, system settings updates, and login events are recorded automatically.
+    Failed login attempts from unknown IPs are flagged as Security events.</div>
+</div>
+
+<script>
+function filterLogs() {
+    var q   = document.getElementById('log-search').value.toLowerCase();
+    var sev = document.getElementById('sev-filter').value;
+    document.querySelectorAll('.log-row').forEach(function(row) {
+        var ok = (!q || row.dataset.search.includes(q)) &&
+                 (!sev || row.dataset.severity === sev);
+        row.style.display = ok ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

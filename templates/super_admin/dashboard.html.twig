@@ -1,0 +1,53 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Global Dashboard{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+    <div class="super-kpi"><div class="kpi-value">{{ total_schools }}</div><div class="kpi-label">Campuses</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ total_students }}</div><div class="kpi-label">Students</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ total_teachers }}</div><div class="kpi-label">Teachers</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ active_subscriptions }}</div><div class="kpi-label">Active Subscriptions</div></div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-sitemap" style="margin-right:6px;color:#f97316;"></i>Campus Snapshot</span></div>
+        <table class="portal-table">
+            <thead><tr><th>Campus</th><th>Plan</th><th>Users</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for s in schools %}
+            <tr>
+                <td><strong>{{ s.name }}</strong><div style="font-size:11px;color:#94a3b8;">{{ s.code }}</div></td>
+                <td><span class="role-badge plan-{{ s.plan|lower }}">{{ s.plan }}</span></td>
+                <td>{{ s.students + s.teachers }}</td>
+                <td><span class="super-tag {{ s.status }}">{{ s.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-heartbeat" style="margin-right:6px;color:#f97316;"></i>System Health</span></div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Platform Uptime</div><div style="font-size:24px;font-weight:900;color:#16a34a;">{{ performance.uptime }}%</div></div>
+            <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Average Latency</div><div style="font-size:24px;font-weight:900;color:#0369a1;">{{ performance.avgLatencyMs }}ms</div></div>
+            <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Error Rate</div><div style="font-size:24px;font-weight:900;color:#dc2626;">{{ performance.errorRate }}%</div></div>
+            <div class="super-card"><div style="font-size:12px;color:#7c2d12;">API Requests</div><div style="font-size:24px;font-weight:900;color:#9a3412;">{{ performance.apiRequests|number_format }}</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-random" style="margin-right:6px;color:#f97316;"></i>Shared System Actions Status</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="metric-chip"><i class="fa fa-bell"></i> Real-time notifications active</span>
+        <span class="metric-chip"><i class="fa fa-envelope"></i> Email notifications active</span>
+        <span class="metric-chip"><i class="fa fa-search"></i> Global search indexed</span>
+        <span class="metric-chip"><i class="fa fa-calendar"></i> Calendar sync enabled</span>
+        <span class="metric-chip"><i class="fa fa-folder-open"></i> File storage healthy</span>
+        <span class="metric-chip"><i class="fa fa-comments"></i> Messaging service online</span>
+    </div>
+</div>
+{% endblock %}

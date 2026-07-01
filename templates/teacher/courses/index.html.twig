@@ -1,0 +1,108 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}My Courses{% endblock %}
+{% block page_title %}My Courses{% endblock %}
+
+{% block content %}
+
+<div class="section-header">
+    <div></div>
+    <button class="btn-teal" onclick="openModal('modal-new-course')">
+        <i class="fa fa-plus"></i> Create New Course
+    </button>
+</div>
+
+<div class="grid-auto">
+    {% for course in courses %}
+    <div class="card" style="border-top:4px solid {{ course.color }};padding:0;overflow:hidden;">
+        <div style="padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+                <div>
+                    <div style="font-size:17px;font-weight:800;">{{ course.name }}</div>
+                    <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ course.code }} · {{ course.grade }}</div>
+                </div>
+                <span class="badge badge-{{ course.avg >= 80 ? 'success' : (course.avg >= 70 ? 'primary' : 'warning') }}">Avg: {{ course.avg }}%</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+                <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:8px;">
+                    <div style="font-size:18px;font-weight:800;color:{{ course.color }};">{{ course.students }}</div>
+                    <div style="font-size:10px;color:#64748b;">Students</div>
+                </div>
+                <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:8px;">
+                    <div style="font-size:18px;font-weight:800;color:{{ course.color }};">{{ course.materials }}</div>
+                    <div style="font-size:10px;color:#64748b;">Materials</div>
+                </div>
+                <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:8px;">
+                    <div style="font-size:18px;font-weight:800;color:{{ course.color }};">{{ course.assignments }}</div>
+                    <div style="font-size:10px;color:#64748b;">Assignments</div>
+                </div>
+            </div>
+
+            <div style="font-size:12px;color:#64748b;margin-bottom:14px;">
+                <i class="fa fa-clock-o" style="margin-right:4px;"></i>{{ course.schedule }}
+                &nbsp;·&nbsp;
+                <i class="fa fa-map-marker" style="margin-right:4px;"></i>{{ course.room }}
+            </div>
+
+            <div style="display:flex;gap:8px;">
+                <a href="{{ path('teacher_course_show', {id: course.id}) }}" class="btn-teal" style="flex:1;justify-content:center;">
+                    <i class="fa fa-eye"></i> Manage
+                </a>
+                <a href="{{ path('teacher_attendance') }}" class="btn btn-outline btn-sm">
+                    <i class="fa fa-calendar-check-o"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Create Course Modal ── #}
+<div class="t-modal-overlay" id="modal-new-course">
+    <div class="t-modal">
+        <div class="t-modal-header">
+            <div class="t-modal-title">Create New Course</div>
+            <button class="t-modal-close" onclick="closeModal('modal-new-course')">&times;</button>
+        </div>
+        <form method="post" action="{{ path('teacher_courses') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('course_create') }}">
+            <div class="form-group">
+                <label class="form-label">Course Name *</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. Advanced Biology" required>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Course Code *</label>
+                    <input type="text" name="code" class="form-control" placeholder="e.g. BIO-12A" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Grade Level</label>
+                    <select name="grade" class="form-control">
+                        <option>Grade 9</option><option>Grade 10</option>
+                        <option>Grade 11</option><option>Grade 12</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Schedule</label>
+                    <input type="text" name="schedule" class="form-control" placeholder="e.g. Mon/Wed 10:00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Room</label>
+                    <input type="text" name="room" class="form-control" placeholder="e.g. Room 205">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Brief course description..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:4px;">
+                <button type="submit" class="btn-teal"><i class="fa fa-save"></i> Create Course</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-new-course')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

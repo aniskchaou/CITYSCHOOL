@@ -1,0 +1,142 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}School Resources{% endblock %}
+{% block page_title %}School Information & Resources{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-bullhorn"></i></div>
+        <div><div class="stat-value">{{ announcements|length }}</div><div class="stat-label">Announcements</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-calendar"></i></div>
+        <div><div class="stat-value">{{ calendar|length }}</div><div class="stat-label">Calendar Events</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-file-text-o"></i></div>
+        <div><div class="stat-value">{{ documents|length }}</div><div class="stat-label">Documents</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-newspaper-o"></i></div>
+        <div><div class="stat-value">{{ newsFeed|length }}</div><div class="stat-label">News Feed Items</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bullhorn t-accent" style="margin-right:6px;"></i>School Announcements</span>
+        </div>
+        {% for item in announcements %}
+        <div style="padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="font-size:14px;font-weight:800;">{{ item.title }}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ item.body }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ item.date }} · {{ item.course }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar-check-o t-accent" style="margin-right:6px;"></i>Academic Calendar</span>
+        </div>
+        {% for item in calendar %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ item.title }}</div>
+                <span class="badge badge-primary">{{ item.type|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ item.date }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-download t-accent" style="margin-right:6px;"></i>Documents & Forms</span>
+        </div>
+        {% for doc in documents %}
+        <div style="padding:10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;gap:10px;align-items:center;">
+            <div>
+                <div style="font-size:13px;font-weight:700;">{{ doc.title }}</div>
+                <div style="font-size:11px;color:#94a3b8;">{{ doc.category }} · {{ doc.format }} · Updated {{ doc.updated }}</div>
+            </div>
+            <form method="post" action="{{ path('teacher_resources') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_resource_download_' ~ loop.index) }}">
+                <input type="hidden" name="action" value="download_document">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-download"></i></button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-map-marker t-accent" style="margin-right:6px;"></i>Event Details</span>
+        </div>
+        {% for event in events %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ event.name }}</div>
+                <span class="badge badge-{{ event.rsvp == 'open' ? 'success' : 'warning' }}">{{ event.rsvp|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ event.date }} · {{ event.location }}</div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ event.details }}</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <form method="post" action="{{ path('teacher_resources') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_resource_event_' ~ loop.index) }}">
+                    <input type="hidden" name="action" value="view_event_details">
+                    <button class="btn btn-outline btn-sm" type="submit">View Details</button>
+                </form>
+                <form method="post" action="{{ path('teacher_resources') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_resource_rsvp_' ~ loop.index) }}">
+                    <input type="hidden" name="action" value="rsvp_event">
+                    <button class="btn-teal" type="submit"><i class="fa fa-check"></i> Premium RSVP</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-check-square-o t-accent" style="margin-right:6px;"></i>Premium: Digital Permission Slips</span>
+        </div>
+        {% for slip in permissionSlips %}
+        <div style="padding:10px;border-left:4px solid {{ slip.status == 'approved' ? '#16a34a' : '#f59e0b' }};background:#f8fafc;border-radius:6px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ slip.student }}</div>
+                <span class="badge badge-{{ slip.status == 'approved' ? 'success' : 'warning' }}">{{ slip.status|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ slip.trip }} · Due {{ slip.deadline }}</div>
+            <form method="post" action="{{ path('teacher_resources') }}" style="margin-top:8px;">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_resource_permission_' ~ loop.index) }}">
+                <input type="hidden" name="action" value="approve_permission_slip">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-check-circle"></i> Approve Online</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-rss t-accent" style="margin-right:6px;"></i>Premium: School News Feed</span>
+            <form method="post" action="{{ path('teacher_resources') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_resource_news') }}">
+                <input type="hidden" name="action" value="refresh_news_feed">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh Feed</button>
+            </form>
+        </div>
+        {% for item in newsFeed %}
+        <div style="padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="font-size:13px;font-weight:700;">{{ item.headline }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ item.tag }} · {{ item.time }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

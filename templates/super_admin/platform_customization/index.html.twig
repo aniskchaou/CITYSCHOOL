@@ -1,0 +1,130 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Platform Customization{% endblock %}
+{% block page_title %}Platform Customization{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+    <div class="super-kpi"><div class="kpi-value">{{ themes|length }}</div><div class="kpi-label">Theme Profiles</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ layouts|length }}</div><div class="kpi-label">Dashboard Layouts</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ templates|length }}</div><div class="kpi-label">Template Assets</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ workflows|length }}</div><div class="kpi-label">Workflow Definitions</div></div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-paint-brush" style="margin-right:6px;color:#f97316;"></i>Global UI Theme Management</span></div>
+    <table class="portal-table">
+        <thead><tr><th>Theme</th><th>Palette</th><th>Source</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for t in themes %}
+        <tr>
+            <td><strong>{{ t.name }}</strong></td>
+            <td>
+                <span class="metric-chip" style="border-color:{{ t.primary }};color:{{ t.primary }};">Primary {{ t.primary }}</span>
+                <span class="metric-chip" style="border-color:{{ t.accent }};color:{{ t.accent }};">Accent {{ t.accent }}</span>
+            </td>
+            <td>{{ t.source }}</td>
+            <td><span class="super-tag {{ t.status == 'active' ? 'active' : 'trial' }}">{{ t.status }}</span></td>
+            <td>
+                <form method="post" action="{{ path('super_admin_platform_customization') }}">
+                    <input type="hidden" name="theme" value="{{ t.name }}">
+                    <button class="btn-orange" type="submit" name="action" value="apply_theme"><i class="fa fa-check"></i> Apply Globally</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header" style="justify-content:space-between;">
+            <span class="card-title"><i class="fa fa-columns" style="margin-right:6px;color:#f97316;"></i>Default Dashboard Layouts</span>
+            <form method="post" action="{{ path('super_admin_platform_customization') }}">
+                <button class="btn-orange" type="submit" name="action" value="save_layout"><i class="fa fa-save"></i> Save Layouts</button>
+            </form>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Dashboard</th><th>Default Layout</th><th>Columns</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for l in layouts %}
+            <tr>
+                <td>{{ l.role }}</td>
+                <td>{{ l.layout }}</td>
+                <td>{{ l.columns }}</td>
+                <td><span class="super-tag {{ l.status == 'default' ? 'active' : 'trial' }}">{{ l.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="justify-content:space-between;">
+            <span class="card-title"><i class="fa fa-files-o" style="margin-right:6px;color:#f97316;"></i>Template Library</span>
+            <form method="post" action="{{ path('super_admin_platform_customization') }}">
+                <button class="btn-orange" type="submit" name="action" value="update_template"><i class="fa fa-pencil"></i> Update Templates</button>
+            </form>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Type</th><th>Name</th><th>Last Updated</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for t in templates %}
+            <tr>
+                <td>{{ t.type }}</td>
+                <td>{{ t.name }}</td>
+                <td>{{ t.updatedAt }}</td>
+                <td><span class="super-tag {{ t.status == 'published' ? 'active' : 'trial' }}">{{ t.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header" style="justify-content:space-between;">
+        <span class="card-title"><i class="fa fa-random" style="margin-right:6px;color:#f97316;"></i>Workflow Configuration</span>
+        <form method="post" action="{{ path('super_admin_platform_customization') }}" style="display:flex;gap:8px;">
+            <button class="btn-orange" type="submit" name="action" value="save_workflow"><i class="fa fa-save"></i> Save Workflows</button>
+            <button class="btn-orange" type="submit" name="action" value="open_builder"><i class="fa fa-magic"></i> Drag & Drop Builder</button>
+        </form>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        {% for w in workflows %}
+        <div class="super-card">
+            <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:6px;">{{ w.name }}</div>
+            <div style="font-size:12px;color:#7c2d12;line-height:1.6;margin-bottom:8px;">
+                {% for s in w.steps %}
+                    <div>{{ loop.index }}. {{ s }}</div>
+                {% endfor %}
+            </div>
+            <div><span class="metric-chip">{{ w.mode }}</span> <span class="super-tag {{ w.status == 'active' ? 'active' : 'trial' }}">{{ w.status }}</span></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-shopping-bag" style="margin-right:6px;color:#f97316;"></i>Premium: Theme Marketplace</span></div>
+    <table class="portal-table">
+        <thead><tr><th>Theme</th><th>Vendor</th><th>Price</th><th>Rating</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for m in marketplace_themes %}
+        <tr>
+            <td><strong>{{ m.name }}</strong></td>
+            <td>{{ m.vendor }}</td>
+            <td>${{ m.price }}</td>
+            <td>{{ m.rating }} / 5</td>
+            <td>
+                <form method="post" action="{{ path('super_admin_platform_customization') }}">
+                    <input type="hidden" name="theme_market" value="{{ m.name }}">
+                    <button class="btn-orange" type="submit" name="action" value="install_theme"><i class="fa fa-download"></i> Install</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

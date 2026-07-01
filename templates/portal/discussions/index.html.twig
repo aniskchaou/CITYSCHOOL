@@ -1,0 +1,112 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Discussions{% endblock %}
+{% block page_title %}Discussion Forums{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Discussion Forums</h1>
+        <p>{{ threads|length }} active threads</p>
+    </div>
+    <form method="post" action="{{ path('portal_discussions') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('create_thread_top') }}">
+        <input type="hidden" name="action" value="create_thread">
+        <button class="btn btn-primary" type="submit"><i class="fa fa-plus"></i> New Thread</button>
+    </form>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:16px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-question-circle" style="color:#2563eb;margin-right:6px;"></i>Ask Questions on Lessons</span>
+        </div>
+        <form method="post" action="{{ path('portal_discussions') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('ask_lesson_question') }}">
+            <input type="hidden" name="action" value="ask_lesson_question">
+            <div class="form-group">
+                <label class="form-label">Lesson</label>
+                <input class="form-control" name="lesson" value="Substitution Method Walkthrough">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Question</label>
+                <textarea class="form-control" rows="3" name="question" placeholder="Ask your lesson question..."></textarea>
+            </div>
+            <button class="btn btn-outline" type="submit"><i class="fa fa-send"></i> Post Question</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Collaboration</span>
+            <form method="post" action="{{ path('portal_discussions') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('open_threaded') }}">
+                <input type="hidden" name="action" value="open_threaded">
+                <button class="btn btn-sm btn-outline" type="submit">Open Threaded View</button>
+            </form>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Threaded discussions (Discord style)</div>
+        {% for t in threadedDiscussions %}
+        <div style="padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:7px;">
+            <div style="font-size:12px;font-weight:700;">{{ t.topic }}</div>
+            <div style="font-size:11px;color:#64748b;">{{ t.channel }} &middot; {{ t.replies }} replies &middot; {{ t.last }}</div>
+        </div>
+        {% endfor %}
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 8px 0;">Tagging</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+            {% for tag in tagSuggestions %}
+            <span class="badge badge-secondary">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        <form method="post" action="{{ path('portal_discussions') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('tag_mention') }}">
+            <input type="hidden" name="action" value="tag_mention">
+            <button class="btn btn-outline btn-sm" type="submit">Insert Tag Mention</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-book" style="color:#0ea5e9;margin-right:6px;"></i>Lesson Q&A Board</span>
+    </div>
+    {% for q in lessonQuestions %}
+    <div style="padding:10px;border-bottom:1px solid #e2e8f0;">
+        <div style="font-size:12px;font-weight:700;">{{ q.lesson }}</div>
+        <div style="font-size:12px;color:#475569;margin-top:3px;">{{ q.question }}</div>
+        <div style="margin-top:4px;"><span class="badge badge-{{ q.status == 'answered' ? 'success' : 'warning' }}">{{ q.status|capitalize }}</span></div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="card">
+    {% for thread in threads %}
+    <div class="thread-item">
+        <div class="thread-icon" style="background:{% if thread.solved %}#dcfce7{% else %}#dbeafe{% endif %};">
+            <i class="fa fa-{% if thread.solved %}check-circle{% else %}comments{% endif %}"
+               style="color:{% if thread.solved %}#16a34a{% else %}#1d4ed8{% endif %};"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span class="thread-title">{{ thread.title }}</span>
+                {% if thread.solved %}
+                <span class="badge badge-success"><i class="fa fa-check"></i> Solved</span>
+                {% endif %}
+            </div>
+            <div class="thread-meta">
+                <span class="badge badge-secondary" style="font-size:10px;">{{ thread.course }}</span>
+                &nbsp; By {{ thread.author }} &middot; {{ thread.last_activity }}
+            </div>
+        </div>
+        <div class="thread-stats">
+            <div><i class="fa fa-reply" style="margin-right:3px;"></i>{{ thread.replies }} replies</div>
+            <div style="margin-top:2px;"><i class="fa fa-eye" style="margin-right:3px;"></i>{{ thread.views }} views</div>
+        </div>
+        <a href="#" class="btn btn-sm btn-outline" onclick="alert('Thread view coming soon!');return false;">View</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

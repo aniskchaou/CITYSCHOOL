@@ -4,149 +4,563 @@
 
 {% block body %}
 <div id="site-content">
-			<header class="site-header">
-				<div class="primary-header">
-					<div class="container">
-						<a href="index.html" id="branding">
-							<img src="images/logo.png" alt="Lincoln high School">
-							<h1 class="site-title">City School</h1>
-						</a> <!-- #branding -->
 
-						<div class="main-navigation">
-							<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
-							<ul class="menu">
-								<li class="menu-item current-menu-item"><a href="{{path('index')}}">Home</a></li>
-                                                            								<li class="menu-item"><a href="{{path('courses')}}">Courses</a></li>
-                                                            								<li class="menu-item"><a href="{{path('students')}}">Students</a></li>
-                                                            								<li class="menu-item"><a href="{{path('events')}}">Events</a></li>
-                                                            								<li class="menu-item"><a href="{{path('contact')}}">Contact</a></li>
-							</ul> <!-- .menu -->
-						</div> <!-- .main-navigation -->
-
-						<div class="mobile-navigation"></div>
-					</div> <!-- .container -->
-				</div> <!-- .primary-header -->
-
-				<div class="page-title">
-					<div class="container">
-						<h2>Contact Us</h2>
+	<!-- ===== HEADER ===== -->
+	<header class="site-header">
+		<div class="primary-header">
+			<div class="container">
+				<a href="{{ path('index') }}" id="branding">
+					<img src="/images/logo.png" alt="City School">
+					<div>
+						<h1 class="site-title">City School</h1>
+						<span class="site-subtitle">Premium Learning Institution</span>
 					</div>
+				</a>
+				<div class="main-navigation">
+					<ul class="home-main-menu home-nav-v2">
+						<li class="home-nav-item"><a class="home-nav-link" href="{{ path('index') }}">Home</a></li>
+						<li class="home-nav-item"><a class="home-nav-link" href="{{ path('courses') }}">Courses</a></li>
+						<li class="home-nav-item"><a class="home-nav-link" href="{{ path('values') }}">Values</a></li>
+						<li class="home-nav-item"><a class="home-nav-link" href="{{ path('events') }}">Events</a></li>
+						<li class="home-nav-item"><a class="home-nav-link" href="{{ path('admissions') }}">Admissions</a></li>
+						<li class="home-nav-item"><a class="home-nav-link" href="{{ path('pricing') }}">Pricing</a></li>
+						<li class="home-nav-item current-menu-item"><a class="home-nav-link" href="{{ path('contact') }}">Contact</a></li>
+						<li class="home-nav-item nav-dropdown">
+							<a class="home-nav-link" href="#"><i class="fa fa-sign-in home-nav-login-icon"></i> Login <span class="arrow">&#9660;</span></a>
+							<ul class="dropdown-menu">
+								<li><a href="{{ path('portal_login') }}"><span class="dm-icon"><i class="fa fa-book"></i></span> Student Portal</a></li>
+								<li><a href="{{ path('teacher_login') }}"><span class="dm-icon"><i class="fa fa-sitemap"></i></span> Teacher Portal</a></li>
+								<li><a href="{{ path('parent_login') }}"><span class="dm-icon"><i class="fa fa-home"></i></span> Parent Portal</a></li>
+								<li><a href="{{ path('admin_login') }}"><span class="dm-icon"><i class="fa fa-cogs"></i></span> Admin Portal</a></li>
+								<li class="dropdown-divider"></li>
+								<li><a href="{{ path('super_admin_login') }}"><span class="dm-icon"><i class="fa fa-shield"></i></span> Super Admin</a></li>
+							</ul>
+						</li>
+						<li class="home-nav-item nav-lang-switcher">
+							<button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+							<button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+							<button class="lang-btn" data-lang="es" onclick="switchLang('es')">ES</button>
+						</li>
+					</ul>
 				</div>
-			</header>
+			</div>
 		</div>
 
-		<main class="main-content">
-			<div class="fullwidth-block inner-content">
-				<div class="container">
-					<div class="map"></div>
-
-					<div class="row">
-						<div class="col-md-6">
-							<form action="#" class="contact-form">
-								<p>
-									<label for="name">Name</label>
-									<span class="control"><input type="text" id="name" placeholder="Yout name"></span>
-								</p>
-								<p>
-									<label for="email">Email</label>
-									<span class="control"><input type="text" id="email" placeholder="Email"></span>
-								</p>
-								<p>
-									<label for="website">Website</label>
-									<span class="control"><input type="text" id="website" placeholder="Website"></span>
-								</p>
-								<p>
-									<label for="message">Name</label>
-									<span class="control"><textarea id="message" placeholder="Message"></textarea></span>
-								</p>
-								<p class="text-right">
-									<input type="submit" value="Send message">
-								</p>
-							</form>
-						</div>
-						<div class="col-md-6">
-							<div class="contact-info">
-								<address>
-									<strong>Address</strong>
-									<p>Company Name INC. <br>290-2912 Oits Ave <br>Bronx, NY 10465</p>
-								</address>
-								<div class="contact">
-									<strong>Contact</strong>
-									<p>
-										<a href="tel:532930098891">(532) 930 098 891</a>
-										<a href="mailto:office@companyname.com">office@companyname.com</a> <br>
-
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> <!-- .fullwidth-block -->
-		</main>
-
-		<footer class="site-footer">
+		<!-- HERO -->
+		<div class="home-slider">
 			<div class="container">
-				<div class="row">
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Contact us</h3>
-							<address>Lincoln High School <br>745 Jewel Ave Street <br>Fress Meadows, NY 1136</address>
-
-							<a href="mailto:info@lincolnhighschool.com">info@lincolnhighschool.com</a> <br>
-							<a href="tel:48942652394324">(489) 42652394324</a>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Social media</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-							<div class="social-links circle">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-								<a href="#"><i class="fa fa-google-plus"></i></a>
-								<a href="#"><i class="fa fa-twitter"></i></a>
-								<a href="#"><i class="fa fa-pinterest"></i></a>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Featured students</h3>
-							<ul class="student-list">
-								<li><a href="#">
-										<img src="dummy/student-sm-1.jpg" alt="" class="avatar">
-										<span class="fn">Sarah Branson</span>
-										<span class="average">Average: 4,9</span>
-									</a></li>
-								<li><a href="#">
-										<img src="dummy/student-sm-2.jpg" alt="" class="avatar">
-										<span class="fn">Dorothy Smith</span>
-										<span class="average">Average: 4,9</span>
-									</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Newsletter</h3>
-							<p>Aspernatur, rerum. Impedit, deleniti suscipit</p>
-							<form action="#" class="subscribe">
-								<input type="email" placeholder="Email Address...">
-								<input type="submit" class="light" value="Subscribe">
-							</form>
-						</div>
+				<div class="slide-caption">
+					<h2 class="slide-title">Where Excellence Meets<br>Opportunity</h2>
+					<p>City School provides a premium learning environment built on personalized instruction, modern labs, career mentoring, and a curriculum designed to unlock every student's potential.</p>
+					<div class="hero-cta-row">
+						<a href="{{ path('courses') }}" class="button large hero-btn hero-btn-programs"><i class="fa fa-book"></i>Explore Our Programs</a>
+						<a href="{{ path('contact') }}" class="button large hero-btn hero-btn-consult"><i class="fa fa-calendar"></i>Book a Consultation</a>
 					</div>
 				</div>
-
-				<div class="copy">Copyright 2014 Lincoln High School. All rights reserved.</div>
+				<div class="slider-img">
+					<img src="/dummy/kid.png" alt="Student at City School">
+				</div>
 			</div>
+		</div>
+	</header>
+</div>
 
-		</footer>
+<style>
+/* ===== CONTACT / ABOUT PAGE STYLES ===== */
 
-		<script src="js/jquery-1.11.1.min.js"></script>
-		<script src="http://maps.google.com/maps/api/js?sensor=false&amp;language=en"></script>
-		<script src="js/plugins.js"></script>
-		<script src="js/app.js"></script>
+/* --- Stats Bar --- */
+.about-stats-bar { background: linear-gradient(135deg,#1a237e 0%,#283593 60%,#3949ab 100%); padding: 54px 0 46px; }
+.about-stats-bar .container { display:flex; justify-content:center; gap:0; flex-wrap:wrap; }
+.about-stat-item { flex:1 1 180px; max-width:220px; text-align:center; color:#fff; padding:18px 12px; border-right:1px solid rgba(255,255,255,.15); }
+.about-stat-item:last-child { border-right:none; }
+.about-stat-number { font-size:3rem; font-weight:800; font-family:'Arvo',serif; line-height:1; display:block; color:#fff; }
+.about-stat-suffix { font-size:2rem; font-weight:800; }
+.about-stat-label { font-size:.85rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; opacity:.82; margin-top:6px; display:block; }
+.about-stat-icon { font-size:1.6rem; margin-bottom:10px; opacity:.75; display:block; }
 
+/* --- Section wrappers --- */
+.about-section { padding:72px 0; }
+.about-section-alt { background:#f7f9fc; padding:72px 0; }
+.about-section-dark { background:linear-gradient(135deg,#1a237e 0%,#283593 100%); color:#fff; padding:72px 0; }
+.about-label { display:inline-block; background:#1a237e; color:#fff; font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:14px; }
+.about-label-light { background:rgba(255,255,255,.18); }
+.about-section-title { font-family:'Arvo',serif; font-size:2rem; font-weight:700; color:#1a237e; margin:0 0 10px; }
+.about-section-dark .about-section-title { color:#fff; }
+.about-section-sub { color:#6b7a99; font-size:1rem; margin:0 0 40px; max-width:560px; }
+.about-section-dark .about-section-sub { color:rgba(255,255,255,.75); }
+
+/* --- Mission / Vision --- */
+.mv-grid { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+@media(max-width:768px){ .mv-grid { grid-template-columns:1fr; } }
+.mv-card { background:#fff; border-radius:14px; padding:36px 32px; box-shadow:0 4px 24px rgba(26,35,126,.09); border-top:4px solid #1a237e; }
+.mv-card.vision { border-top-color:#3949ab; }
+.mv-icon { width:56px; height:56px; background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+.mv-icon i { color:#fff; font-size:1.5rem; }
+.mv-card h3 { font-family:'Arvo',serif; font-size:1.3rem; color:#1a237e; margin:0 0 12px; }
+.mv-card p { color:#555; line-height:1.8; margin:0; }
+.mv-values { margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; }
+.mv-tag { background:#e8eaf6; color:#1a237e; font-size:.75rem; font-weight:700; padding:4px 12px; border-radius:20px; }
+
+/* --- Timeline --- */
+.timeline { position:relative; padding:0; list-style:none; margin:0; }
+.timeline::before { content:''; position:absolute; left:50%; top:0; bottom:0; width:3px; background:linear-gradient(to bottom,#1a237e,#7986cb); transform:translateX(-50%); }
+@media(max-width:768px){ .timeline::before { left:28px; } }
+.timeline-item { display:flex; justify-content:flex-end; padding-right:calc(50% + 36px); margin-bottom:40px; position:relative; }
+.timeline-item:nth-child(even) { justify-content:flex-start; padding-right:0; padding-left:calc(50% + 36px); }
+@media(max-width:768px){
+  .timeline-item, .timeline-item:nth-child(even) { justify-content:flex-start; padding-right:0; padding-left:68px; }
+}
+.timeline-dot { position:absolute; left:50%; top:18px; width:18px; height:18px; background:#1a237e; border:3px solid #fff; border-radius:50%; transform:translateX(-50%); box-shadow:0 0 0 4px rgba(26,35,126,.18); z-index:1; }
+@media(max-width:768px){ .timeline-dot { left:28px; } }
+.timeline-card { background:#fff; border-radius:12px; padding:22px 26px; box-shadow:0 3px 18px rgba(26,35,126,.1); max-width:380px; width:100%; }
+.timeline-year { display:inline-block; background:#1a237e; color:#fff; font-size:.72rem; font-weight:800; letter-spacing:.1em; padding:3px 12px; border-radius:20px; margin-bottom:10px; }
+.timeline-card h4 { font-family:'Arvo',serif; font-size:1.05rem; color:#1a237e; margin:0 0 6px; }
+.timeline-card p { color:#666; font-size:.9rem; line-height:1.7; margin:0; }
+
+/* --- Leadership --- */
+.team-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+@media(max-width:992px){ .team-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px){ .team-grid { grid-template-columns:1fr 1fr; } }
+.team-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 4px 20px rgba(26,35,126,.09); text-align:center; transition:transform .25s,box-shadow .25s; }
+.team-card:hover { transform:translateY(-6px); box-shadow:0 10px 36px rgba(26,35,126,.16); }
+.team-avatar { width:100%; aspect-ratio:1; object-fit:cover; background:#e8eaf6; display:flex; align-items:center; justify-content:center; }
+.team-avatar-placeholder { width:100%; aspect-ratio:1; background:linear-gradient(135deg,#e8eaf6,#c5cae9); display:flex; align-items:center; justify-content:center; font-size:3rem; color:#7986cb; }
+.team-body { padding:18px 16px 22px; }
+.team-name { font-family:'Arvo',serif; font-size:1rem; font-weight:700; color:#1a237e; margin:0 0 4px; }
+.team-role { font-size:.78rem; font-weight:600; color:#3949ab; text-transform:uppercase; letter-spacing:.07em; margin:0 0 10px; }
+.team-bio { font-size:.82rem; color:#777; line-height:1.65; margin:0 0 12px; }
+.team-social a { width:28px; height:28px; background:#e8eaf6; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#1a237e; font-size:.75rem; margin:0 2px; transition:background .2s,color .2s; }
+.team-social a:hover { background:#1a237e; color:#fff; }
+
+/* --- Accreditation --- */
+.accred-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+@media(max-width:768px){ .accred-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:480px){ .accred-grid { grid-template-columns:1fr; } }
+.accred-card { background:#fff; border-radius:14px; padding:28px 24px; box-shadow:0 3px 18px rgba(26,35,126,.08); display:flex; gap:16px; align-items:flex-start; border-left:4px solid #1a237e; }
+.accred-badge { width:48px; height:48px; min-width:48px; background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.3rem; }
+.accred-body h4 { font-family:'Arvo',serif; font-size:.98rem; color:#1a237e; margin:0 0 4px; }
+.accred-body p { font-size:.82rem; color:#777; line-height:1.6; margin:0; }
+.accred-body .accred-since { font-size:.72rem; font-weight:700; color:#3949ab; text-transform:uppercase; letter-spacing:.08em; margin-top:6px; display:block; }
+
+/* --- Contact section --- */
+.contact-section { padding:72px 0; background:#f7f9fc; }
+.contact-wrap { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+@media(max-width:768px){ .contact-wrap { grid-template-columns:1fr; } }
+.contact-form-card { background:#fff; border-radius:14px; padding:36px 32px; box-shadow:0 4px 24px rgba(26,35,126,.08); }
+.contact-form-card h3 { font-family:'Arvo',serif; font-size:1.3rem; color:#1a237e; margin:0 0 24px; }
+.cf-group { margin-bottom:18px; }
+.cf-group label { display:block; font-size:.82rem; font-weight:600; color:#444; margin-bottom:6px; }
+.cf-group input, .cf-group textarea { width:100%; padding:10px 14px; border:1.5px solid #dde3f0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.9rem; color:#333; transition:border .2s,box-shadow .2s; box-sizing:border-box; }
+.cf-group input:focus, .cf-group textarea:focus { outline:none; border-color:#3949ab; box-shadow:0 0 0 3px rgba(57,73,171,.12); }
+.cf-group textarea { height:120px; resize:vertical; }
+.cf-submit { background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; border:none; padding:12px 32px; border-radius:8px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:.9rem; cursor:pointer; transition:opacity .2s; width:100%; }
+.cf-submit:hover { opacity:.88; }
+.contact-info-card { display:flex; flex-direction:column; gap:20px; }
+.ci-block { background:#fff; border-radius:14px; padding:22px 24px; box-shadow:0 3px 18px rgba(26,35,126,.07); display:flex; gap:16px; align-items:flex-start; }
+.ci-icon { width:44px; height:44px; min-width:44px; background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; }
+.ci-block h4 { font-family:'Arvo',serif; font-size:.95rem; color:#1a237e; margin:0 0 4px; }
+.ci-block p, .ci-block a { font-size:.88rem; color:#666; line-height:1.7; margin:0; text-decoration:none; display:block; }
+.ci-block a:hover { color:#1a237e; }
+</style>
+
+<main>
+
+    <!-- ===== INTERACTIVE STATS BAR ===== -->
+    <div class="about-stats-bar">
+        <div class="container">
+            <div class="about-stat-item">
+                <span class="about-stat-icon"><i class="fa fa-book"></i></span>
+                <span class="about-stat-number" data-target="3200">0</span><span class="about-stat-label">Students Enrolled</span>
+            </div>
+            <div class="about-stat-item">
+                <span class="about-stat-icon"><i class="fa fa-trophy"></i></span>
+                <span class="about-stat-number" data-target="96" data-suffix="%">0</span><span class="about-stat-label">Success Rate</span>
+            </div>
+            <div class="about-stat-item">
+                <span class="about-stat-icon"><i class="fa fa-calendar"></i></span>
+                <span class="about-stat-number" data-target="42">0</span><span class="about-stat-label">Years of Excellence</span>
+            </div>
+            <div class="about-stat-item">
+                <span class="about-stat-icon"><i class="fa fa-users"></i></span>
+                <span class="about-stat-number" data-target="180">0</span><span class="about-stat-label">Expert Faculty</span>
+            </div>
+            <div class="about-stat-item">
+                <span class="about-stat-icon"><i class="fa fa-book"></i></span>
+                <span class="about-stat-number" data-target="64">0</span><span class="about-stat-label">Programs Offered</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MISSION & VISION ===== -->
+    <section class="about-section">
+        <div class="container">
+            <span class="about-label">Our Purpose</span>
+            <h2 class="about-section-title">Mission &amp; Vision</h2>
+            <p class="about-section-sub">The principles that guide every decision, every classroom, and every student journey at City School.</p>
+            <div class="mv-grid">
+                <div class="mv-card">
+                    <div class="mv-icon"><i class="fa fa-bullseye"></i></div>
+                    <h3>Our Mission</h3>
+                    <p>To provide a transformative, inclusive, and rigorous education that equips every student with the knowledge, skills, and character to thrive in a rapidly changing world. We are committed to academic excellence, personal growth, and community responsibility.</p>
+                    <div class="mv-values">
+                        <span class="mv-tag">Excellence</span>
+                        <span class="mv-tag">Inclusion</span>
+                        <span class="mv-tag">Integrity</span>
+                        <span class="mv-tag">Innovation</span>
+                    </div>
+                </div>
+                <div class="mv-card vision">
+                    <div class="mv-icon" style="background:linear-gradient(135deg,#3949ab,#7986cb);"><i class="fa fa-eye"></i></div>
+                    <h3 style="color:#3949ab;">Our Vision</h3>
+                    <p>To be a globally recognised centre of learning where every student is inspired to reach their highest potential, faculty lead with passion and expertise, and the school remains a pillar of positive change in the community and beyond.</p>
+                    <div class="mv-values">
+                        <span class="mv-tag" style="background:#ede7f6;color:#3949ab;">Global Reach</span>
+                        <span class="mv-tag" style="background:#ede7f6;color:#3949ab;">Student-First</span>
+                        <span class="mv-tag" style="background:#ede7f6;color:#3949ab;">Future-Ready</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== HISTORY & TIMELINE ===== -->
+    <section class="about-section-alt">
+        <div class="container">
+            <span class="about-label">Our Journey</span>
+            <h2 class="about-section-title">History &amp; Achievements</h2>
+            <p class="about-section-sub">From a small community school to a nationally recognised institution — our story of growth and impact.</p>
+            <ul class="timeline">
+                <li class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-year">1982</span>
+                        <h4>Founded</h4>
+                        <p>City School opened its doors with 3 classrooms, 12 teachers, and a founding class of 120 students, driven by the vision of accessible quality education.</p>
+                    </div>
+                </li>
+                <li class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-year">1991</span>
+                        <h4>First Accreditation</h4>
+                        <p>Received national academic accreditation from the Board of Educational Excellence — a milestone validating our curriculum and teaching standards.</p>
+                    </div>
+                </li>
+                <li class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-year">2001</span>
+                        <h4>New Campus Expansion</h4>
+                        <p>Opened the modern Science &amp; Technology wing, doubling the school's capacity and launching our flagship STEM program.</p>
+                    </div>
+                </li>
+                <li class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-year">2008</span>
+                        <h4>International Partnerships</h4>
+                        <p>Forged exchange agreements with 8 international universities, enabling students to gain global exposure and credits.</p>
+                    </div>
+                </li>
+                <li class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-year">2015</span>
+                        <h4>Digital Learning Hub</h4>
+                        <p>Launched City School's Digital Learning Hub with 400 devices, e-library access, and the first AI-assisted tutoring programme in the region.</p>
+                    </div>
+                </li>
+                <li class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-year">2024</span>
+                        <h4>Top 5 Regional School Award</h4>
+                        <p>Ranked in the Top 5 schools in the region by the National Education Review Board, with a 96% student success rate and alumni in 40+ countries.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ===== LEADERSHIP / TEAM ===== -->
+    <section class="about-section">
+        <div class="container">
+            <span class="about-label">The People</span>
+            <h2 class="about-section-title">Leadership &amp; Team</h2>
+            <p class="about-section-sub">Meet the dedicated educators and administrators who make City School exceptional every day.</p>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar-placeholder"><i class="fa fa-user"></i></div>
+                    <div class="team-body">
+                        <p class="team-name">Dr. Margaret Osei</p>
+                        <p class="team-role">Principal</p>
+                        <p class="team-bio">25 years in education leadership. Ph.D. in Educational Policy. Champion of inclusive learning and teacher excellence.</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                            <a href="#"><i class="fa fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar-placeholder"><i class="fa fa-user"></i></div>
+                    <div class="team-body">
+                        <p class="team-name">Mr. James Kofi</p>
+                        <p class="team-role">Vice Principal – Academics</p>
+                        <p class="team-bio">Curriculum specialist with 18 years experience. Architect of the STEM enrichment programme and student mentorship framework.</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                            <a href="#"><i class="fa fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar-placeholder"><i class="fa fa-user"></i></div>
+                    <div class="team-body">
+                        <p class="team-name">Ms. Linda Asante</p>
+                        <p class="team-role">Head of Student Affairs</p>
+                        <p class="team-bio">Passionate about student wellbeing and extracurricular development. Led the launch of 12 student clubs and the annual Arts Festival.</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                            <a href="#"><i class="fa fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar-placeholder"><i class="fa fa-user"></i></div>
+                    <div class="team-body">
+                        <p class="team-name">Mr. Paul Mensah</p>
+                        <p class="team-role">Director of Technology</p>
+                        <p class="team-bio">MSc Computer Science. Spearheaded the Digital Learning Hub and the school's award-winning e-learning integration strategy.</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                            <a href="#"><i class="fa fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ACCREDITATION ===== -->
+    <section class="about-section-alt">
+        <div class="container">
+            <span class="about-label">Quality Assurance</span>
+            <h2 class="about-section-title">Accreditation &amp; Recognition</h2>
+            <p class="about-section-sub">City School meets or exceeds the standards set by leading national and international education bodies.</p>
+            <div class="accred-grid">
+                <div class="accred-card">
+                    <div class="accred-badge"><i class="fa fa-certificate"></i></div>
+                    <div class="accred-body">
+                        <h4>National Board of Education</h4>
+                        <p>Full institutional accreditation covering all academic programmes, faculty credentials, and student support services.</p>
+                        <span class="accred-since">Accredited since 1991 · Renewed 2023</span>
+                    </div>
+                </div>
+                <div class="accred-card">
+                    <div class="accred-badge"><i class="fa fa-globe"></i></div>
+                    <div class="accred-body">
+                        <h4>International Schools Association</h4>
+                        <p>ISA-certified school recognising our international curriculum standards, student exchange programmes, and global partnerships.</p>
+                        <span class="accred-since">Member since 2008</span>
+                    </div>
+                </div>
+                <div class="accred-card">
+                    <div class="accred-badge"><i class="fa fa-flask"></i></div>
+                    <div class="accred-body">
+                        <h4>STEM Excellence Council</h4>
+                        <p>Designated STEM Centre of Excellence for our science labs, AI tutoring infrastructure, and graduate placement outcomes.</p>
+                        <span class="accred-since">Certified 2016 · Gold Level 2022</span>
+                    </div>
+                </div>
+                <div class="accred-card">
+                    <div class="accred-badge"><i class="fa fa-book"></i></div>
+                    <div class="accred-body">
+                        <h4>Regional Library &amp; Literacy Board</h4>
+                        <p>Recognised for our e-library holdings, reading initiatives, and literacy programmes that serve both students and the wider community.</p>
+                        <span class="accred-since">Award recipient 2019, 2022</span>
+                    </div>
+                </div>
+                <div class="accred-card">
+                    <div class="accred-badge"><i class="fa fa-heart"></i></div>
+                    <div class="accred-body">
+                        <h4>Student Wellbeing Charter</h4>
+                        <p>Signatory of the National Student Wellbeing Charter, committing to mental health support, anti-bullying policies, and inclusive practices.</p>
+                        <span class="accred-since">Charter signatory since 2014</span>
+                    </div>
+                </div>
+                <div class="accred-card">
+                    <div class="accred-badge"><i class="fa fa-star"></i></div>
+                    <div class="accred-body">
+                        <h4>Top 5 Schools Award</h4>
+                        <p>Ranked Top 5 Regional School by the National Education Review Board, 2024 — recognising academic outcomes, innovation, and community impact.</p>
+                        <span class="accred-since">Award 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT FORM ===== -->
+    <section class="contact-section">
+        <div class="container">
+            <span class="about-label">Get In Touch</span>
+            <h2 class="about-section-title">Contact Us</h2>
+            <p class="about-section-sub">We'd love to hear from you. Reach out for admissions enquiries, campus tours, or any questions about City School.</p>
+            <div class="contact-wrap">
+                <div class="contact-form-card">
+                    <h3>Send Us a Message</h3>
+                    <form action="#" method="post">
+                        <div class="cf-group">
+                            <label for="cf-name">Full Name</label>
+                            <input type="text" id="cf-name" name="name" placeholder="Your full name">
+                        </div>
+                        <div class="cf-group">
+                            <label for="cf-email">Email Address</label>
+                            <input type="email" id="cf-email" name="email" placeholder="you@example.com">
+                        </div>
+                        <div class="cf-group">
+                            <label for="cf-subject">Subject</label>
+                            <input type="text" id="cf-subject" name="subject" placeholder="How can we help?">
+                        </div>
+                        <div class="cf-group">
+                            <label for="cf-message">Message</label>
+                            <textarea id="cf-message" name="message" placeholder="Write your message here…"></textarea>
+                        </div>
+                        <button type="submit" class="cf-submit"><i class="fa fa-paper-plane"></i> Send Message</button>
+                    </form>
+                </div>
+                <div class="contact-info-card">
+                    <div class="ci-block">
+                        <div class="ci-icon"><i class="fa fa-map-marker"></i></div>
+                        <div>
+                            <h4>Address</h4>
+                            <p>City School, 745 Jewel Ave<br>Fress Meadows, NY 11365</p>
+                        </div>
+                    </div>
+                    <div class="ci-block">
+                        <div class="ci-icon"><i class="fa fa-phone"></i></div>
+                        <div>
+                            <h4>Phone</h4>
+                            <a href="tel:+148942652394">(489) 426-52394</a>
+                            <a href="tel:+148942652395">(489) 426-52395 (Admissions)</a>
+                        </div>
+                    </div>
+                    <div class="ci-block">
+                        <div class="ci-icon"><i class="fa fa-envelope"></i></div>
+                        <div>
+                            <h4>Email</h4>
+                            <a href="mailto:info@cityschool.edu">info@cityschool.edu</a>
+                            <a href="mailto:admissions@cityschool.edu">admissions@cityschool.edu</a>
+                        </div>
+                    </div>
+                    <div class="ci-block">
+                        <div class="ci-icon"><i class="fa fa-clock-o"></i></div>
+                        <div>
+                            <h4>Office Hours</h4>
+                            <p>Monday – Friday: 7:30am – 5:00pm</p>
+                            <p>Saturday: 8:00am – 12:00pm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Contact us</h3>
+                    <address>City School <br>745 Jewel Ave Street <br>Fress Meadows, NY 11365</address>
+                    <a href="mailto:info@cityschool.edu">info@cityschool.edu</a> <br>
+                    <a href="tel:+148942652394">(489) 426-52394</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Social media</h3>
+                    <p>Follow us for news, events, and student achievements.</p>
+                    <div class="social-links circle">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-google-plus"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Featured students</h3>
+                    <ul class="student-list">
+                        <li><a href="#">
+                            <img src="/dummy/student-sm-1.jpg" alt="" class="avatar">
+                            <span class="fn">Sarah Branson</span>
+                            <span class="average">Average: 4.9</span>
+                        </a></li>
+                        <li><a href="#">
+                            <img src="/dummy/student-sm-2.jpg" alt="" class="avatar">
+                            <span class="fn">Dorothy Smith</span>
+                            <span class="average">Average: 4.9</span>
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Newsletter</h3>
+                    <p>Stay updated with school news and events.</p>
+                    <form action="#" class="subscribe">
+                        <input type="email" placeholder="Email Address...">
+                        <input type="submit" class="light" value="Subscribe">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="copy">Copyright &copy; 2024 City School. All rights reserved.
+            &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('privacy');return false;" style="color:inherit;opacity:.7;">Privacy Policy</a>
+            &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('terms');return false;" style="color:inherit;opacity:.7;">Terms of Service</a>
+            &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('cookie-settings');return false;" style="color:inherit;opacity:.7;">Cookie Settings</a>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script src="/js/plugins.js"></script>
+<script src="/js/app.js"></script>
+<script>
+/* ===== ANIMATED STAT COUNTERS ===== */
+(function(){
+    function animateCounter(el){
+        var target = parseInt(el.getAttribute('data-target'), 10);
+        var suffix = el.getAttribute('data-suffix') || '';
+        var duration = 1800;
+        var start = null;
+        function step(timestamp){
+            if(!start) start = timestamp;
+            var progress = Math.min((timestamp - start) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target) + suffix;
+            if(progress < 1) requestAnimationFrame(step);
+            else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(step);
+    }
+    var observed = false;
+    function runAll(){
+        if(observed) return;
+        observed = true;
+        document.querySelectorAll('.about-stat-number[data-target]').forEach(function(el){ animateCounter(el); });
+    }
+    if('IntersectionObserver' in window){
+        var bar = document.querySelector('.about-stats-bar');
+        if(bar){
+            new IntersectionObserver(function(entries){ entries.forEach(function(e){ if(e.isIntersecting) runAll(); }); },{threshold:.3}).observe(bar);
+        }
+    } else { window.addEventListener('load', runAll); }
+})();
+</script>
 
 {% endblock %}

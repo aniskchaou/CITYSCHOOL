@@ -1,0 +1,95 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Attendance{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+
+{% block content %}
+
+{# ── Summary Stats ── #}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check"></i></div>
+        <div><div class="stat-value">{{ summary.present }}</div><div class="stat-label">Present</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fa fa-times"></i></div>
+        <div><div class="stat-value">{{ summary.absent }}</div><div class="stat-label">Absent</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa fa-clock-o"></i></div>
+        <div><div class="stat-value">{{ summary.late }}</div><div class="stat-label">Late</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8;"><i class="fa fa-calendar"></i></div>
+        <div>
+            <div class="stat-value">{{ ((summary.present / summary.total) * 100)|round }}%</div>
+            <div class="stat-label">Attendance Rate</div>
+        </div>
+    </div>
+</div>
+
+{# ── Calendar ── #}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-calendar" style="color:#4361ee;margin-right:6px;"></i>April 2026 Attendance</span>
+        <div style="display:flex;gap:10px;font-size:12px;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:14px;height:14px;border-radius:3px;background:#dcfce7;display:inline-block;"></span>Present</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:14px;height:14px;border-radius:3px;background:#fee2e2;display:inline-block;"></span>Absent</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:14px;height:14px;border-radius:3px;background:#fef9c3;display:inline-block;"></span>Late</span>
+        </div>
+    </div>
+
+    {# Day headers #}
+    <div class="attendance-grid" style="margin-bottom:6px;">
+        {% for day in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+        <div class="att-header">{{ day }}</div>
+        {% endfor %}
+    </div>
+
+    {# Empty cells for April (starts Wednesday = index 2) #}
+    <div class="attendance-grid">
+        <div></div><div></div>  {# Monday, Tuesday empty before Apr 1 (Wed) #}
+        {% for date, status in records %}
+            {% set dayNum = date|split('-')|last|trim('0') %}
+            <div class="att-day att-{{ status }}" title="{{ date }}: {{ status|capitalize }}">
+                {{ dayNum }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ── Absence Justifications ── #}
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-file-text" style="color:#f59e0b;margin-right:6px;"></i>Absence Records</span>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>Date</th><th>Type</th><th>Reason</th><th>Excused</th></tr></thead>
+        <tbody>
+            {% for date, status in records %}
+            {% if status == 'absent' or status == 'late' %}
+            <tr>
+                <td style="font-size:13px;">{{ date }}</td>
+                <td>
+                    {% if status == 'absent' %}
+                    <span class="badge badge-danger">Absent</span>
+                    {% else %}
+                    <span class="badge badge-warning">Late</span>
+                    {% endif %}
+                </td>
+                <td style="font-size:12px;color:#64748b;">{% if status == 'absent' %}Sick / Medical{% else %}Traffic delay{% endif %}</td>
+                <td>
+                    {% if status == 'absent' %}
+                    <span class="badge badge-success"><i class="fa fa-check"></i> Excused</span>
+                    {% else %}
+                    <span class="badge badge-secondary">Noted</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,23 +1,123 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: 'auto'
+
     providers:
-        users_in_memory: { memory: null }
+        portal_users:
+            memory:
+                users:
+                    student:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_STUDENT']
+                    alice:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_STUDENT']
+                    teacher:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_TEACHER']
+                    mrsmith:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_TEACHER']
+                    admin:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_ADMIN']
+                    superadmin:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_SUPER_ADMIN']
+                    sysowner:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_SUPER_ADMIN']
+                    parent:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_PARENT']
+                    mrsjones:
+                        password: '$2y$12$WiUYhfDno41HhzUR8EYiQeet4Cf2Zvw50MyclxAAVtj/fu9mDX5Rm'
+                        roles: ['ROLE_PARENT']
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        super_admin_portal:
+            pattern: ^/super-admin
+            provider: portal_users
+            form_login:
+                login_path: super_admin_login
+                check_path: super_admin_login
+                default_target_path: super_admin_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+            logout:
+                path: super_admin_logout
+                target: super_admin_login
+        parent_portal:
+            pattern: ^/parent
+            provider: portal_users
+            form_login:
+                login_path: parent_login
+                check_path: parent_login
+                default_target_path: parent_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+            logout:
+                path: parent_logout
+                target: parent_login
+        admin_portal:
+            pattern: ^/admin
+            provider: portal_users
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+            logout:
+                path: admin_logout
+                target: admin_login
+        teacher_portal:
+            pattern: ^/teacher
+            provider: portal_users
+            form_login:
+                login_path: teacher_login
+                check_path: teacher_login
+                default_target_path: teacher_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+            logout:
+                path: teacher_logout
+                target: teacher_login
+        portal:
+            pattern: ^/portal
+            provider: portal_users
+            form_login:
+                login_path: portal_login
+                check_path: portal_login
+                default_target_path: portal_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+            logout:
+                path: portal_logout
+                target: portal_login
         main:
-            anonymous: true
-            provider: users_in_memory
+            lazy: true
+            provider: portal_users
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/subscribe, roles: PUBLIC_ACCESS }
+        - { path: ^/super-admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/super-admin, roles: ROLE_SUPER_ADMIN }
+        - { path: ^/parent/register, roles: PUBLIC_ACCESS }
+        - { path: ^/parent/login, roles: PUBLIC_ACCESS }
+        - { path: ^/parent, roles: ROLE_PARENT }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/teacher/login, roles: PUBLIC_ACCESS }
+        - { path: ^/teacher, roles: ROLE_TEACHER }
+        - { path: ^/portal/register, roles: PUBLIC_ACCESS }
+        - { path: ^/portal/login, roles: PUBLIC_ACCESS }
+        - { path: ^/portal, roles: ROLE_STUDENT }

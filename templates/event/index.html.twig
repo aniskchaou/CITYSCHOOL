@@ -1,139 +1,776 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}City School{% endblock %}
+{% block title %}Events &amp; News | City School{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ===== EVENTS PAGE ===== */
+.ev-section      { padding:60px 0; }
+.ev-section-alt  { padding:60px 0; background:#f7f9fc; }
+.ev-section-dark { padding:60px 0; background:linear-gradient(135deg,#1a237e 0%,#283593 100%); color:#fff; }
+.ev-label { display:inline-block; background:#1a237e; color:#fff; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:12px; }
+.ev-label-light { background:rgba(255,255,255,.2); }
+.ev-title { font-family:'Arvo',serif; font-size:1.9rem; font-weight:700; color:#1a237e; margin:0 0 8px; }
+.ev-title-light { color:#fff; }
+.ev-sub { color:#6b7a99; font-size:.97rem; margin:0 0 32px; max-width:600px; }
+.ev-sub-light { color:rgba(255,255,255,.78); }
+
+/* quick action bar */
+.ev-actions-bar { background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#3949ab 100%); padding:40px 0 34px; }
+.ev-actions-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+@media(max-width:900px){ .ev-actions-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:500px){ .ev-actions-grid { grid-template-columns:1fr 1fr; } }
+.ev-action-card { background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.18); border-radius:14px; padding:24px 18px; text-align:center; color:#fff; text-decoration:none; transition:background .2s,transform .2s; display:block; }
+.ev-action-card:hover { background:rgba(255,255,255,.2); transform:translateY(-4px); color:#fff; text-decoration:none; }
+.ev-action-icon { width:48px; height:48px; background:rgba(255,255,255,.15); border-radius:11px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.3rem; }
+.ev-action-card h4 { font-family:'Arvo',serif; font-size:.95rem; margin:0 0 5px; }
+.ev-action-card p { font-size:.76rem; opacity:.82; margin:0; line-height:1.5; }
+
+/* split layout */
+.ev-split { display:grid; grid-template-columns:2fr 1fr; gap:26px; }
+@media(max-width:900px){ .ev-split { grid-template-columns:1fr; } }
+.ev-sidebar { display:flex; flex-direction:column; gap:18px; }
+.ev-widget { background:#fff; border-radius:14px; padding:22px 20px; box-shadow:0 3px 18px rgba(26,35,126,.07); }
+.ev-widget h4 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 14px; border-bottom:2px solid #e8eaf6; padding-bottom:10px; }
+
+/* news cards */
+.news-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media(max-width:900px){ .news-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:540px){ .news-grid { grid-template-columns:1fr; } }
+.news-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 4px 20px rgba(26,35,126,.08); transition:transform .2s,box-shadow .2s; }
+.news-card:hover { transform:translateY(-5px); box-shadow:0 12px 32px rgba(26,35,126,.13); }
+.news-card-img { height:140px; background:linear-gradient(135deg,#1a237e,#3949ab); display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:rgba(255,255,255,.4); }
+.news-card-body { padding:18px; }
+.news-cat { display:inline-block; font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; padding:2px 10px; border-radius:20px; margin-bottom:8px; }
+.news-cat.event    { background:#e8eaf6; color:#1a237e; }
+.news-cat.holiday  { background:#e8f5e9; color:#2e7d32; }
+.news-cat.exam     { background:#fff9c4; color:#f57f17; }
+.news-cat.announce { background:#fce4ec; color:#c62828; }
+.news-card h3 { font-family:'Arvo',serif; font-size:.97rem; color:#1a237e; margin:0 0 6px; line-height:1.4; }
+.news-card p  { font-size:.8rem; color:#6b7a99; margin:0 0 12px; line-height:1.6; }
+.news-meta { display:flex; gap:10px; font-size:.73rem; color:#9fa8da; flex-wrap:wrap; }
+.news-meta span { display:flex; align-items:center; gap:4px; }
+
+/* announcements */
+.announce-list { display:flex; flex-direction:column; gap:14px; }
+.announce-item { background:#fff; border-radius:12px; padding:18px 20px; box-shadow:0 3px 14px rgba(26,35,126,.07); display:flex; gap:16px; align-items:flex-start; border-left:4px solid #1a237e; transition:transform .18s; }
+.announce-item:hover { transform:translateX(4px); }
+.announce-item.urgent  { border-left-color:#c62828; }
+.announce-item.exam    { border-left-color:#f57f17; }
+.announce-item.holiday { border-left-color:#2e7d32; }
+.announce-dot { width:38px; height:38px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.announce-item .announce-dot        { background:#e8eaf6; color:#1a237e; }
+.announce-item.urgent .announce-dot  { background:#ffebee; color:#c62828; }
+.announce-item.exam .announce-dot    { background:#fff9c4; color:#f57f17; }
+.announce-item.holiday .announce-dot { background:#e8f5e9; color:#2e7d32; }
+.announce-info h4 { font-family:'Arvo',serif; font-size:.95rem; color:#1a237e; margin:0 0 4px; }
+.announce-info p  { font-size:.82rem; color:#6b7a99; margin:0 0 6px; line-height:1.5; }
+.announce-meta { display:flex; gap:10px; font-size:.72rem; color:#9fa8da; flex-wrap:wrap; }
+.announce-meta span { display:flex; align-items:center; gap:4px; }
+.push-badge { display:inline-flex; align-items:center; gap:5px; background:#e8eaf6; color:#1a237e; font-size:.68rem; font-weight:800; padding:2px 10px; border-radius:20px; margin-left:auto; flex-shrink:0; cursor:pointer; border:none; transition:background .2s; }
+.push-badge:hover { background:#c5cae9; }
+.push-badge.pushed { background:#e8f5e9; color:#2e7d32; }
+
+/* calendar */
+.cal-toolbar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:center; }
+.cal-nav { display:flex; align-items:center; gap:10px; margin-right:auto; }
+.cal-nav button { background:#f0f2fc; border:1.5px solid #c5cae9; color:#1a237e; padding:6px 14px; border-radius:8px; cursor:pointer; font-family:'Montserrat',sans-serif; font-weight:700; font-size:.82rem; transition:background .18s; }
+.cal-nav button:hover { background:#e8eaf6; }
+.cal-month-label { font-family:'Arvo',serif; font-size:1.05rem; color:#1a237e; font-weight:700; min-width:160px; text-align:center; }
+.cal-filter-btn { padding:6px 14px; border-radius:20px; border:1.5px solid #dde3f0; background:#fff; color:#555; font-size:.76rem; font-weight:600; cursor:pointer; transition:background .18s,color .18s,border-color .18s; font-family:'Montserrat',sans-serif; }
+.cal-filter-btn:hover  { border-color:#3949ab; color:#3949ab; }
+.cal-filter-btn.active { background:#1a237e; color:#fff; border-color:#1a237e; }
+.cal-export-btn { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid #c5cae9; color:#1a237e; padding:7px 14px; border-radius:8px; font-size:.78rem; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; text-decoration:none; transition:background .18s; }
+.cal-export-btn:hover { background:#f0f2fc; color:#1a237e; text-decoration:none; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-head { text-align:center; font-size:.7rem; font-weight:800; color:#8a97b5; text-transform:uppercase; padding:6px 0; }
+.cal-cell { min-height:82px; background:#fff; border-radius:8px; padding:6px; border:1.5px solid #e8eaf6; font-size:.78rem; transition:border-color .18s; }
+.cal-cell.today { border-color:#1a237e; background:#f0f2fc; }
+.cal-cell.other-month { background:#fafafa; opacity:.6; }
+.cal-cell:hover { border-color:#9fa8da; }
+.cal-day-num { font-weight:700; color:#1a237e; margin-bottom:4px; font-size:.82rem; }
+.cal-cell.today .cal-day-num { background:#1a237e; color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.74rem; }
+.cal-event-dot { font-size:.67rem; border-radius:4px; padding:1px 5px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; }
+.cal-event-dot.event   { background:#e8eaf6; color:#1a237e; }
+.cal-event-dot.exam    { background:#fff9c4; color:#e65100; }
+.cal-event-dot.holiday { background:#e8f5e9; color:#2e7d32; }
+@media(max-width:700px){ .cal-cell { min-height:52px; } .cal-event-dot { display:none; } }
+
+/* rsvp modal */
+.rsvp-panel { background:#fff; border-radius:14px; padding:26px 24px; box-shadow:0 6px 28px rgba(26,35,126,.12); border:2px solid #e8eaf6; margin-top:22px; display:none; }
+.rsvp-panel.open { display:block; }
+.rsvp-panel h4 { font-family:'Arvo',serif; font-size:1.05rem; color:#1a237e; margin:0 0 14px; }
+.rsvp-form { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+.rsvp-form input, .rsvp-form select { flex:1 1 180px; padding:9px 13px; border:1.5px solid #dde3f0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.87rem; color:#333; }
+.rsvp-form input:focus, .rsvp-form select:focus { outline:none; border-color:#3949ab; }
+.rsvp-btn { background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; border:none; padding:10px 22px; border-radius:8px; font-weight:700; font-size:.87rem; cursor:pointer; font-family:'Montserrat',sans-serif; white-space:nowrap; transition:opacity .2s; }
+.rsvp-btn:hover { opacity:.85; }
+.rsvp-confirm { background:#e8f5e9; border:1.5px solid #a5d6a7; border-radius:8px; padding:10px 16px; font-size:.85rem; color:#2e7d32; display:none; margin-top:10px; }
+
+/* upcoming events list */
+.events-list { display:flex; flex-direction:column; gap:16px; }
+.event-row { background:#fff; border-radius:14px; padding:20px 22px; box-shadow:0 3px 18px rgba(26,35,126,.08); display:flex; gap:18px; align-items:flex-start; border-left:4px solid #1a237e; transition:transform .18s,box-shadow .18s; }
+.event-row:hover { transform:translateY(-3px); box-shadow:0 8px 26px rgba(26,35,126,.12); }
+.event-row.exam    { border-left-color:#f57f17; }
+.event-row.holiday { border-left-color:#2e7d32; }
+.event-date-box { min-width:56px; text-align:center; background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:10px; padding:8px 6px; color:#fff; flex-shrink:0; }
+.event-row.exam    .event-date-box { background:linear-gradient(135deg,#e65100,#ffa000); }
+.event-row.holiday .event-date-box { background:linear-gradient(135deg,#2e7d32,#43a047); }
+.event-date-box .edb-day  { font-size:1.5rem; font-weight:800; font-family:'Arvo',serif; line-height:1; }
+.event-date-box .edb-mon  { font-size:.65rem; text-transform:uppercase; font-weight:700; letter-spacing:.08em; opacity:.88; }
+.event-info { flex:1; }
+.event-info h3 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 5px; }
+.event-info p  { font-size:.82rem; color:#6b7a99; margin:0 0 10px; line-height:1.5; }
+.event-meta { display:flex; gap:12px; flex-wrap:wrap; font-size:.74rem; color:#8a97b5; margin-bottom:10px; }
+.event-meta span { display:flex; align-items:center; gap:4px; }
+.event-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.btn-rsvp   { background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; border:none; padding:7px 16px; border-radius:8px; font-size:.76rem; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; display:inline-flex; align-items:center; gap:5px; transition:opacity .2s; }
+.btn-rsvp:hover { opacity:.85; }
+.btn-rsvp.rsvpd { background:linear-gradient(135deg,#2e7d32,#43a047); }
+.btn-read   { background:#f0f2fc; color:#1a237e; border:1.5px solid #c5cae9; padding:7px 14px; border-radius:8px; font-size:.76rem; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; display:inline-flex; align-items:center; gap:5px; transition:background .2s; }
+.btn-read:hover { background:#e8eaf6; }
+.ev-cat-badge { display:inline-block; font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; padding:2px 10px; border-radius:20px; }
+.ev-cat-badge.event   { background:#e8eaf6; color:#1a237e; }
+.ev-cat-badge.exam    { background:#fff9c4; color:#e65100; }
+.ev-cat-badge.holiday { background:#e8f5e9; color:#2e7d32; }
+
+/* sidebar widgets */
+.ev-cta-btn { display:block; text-align:center; background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; padding:11px; border-radius:10px; font-weight:700; font-size:.86rem; text-decoration:none; transition:opacity .2s; }
+.ev-cta-btn:hover { opacity:.85; color:#fff; }
+.ev-widget ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.ev-widget ul li { font-size:.83rem; color:#555; display:flex; align-items:flex-start; gap:8px; }
+.ev-widget ul li i { color:#3949ab; margin-top:2px; flex-shrink:0; }
+.mini-event { display:flex; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid #f0f2fc; font-size:.81rem; }
+.mini-event:last-child { border-bottom:none; }
+.mini-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.mini-dot.event   { background:#1a237e; }
+.mini-dot.exam    { background:#f57f17; }
+.mini-dot.holiday { background:#2e7d32; }
+.mini-event-date { font-size:.7rem; color:#9fa8da; white-space:nowrap; margin-left:auto; }
+</style>
+{% endblock %}
 
 {% block body %}
 
 
 		<div id="site-content">
+			<!-- ===== HEADER ===== -->
 			<header class="site-header">
 				<div class="primary-header">
 					<div class="container">
-						<a href="index.html" id="branding">
-							<img src="images/logo.png" alt="Lincoln high School">
-							<h1 class="site-title">City School</h1>
+						<a href="{{ path('index') }}" id="branding">
+							<img src="/images/logo.png" alt="City School">
+							<div>
+								<h1 class="site-title">City School</h1>
+								<span class="site-subtitle">Premium Learning Institution</span>
+							</div>
 						</a>
 
 						<div class="main-navigation">
-							<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
-							<ul class="menu">
-								<li class="menu-item"><a href="{{path('index')}}">Home</a></li>
-                                                                								<li class="menu-item"><a href="{{path('courses')}}">Courses</a></li>
-                                                                								<li class="menu-item"><a href="{{path('students')}}">Students</a></li>
-                                                                								<li class="menu-item"><a href="{{path('events')}}">Events</a></li>
-                                                                								<li class="menu-item"><a href="{{path('contact')}}">Contact</a></li>
+							<ul class="home-main-menu home-nav-v2">
+								<li class="home-nav-item"><a class="home-nav-link" href="{{ path('index') }}">Home</a></li>
+								<li class="home-nav-item"><a class="home-nav-link" href="{{ path('courses') }}">Courses</a></li>
+								<li class="home-nav-item"><a class="home-nav-link" href="{{ path('values') }}">Values</a></li>
+								<li class="home-nav-item current-menu-item"><a class="home-nav-link" href="{{ path('events') }}">Events</a></li>
+								<li class="home-nav-item"><a class="home-nav-link" href="{{ path('admissions') }}">Admissions</a></li>
+							<li class="home-nav-item"><a class="home-nav-link" href="{{ path('pricing') }}">Pricing</a></li>
+								<li class="home-nav-item"><a class="home-nav-link" href="{{ path('contact') }}">Contact</a></li>
+								<li class="home-nav-item nav-dropdown">
+									<a class="home-nav-link" href="#"><i class="fa fa-sign-in home-nav-login-icon"></i> Login <span class="arrow">&#9660;</span></a>
+									<ul class="dropdown-menu">
+										<li><a href="{{ path('portal_login') }}"><span class="dm-icon"><i class="fa fa-book"></i></span> Student Portal</a></li>
+										<li><a href="{{ path('teacher_login') }}"><span class="dm-icon"><i class="fa fa-sitemap"></i></span> Teacher Portal</a></li>
+										<li><a href="{{ path('parent_login') }}"><span class="dm-icon"><i class="fa fa-home"></i></span> Parent Portal</a></li>
+										<li><a href="{{ path('admin_login') }}"><span class="dm-icon"><i class="fa fa-cogs"></i></span> Admin Portal</a></li>
+										<li class="dropdown-divider"></li>
+										<li><a href="{{ path('super_admin_login') }}"><span class="dm-icon"><i class="fa fa-shield"></i></span> Super Admin</a></li>
+									</ul>
+								</li>
+								<li class="home-nav-item nav-lang-switcher">
+									<button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+									<button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+									<button class="lang-btn" data-lang="es" onclick="switchLang('es')">ES</button>
+								</li>
 							</ul>
-						</div> <!-- .main-navigation -->
+						</div>
+					</div>
+				</div>
 
-						<div class="mobile-navigation"></div>
-					</div> <!-- .container -->
-				</div> <!-- .primary-header -->
-
-				<div class="page-title">
+				<!-- HERO -->
+				<div class="home-slider">
 					<div class="container">
-						<h2>Our events are perfect</h2>
+						<div class="slide-caption">
+							<h2 class="slide-title">Where Excellence Meets<br>Opportunity</h2>
+							<p>City School provides a premium learning environment built on personalized instruction, modern labs, career mentoring, and a curriculum designed to unlock every student's potential.</p>
+							<div class="hero-cta-row">
+								<a href="{{ path('courses') }}" class="button large hero-btn hero-btn-programs"><i class="fa fa-book"></i>Explore Our Programs</a>
+								<a href="{{ path('contact') }}" class="button large hero-btn hero-btn-consult"><i class="fa fa-calendar"></i>Book a Consultation</a>
+							</div>
+						</div>
+						<div class="slider-img">
+							<img src="/dummy/kid.png" alt="Student at City School">
+						</div>
 					</div>
 				</div>
 			</header>
 		</div>
 
-		<main class="main-content">
-			<div class="fullwidth-block inner-content">
-				<div class="container">
-					<div class="fullwidth-content">
-						<h2 class="section-title"><i class="icon-calendar-lg"></i> Upcoming events</h2>
+    <main>
 
-						<div class="accordion">
-							<div class="accordion-toggle">
-								<h3>Blanditiis voluptatum deleniti</h3>
-								<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-								<span class="location"><i class="icon-map-marker"></i>Yankee Stadium</span>
-							</div>
-							<div class="accordion-content">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero.</p>
-							</div>
-						</div>
-						<div class="accordion">
-							<div class="accordion-toggle">
-								<h3>Corrupti quos dolores et quas molestias</h3>
-								<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-								<span class="location"><i class="icon-map-marker"></i>Yankee Stadium</span>
-							</div>
-							<div class="accordion-content">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero.</p>
-							</div>
-						</div>
-						<div class="accordion">
-							<div class="accordion-toggle">
-								<h3>Voluptates repudiandae sint</h3>
-								<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-								<span class="location"><i class="icon-map-marker"></i>Yankee Stadium</span>
-							</div>
-							<div class="accordion-content">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero.</p>
-							</div>
-						</div>
-						<div class="accordion">
-							<div class="accordion-toggle">
-								<h3>Voluptatum deleniti blanditiis</h3>
-								<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-								<span class="location"><i class="icon-map-marker"></i>Yankee Stadium</span>
-							</div>
-							<div class="accordion-content">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero.</p>
-							</div>
-						</div>
-						<div class="accordion">
-							<div class="accordion-toggle">
-								<h3>Neniet ut et voluptates repudiandae sint et molestiae</h3>
-								<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-								<span class="location"><i class="icon-map-marker"></i>Yankee Stadium</span>
-							</div>
-							<div class="accordion-content">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero.</p>
-							</div>
-						</div>
-						<div class="accordion">
-							<div class="accordion-toggle">
-								<h3>Blanditiis voluptatum deleniti</h3>
-								<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-								<span class="location"><i class="icon-map-marker"></i>Yankee Stadium</span>
-							</div>
-							<div class="accordion-content">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus totam quaerat, accusantium soluta facilis sequi quis ex nostrum, consequuntur odio ea. Eaque molestiae earum saepe, qui accusamus voluptate sed libero.</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> <!-- .fullwidth-block -->
-		</main>
+        <!-- ===== QUICK ACTION BAR ===== -->
+        <div class="ev-actions-bar">
+            <div class="container">
+                <div class="ev-actions-grid">
+                    <a href="#school-news" class="ev-action-card">
+                        <div class="ev-action-icon"><i class="fa fa-newspaper-o"></i></div>
+                        <h4>School News</h4>
+                        <p>Latest updates and stories from City School.</p>
+                    </a>
+                    <a href="#upcoming-events" class="ev-action-card">
+                        <div class="ev-action-icon"><i class="fa fa-calendar-check-o"></i></div>
+                        <h4>Upcoming Events</h4>
+                        <p>View and RSVP to events happening soon.</p>
+                    </a>
+                    <a href="#announcements" class="ev-action-card">
+                        <div class="ev-action-icon"><i class="fa fa-bullhorn"></i></div>
+                        <h4>Announcements</h4>
+                        <p>Important notices and urgent alerts.</p>
+                    </a>
+                    <a href="#academic-calendar" class="ev-action-card">
+                        <div class="ev-action-icon"><i class="fa fa-calendar"></i></div>
+                        <h4>Academic Calendar</h4>
+                        <p>Holidays, exams, and term dates at a glance.</p>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-		<footer class="site-footer">
-			<div class="container">
-				<div class="row">
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Contact us</h3>
-							<address>Lincoln High School <br>745 Jewel Ave Street <br>Fress Meadows, NY 1136</address>
+        <!-- ===== SCHOOL NEWS ===== -->
+        <section class="ev-section" id="school-news">
+            <div class="container">
+                <span class="ev-label">Latest from City School</span>
+                <h2 class="ev-title">School News</h2>
+                <p class="ev-sub">Stay up to date with achievements, programmes, and community highlights from across the school.</p>
+                <div class="news-grid">
+                    <div class="news-card">
+                        <div class="news-card-img" style="background:linear-gradient(135deg,#1a237e,#3949ab);"><i class="fa fa-trophy"></i></div>
+                        <div class="news-card-body">
+                            <span class="news-cat announce">Achievement</span>
+                            <h3>City School Wins Regional Science Olympiad</h3>
+                            <p>Our Grade 10 STEM team claimed first place at the Regional Science Olympiad, beating 24 competing schools.</p>
+                            <div class="news-meta"><span><i class="fa fa-calendar"></i> Apr 28, 2026</span><span><i class="fa fa-user"></i> Admin</span></div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-card-img" style="background:linear-gradient(135deg,#283593,#5c6bc0);"><i class="fa fa-book"></i></div>
+                        <div class="news-card-body">
+                            <span class="news-cat event">Programme</span>
+                            <h3>New A.I. &amp; Robotics Lab Opening in September</h3>
+                            <p>City School is proud to announce the opening of a state-of-the-art A.I. &amp; Robotics laboratory for Grades 8–12.</p>
+                            <div class="news-meta"><span><i class="fa fa-calendar"></i> Apr 22, 2026</span><span><i class="fa fa-user"></i> Principal</span></div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-card-img" style="background:linear-gradient(135deg,#2e7d32,#43a047);"><i class="fa fa-leaf"></i></div>
+                        <div class="news-card-body">
+                            <span class="news-cat holiday">Community</span>
+                            <h3>Students Lead Green Campus Initiative</h3>
+                            <p>The Student Environment Council launched a school-wide recycling and urban-gardening project this spring term.</p>
+                            <div class="news-meta"><span><i class="fa fa-calendar"></i> Apr 15, 2026</span><span><i class="fa fa-user"></i> Ms. Asante</span></div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-card-img" style="background:linear-gradient(135deg,#e65100,#ffa000);"><i class="fa fa-book"></i></div>
+                        <div class="news-card-body">
+                            <span class="news-cat exam">Academic</span>
+                            <h3>Grade 12 University Acceptance Results 2026</h3>
+                            <p>97% of our graduating class received university offers, with 34 students placed in top-ranked institutions worldwide.</p>
+                            <div class="news-meta"><span><i class="fa fa-calendar"></i> Apr 10, 2026</span><span><i class="fa fa-user"></i> Admin</span></div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-card-img" style="background:linear-gradient(135deg,#6a1b9a,#ab47bc);"><i class="fa fa-music"></i></div>
+                        <div class="news-card-body">
+                            <span class="news-cat announce">Arts</span>
+                            <h3>Annual Performing Arts Showcase — May 20</h3>
+                            <p>Join us for an evening of music, dance, and drama performed by students from Grades 3 to 12.</p>
+                            <div class="news-meta"><span><i class="fa fa-calendar"></i> Apr 5, 2026</span><span><i class="fa fa-user"></i> Arts Dept.</span></div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-card-img" style="background:linear-gradient(135deg,#00695c,#00897b);"><i class="fa fa-users"></i></div>
+                        <div class="news-card-body">
+                            <span class="news-cat event">Partnership</span>
+                            <h3>City School Partners with Tech Futures Foundation</h3>
+                            <p>A new partnership will bring coding bootcamps, mentorship, and internships to upper secondary students.</p>
+                            <div class="news-meta"><span><i class="fa fa-calendar"></i> Mar 28, 2026</span><span><i class="fa fa-user"></i> Admin</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-							<a href="mailto:info@lincolnhighschool.com">info@lincolnhighschool.com</a> <br>
-							<a href="tel:48942652394324">(489) 42652394324</a>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Social media</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-							<div class="social-links circle">
-								<li class="menu-item current-menu-item"><a href="{{path('index')}}">Home</a></li>
-                                								<li class="menu-item"><a href="{{path('courses')}}">Courses</a></li>
-                                								<li class="menu-item"><a href="{{path('students')}}">Students</a></li>
-                                								<li class="menu-item"><a href="{{path('events')}}">Events</a></li>
-                                								<li class="menu-item"><a href="{{path('contact')}}">Contact</a></li>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
+        <!-- ===== UPCOMING EVENTS + RSVP ===== -->
+        <section class="ev-section-alt" id="upcoming-events">
+            <div class="container">
+                <span class="ev-label">What&#39;s On</span>
+                <h2 class="ev-title">Upcoming Events</h2>
+                <p class="ev-sub">Browse events, read details, and RSVP to secure your spot — confirmation is sent instantly.</p>
+                <div class="ev-split">
+                    <div>
+                        <div class="events-list" id="eventsList">
+
+                            <div class="event-row" data-cat="event">
+                                <div class="event-date-box"><div class="edb-day">20</div><div class="edb-mon">May</div></div>
+                                <div class="event-info">
+                                    <span class="ev-cat-badge event">Event</span>
+                                    <h3>Annual Performing Arts Showcase</h3>
+                                    <p>An evening of music, dance, and theatrical performances by students from all grades. Parents and community members are warmly invited.</p>
+                                    <div class="event-meta"><span><i class="fa fa-clock-o"></i> 6:00 PM – 9:00 PM</span><span><i class="fa fa-map-marker"></i> Main Auditorium</span><span><i class="fa fa-users"></i> 300 seats</span></div>
+                                    <div class="event-actions">
+                                        <button class="btn-rsvp" onclick="rsvpEvent(this,'arts-showcase')"><i class="fa fa-check"></i> RSVP</button>
+                                        <button class="btn-read"><i class="fa fa-info-circle"></i> Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="event-row exam" data-cat="exam">
+                                <div class="event-date-box"><div class="edb-day">26</div><div class="edb-mon">May</div></div>
+                                <div class="event-info">
+                                    <span class="ev-cat-badge exam">Exam</span>
+                                    <h3>Mid-Year Examinations Begin (Grades 9–12)</h3>
+                                    <p>Mid-year assessments for secondary students begin. Timetables have been distributed; students should check the portal for their personal schedule.</p>
+                                    <div class="event-meta"><span><i class="fa fa-clock-o"></i> 8:00 AM start</span><span><i class="fa fa-map-marker"></i> Examination Halls A, B, C</span><span><i class="fa fa-calendar"></i> Through Jun 6</span></div>
+                                    <div class="event-actions">
+                                        <button class="btn-read"><i class="fa fa-download"></i> Download Timetable</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="event-row" data-cat="event">
+                                <div class="event-date-box"><div class="edb-day">31</div><div class="edb-mon">May</div></div>
+                                <div class="event-info">
+                                    <span class="ev-cat-badge event">Event</span>
+                                    <h3>Open Day &amp; School Tour</h3>
+                                    <p>Prospective families are invited to tour the campus, meet teachers, attend sample classes, and learn about our programmes and admission process.</p>
+                                    <div class="event-meta"><span><i class="fa fa-clock-o"></i> 9:00 AM – 1:00 PM</span><span><i class="fa fa-map-marker"></i> Main Campus</span></div>
+                                    <div class="event-actions">
+                                        <button class="btn-rsvp" onclick="rsvpEvent(this,'open-day')"><i class="fa fa-check"></i> RSVP</button>
+                                        <button class="btn-read"><i class="fa fa-info-circle"></i> Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="event-row holiday" data-cat="holiday">
+                                <div class="event-date-box"><div class="edb-day">10</div><div class="edb-mon">Jun</div></div>
+                                <div class="event-info">
+                                    <span class="ev-cat-badge holiday">Holiday</span>
+                                    <h3>School Closed — National Day</h3>
+                                    <p>City School will be closed on this public holiday. All classes and activities are suspended. Normal schedule resumes June 11.</p>
+                                    <div class="event-meta"><span><i class="fa fa-clock-o"></i> All Day</span></div>
+                                    <div class="event-actions">
+                                        <button class="btn-read"><i class="fa fa-info-circle"></i> Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="event-row" data-cat="event">
+                                <div class="event-date-box"><div class="edb-day">18</div><div class="edb-mon">Jun</div></div>
+                                <div class="event-info">
+                                    <span class="ev-cat-badge event">Event</span>
+                                    <h3>STEM Innovation Fair</h3>
+                                    <p>Students from Grades 5–12 present their science and technology projects to a panel of industry judges. Prizes awarded in 4 categories.</p>
+                                    <div class="event-meta"><span><i class="fa fa-clock-o"></i> 10:00 AM – 3:00 PM</span><span><i class="fa fa-map-marker"></i> Sports Hall</span></div>
+                                    <div class="event-actions">
+                                        <button class="btn-rsvp" onclick="rsvpEvent(this,'stem-fair')"><i class="fa fa-check"></i> RSVP</button>
+                                        <button class="btn-read"><i class="fa fa-info-circle"></i> Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="event-row" data-cat="event">
+                                <div class="event-date-box"><div class="edb-day">25</div><div class="edb-mon">Jun</div></div>
+                                <div class="event-info">
+                                    <span class="ev-cat-badge event">Event</span>
+                                    <h3>End-of-Year Awards &amp; Graduation Ceremony</h3>
+                                    <p>Celebrating the achievements of all students, with special recognition for top performers and the Grade 12 graduating class of 2026.</p>
+                                    <div class="event-meta"><span><i class="fa fa-clock-o"></i> 4:00 PM – 7:00 PM</span><span><i class="fa fa-map-marker"></i> Main Auditorium</span><span><i class="fa fa-users"></i> 500 seats</span></div>
+                                    <div class="event-actions">
+                                        <button class="btn-rsvp" onclick="rsvpEvent(this,'graduation')"><i class="fa fa-check"></i> RSVP</button>
+                                        <button class="btn-read"><i class="fa fa-info-circle"></i> Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- RSVP PANEL -->
+                        <div class="rsvp-panel" id="rsvpPanel">
+                            <h4><i class="fa fa-check-circle" style="color:#1a237e;margin-right:6px;"></i> RSVP — <span id="rsvpEventName"></span></h4>
+                            <div class="rsvp-form">
+                                <input type="text"  id="rsvpName"  placeholder="Your Full Name *">
+                                <input type="email" id="rsvpEmail" placeholder="Email Address *">
+                                <select id="rsvpCount"><option value="1">1 person</option><option value="2">2 people</option><option value="3">3 people</option><option value="4">4+ people</option></select>
+                                <button class="rsvp-btn" onclick="confirmRsvp()"><i class="fa fa-paper-plane"></i> Confirm RSVP</button>
+                            </div>
+                            <div class="rsvp-confirm" id="rsvpConfirm"><i class="fa fa-check-circle"></i> You're registered! A confirmation email has been sent.</div>
+                        </div>
+                    </div>
+
+                    <aside class="ev-sidebar">
+                        <div class="ev-widget">
+                            <h4><i class="fa fa-filter"></i> Filter Events</h4>
+                            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+                                <button class="cal-filter-btn active" data-ef="all"     onclick="filterEvents(this)">All</button>
+                                <button class="cal-filter-btn" data-ef="event"   onclick="filterEvents(this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1a237e;margin-right:5px;"></span>Events</button>
+                                <button class="cal-filter-btn" data-ef="exam"    onclick="filterEvents(this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f57f17;margin-right:5px;"></span>Exams</button>
+                                <button class="cal-filter-btn" data-ef="holiday" onclick="filterEvents(this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2e7d32;margin-right:5px;"></span>Holidays</button>
+                            </div>
+                        </div>
+                        <div class="ev-widget">
+                            <h4><i class="fa fa-download"></i> Export Calendar</h4>
+                            <p style="font-size:.81rem;color:#6b7a99;margin:0 0 12px;">Add all school events to your personal calendar.</p>
+                            <a href="#" class="ev-cta-btn" style="margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#1565c0,#1e88e5);"><i class="fa fa-google"></i> Add to Google Calendar</a>
+                            <a href="#" class="ev-cta-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#0078d4,#106ebe);"><i class="fa fa-windows"></i> Add to Outlook</a>
+                        </div>
+                        <div class="ev-widget">
+                            <h4><i class="fa fa-clock-o"></i> Coming Soon</h4>
+                            <div class="mini-event"><span class="mini-dot event"></span><span>Performing Arts Showcase</span><span class="mini-event-date">May 20</span></div>
+                            <div class="mini-event"><span class="mini-dot exam"></span><span>Mid-Year Exams</span><span class="mini-event-date">May 26</span></div>
+                            <div class="mini-event"><span class="mini-dot event"></span><span>Open Day</span><span class="mini-event-date">May 31</span></div>
+                            <div class="mini-event"><span class="mini-dot holiday"></span><span>National Day Holiday</span><span class="mini-event-date">Jun 10</span></div>
+                            <div class="mini-event"><span class="mini-dot event"></span><span>STEM Innovation Fair</span><span class="mini-event-date">Jun 18</span></div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ANNOUNCEMENTS ===== -->
+        <section class="ev-section" id="announcements">
+            <div class="container">
+                <span class="ev-label">Notices &amp; Alerts</span>
+                <h2 class="ev-title">Announcements</h2>
+                <p class="ev-sub">Important school-wide notices. Click the bell icon to push a notice to your browser for instant updates.</p>
+                <div class="ev-split">
+                    <div class="announce-list">
+
+                        <div class="announce-item urgent">
+                            <div class="announce-dot"><i class="fa fa-exclamation"></i></div>
+                            <div class="announce-info" style="flex:1;">
+                                <h4>Mid-Year Exam Timetable Published</h4>
+                                <p>The final timetable for mid-year examinations (Grades 9–12) has been published on the student portal. All students are asked to review their personal schedule immediately.</p>
+                                <div class="announce-meta"><span><i class="fa fa-calendar"></i> Apr 30, 2026</span><span><i class="fa fa-tag"></i> Academic</span></div>
+                            </div>
+                            <button class="push-badge" onclick="pushNotice(this)"><i class="fa fa-bell-o"></i> Notify Me</button>
+                        </div>
+
+                        <div class="announce-item">
+                            <div class="announce-dot"><i class="fa fa-info"></i></div>
+                            <div class="announce-info" style="flex:1;">
+                                <h4>2026–2027 Admissions Now Open</h4>
+                                <p>Applications for the upcoming academic year are now being accepted. Limited places available — apply early to avoid disappointment.</p>
+                                <div class="announce-meta"><span><i class="fa fa-calendar"></i> Apr 25, 2026</span><span><i class="fa fa-tag"></i> Admissions</span></div>
+                            </div>
+                            <button class="push-badge" onclick="pushNotice(this)"><i class="fa fa-bell-o"></i> Notify Me</button>
+                        </div>
+
+                        <div class="announce-item exam">
+                            <div class="announce-dot"><i class="fa fa-pencil"></i></div>
+                            <div class="announce-info" style="flex:1;">
+                                <h4>Grade 8 Placement Assessment — May 14</h4>
+                                <p>All incoming Grade 9 students are required to sit a placement assessment in Mathematics and English on May 14. Venue: Lecture Hall B.</p>
+                                <div class="announce-meta"><span><i class="fa fa-calendar"></i> Apr 20, 2026</span><span><i class="fa fa-tag"></i> Assessment</span></div>
+                            </div>
+                            <button class="push-badge" onclick="pushNotice(this)"><i class="fa fa-bell-o"></i> Notify Me</button>
+                        </div>
+
+                        <div class="announce-item holiday">
+                            <div class="announce-dot"><i class="fa fa-flag"></i></div>
+                            <div class="announce-info" style="flex:1;">
+                                <h4>School Closed — National Day (June 10)</h4>
+                                <p>City School will be closed on June 10 in observance of National Day. All extra-curricular activities are also suspended. Regular operations resume June 11.</p>
+                                <div class="announce-meta"><span><i class="fa fa-calendar"></i> Apr 15, 2026</span><span><i class="fa fa-tag"></i> Holiday</span></div>
+                            </div>
+                            <button class="push-badge" onclick="pushNotice(this)"><i class="fa fa-bell-o"></i> Notify Me</button>
+                        </div>
+
+                        <div class="announce-item">
+                            <div class="announce-dot"><i class="fa fa-bus"></i></div>
+                            <div class="announce-info" style="flex:1;">
+                                <h4>School Bus Route Update — Route 4 &amp; 7</h4>
+                                <p>Effective May 5, Routes 4 and 7 will have adjusted pick-up times. Please check the updated schedule on the parent portal or contact the transport office.</p>
+                                <div class="announce-meta"><span><i class="fa fa-calendar"></i> Apr 10, 2026</span><span><i class="fa fa-tag"></i> Transport</span></div>
+                            </div>
+                            <button class="push-badge" onclick="pushNotice(this)"><i class="fa fa-bell-o"></i> Notify Me</button>
+                        </div>
+
+                        <div class="announce-item">
+                            <div class="announce-dot"><i class="fa fa-book"></i></div>
+                            <div class="announce-info" style="flex:1;">
+                                <h4>Library Extended Hours During Exam Period</h4>
+                                <p>The school library will remain open until 7:00 PM on weekdays and 10:00 AM – 4:00 PM on Saturdays throughout the mid-year examination period.</p>
+                                <div class="announce-meta"><span><i class="fa fa-calendar"></i> Apr 8, 2026</span><span><i class="fa fa-tag"></i> Facilities</span></div>
+                            </div>
+                            <button class="push-badge" onclick="pushNotice(this)"><i class="fa fa-bell-o"></i> Notify Me</button>
+                        </div>
+
+                    </div>
+                    <aside class="ev-sidebar">
+                        <div class="ev-widget">
+                            <h4><i class="fa fa-bell"></i> Push Notifications</h4>
+                            <ul>
+                                <li><i class="fa fa-check"></i> Get instant alerts for urgent notices</li>
+                                <li><i class="fa fa-check"></i> Exam reminders the day before</li>
+                                <li><i class="fa fa-check"></i> Holiday &amp; closure alerts</li>
+                                <li><i class="fa fa-check"></i> Event RSVP confirmations</li>
+                            </ul>
+                            <div style="margin-top:14px;">
+                                <a href="#" class="ev-cta-btn" onclick="requestPush(event)"><i class="fa fa-bell"></i> Enable Push Notifications</a>
+                            </div>
+                        </div>
+                        <div class="ev-widget">
+                            <a href="{{ path('contact') }}" class="ev-cta-btn"><i class="fa fa-envelope"></i> Contact School Office</a>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ACADEMIC CALENDAR ===== -->
+        <section class="ev-section-alt" id="academic-calendar">
+            <div class="container">
+                <span class="ev-label">Academic Calendar</span>
+                <h2 class="ev-title">2025–2026 Academic Calendar</h2>
+                <p class="ev-sub">All holidays, exam periods, term dates, and school events in one interactive view. Filter by category and export to your personal calendar.</p>
+
+                <div class="cal-toolbar">
+                    <div class="cal-nav">
+                        <button onclick="calPrev()">&#8249; Prev</button>
+                        <span class="cal-month-label" id="calLabel">May 2026</span>
+                        <button onclick="calNext()">Next &#8250;</button>
+                    </div>
+                    <button class="cal-filter-btn active" data-cf="all"     onclick="calFilter(this)">All</button>
+                    <button class="cal-filter-btn" data-cf="event"   onclick="calFilter(this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1a237e;margin-right:4px;"></span>Events</button>
+                    <button class="cal-filter-btn" data-cf="exam"    onclick="calFilter(this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f57f17;margin-right:4px;"></span>Exams</button>
+                    <button class="cal-filter-btn" data-cf="holiday" onclick="calFilter(this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2e7d32;margin-right:4px;"></span>Holidays</button>
+                    <a href="#" class="cal-export-btn"><i class="fa fa-google"></i> Google</a>
+                    <a href="#" class="cal-export-btn"><i class="fa fa-windows"></i> Outlook</a>
+                </div>
+
+                <div class="cal-grid" id="calGrid">
+                    <!-- Days header -->
+                    <div class="cal-head">Sun</div>
+                    <div class="cal-head">Mon</div>
+                    <div class="cal-head">Tue</div>
+                    <div class="cal-head">Wed</div>
+                    <div class="cal-head">Thu</div>
+                    <div class="cal-head">Fri</div>
+                    <div class="cal-head">Sat</div>
+                    <!-- Cells rendered by JS -->
+                </div>
+
+                <!-- Calendar legend -->
+                <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-size:.78rem;color:#6b7a99;">
+                    <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#e8eaf6;"></span> Event</span>
+                    <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#fff9c4;border:1px solid #f57f17;"></span> Exam</span>
+                    <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#e8f5e9;border:1px solid #2e7d32;"></span> Holiday</span>
+                    <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#f0f2fc;border:1.5px solid #1a237e;"></span> Today</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CTA STRIP ===== -->
+        <section class="ev-section-dark">
+            <div class="container" style="text-align:center;">
+                <span class="ev-label ev-label-light">Stay Informed</span>
+                <h2 class="ev-title ev-title-light" style="margin-bottom:14px;">Never Miss a School Update</h2>
+                <p class="ev-sub ev-sub-light" style="margin:0 auto 28px;">Subscribe to our newsletter for weekly news, event reminders, and academic notices delivered straight to your inbox.</p>
+                <form style="display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center;" onsubmit="return false;">
+                    <input type="email" placeholder="Your email address" style="padding:11px 18px;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.9rem;min-width:260px;">
+                    <button style="background:#fff;color:#1a237e;border:none;padding:11px 24px;border-radius:8px;font-weight:800;font-size:.88rem;cursor:pointer;font-family:'Montserrat',sans-serif;">Subscribe</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Contact us</h3>
+                        <address>City School <br>745 Jewel Ave Street <br>Fress Meadows, NY 11365</address>
+                        <a href="mailto:info@cityschool.edu">info@cityschool.edu</a> <br>
+                        <a href="tel:+148942652394">(489) 426-52394</a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Social media</h3>
+                        <p>Follow us for news, events, and student achievements.</p>
+                        <div class="social-links circle">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-google-plus"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Featured students</h3>
+                        <ul class="student-list">
+                            <li><a href="#">
+                                <img src="/dummy/student-sm-1.jpg" alt="" class="avatar">
+                                <span class="fn">Sarah Branson</span>
+                                <span class="average">Average: 4.9</span>
+                            </a></li>
+                            <li><a href="#">
+                                <img src="/dummy/student-sm-2.jpg" alt="" class="avatar">
+                                <span class="fn">Dorothy Smith</span>
+                                <span class="average">Average: 4.9</span>
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Newsletter</h3>
+                        <p>Stay updated with school news and events.</p>
+                        <form action="#" class="subscribe">
+                            <input type="email" placeholder="Email Address...">
+                            <input type="submit" class="light" value="Subscribe">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="copy">Copyright &copy; 2024 City School. All rights reserved.
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('privacy');return false;" style="color:inherit;opacity:.7;">Privacy Policy</a>
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('terms');return false;" style="color:inherit;opacity:.7;">Terms of Service</a>
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('cookie-settings');return false;" style="color:inherit;opacity:.7;">Cookie Settings</a>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script src="/js/plugins.js"></script>
+<script src="/js/app.js"></script>
+<script>
+/* ===== RSVP ===== */
+var _rsvpTarget = null;
+function rsvpEvent(btn, eventId) {
+    _rsvpTarget = btn;
+    var panel = document.getElementById('rsvpPanel');
+    var nameEl = document.getElementById('rsvpEventName');
+    nameEl.textContent = btn.closest('.event-row').querySelector('h3').textContent;
+    document.getElementById('rsvpConfirm').style.display = 'none';
+    panel.classList.add('open');
+    panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function confirmRsvp() {
+    var name  = document.getElementById('rsvpName').value.trim();
+    var email = document.getElementById('rsvpEmail').value.trim();
+    if(!name || !email) { alert('Please enter your name and email.'); return; }
+    document.getElementById('rsvpConfirm').style.display = 'block';
+    if(_rsvpTarget) {
+        _rsvpTarget.innerHTML = '<i class="fa fa-check"></i> RSVP\'d';
+        _rsvpTarget.classList.add('rsvpd');
+        _rsvpTarget.disabled = true;
+    }
+}
+
+/* ===== EVENT LIST FILTER ===== */
+function filterEvents(btn) {
+    document.querySelectorAll('[data-ef]').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    var cat = btn.getAttribute('data-ef');
+    document.querySelectorAll('#eventsList .event-row').forEach(function(row){
+        row.style.display = (cat === 'all' || row.getAttribute('data-cat') === cat) ? '' : 'none';
+    });
+}
+
+/* ===== PUSH NOTIFICATIONS ===== */
+function pushNotice(btn) {
+    btn.innerHTML = '<i class="fa fa-bell"></i> Notifying…';
+    btn.classList.add('pushed');
+    btn.disabled = true;
+    setTimeout(function(){ btn.innerHTML = '<i class="fa fa-check"></i> Saved'; }, 900);
+}
+function requestPush(e) {
+    e.preventDefault();
+    if('Notification' in window) {
+        Notification.requestPermission().then(function(p){
+            if(p === 'granted') { new Notification('City School', {body:'Push notifications enabled!'}); }
+        });
+    }
+}
+
+/* ===== ACADEMIC CALENDAR ===== */
+var calYear = 2026, calMonth = 4; /* May = index 4 */
+var calCatFilter = 'all';
+var calEvents = [
+    {y:2026,m:4,d:2,  label:'Today',         cat:'event'},
+    {y:2026,m:4,d:20, label:'Arts Showcase',  cat:'event'},
+    {y:2026,m:4,d:26, label:'Exams Begin',    cat:'exam'},
+    {y:2026,m:4,d:26, label:'Mid-Year Exams', cat:'exam'},
+    {y:2026,m:4,d:31, label:'Open Day',       cat:'event'},
+    {y:2026,m:5,d:6,  label:'Exams End',      cat:'exam'},
+    {y:2026,m:5,d:10, label:'National Day',   cat:'holiday'},
+    {y:2026,m:5,d:18, label:'STEM Fair',      cat:'event'},
+    {y:2026,m:5,d:25, label:'Graduation',     cat:'event'},
+    {y:2026,m:6,d:4,  label:'Term 2 Starts',  cat:'event'},
+    {y:2026,m:7,d:15, label:'Sept Deadline',  cat:'exam'},
+    {y:2026,m:8,d:1,  label:'Term 3 Starts',  cat:'event'},
+];
+var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function renderCal() {
+    document.getElementById('calLabel').textContent = monthNames[calMonth] + ' ' + calYear;
+    var grid = document.getElementById('calGrid');
+    /* remove old day cells (keep 7 header cells) */
+    while(grid.children.length > 7) grid.removeChild(grid.lastChild);
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    var today = new Date();
+    /* leading blanks */
+    for(var i = 0; i < firstDay; i++) {
+        var blank = document.createElement('div');
+        blank.className = 'cal-cell other-month';
+        grid.appendChild(blank);
+    }
+    for(var d = 1; d <= daysInMonth; d++) {
+        var cell = document.createElement('div');
+        cell.className = 'cal-cell';
+        if(today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d) cell.classList.add('today');
+        var dayEl = document.createElement('div');
+        dayEl.className = 'cal-day-num';
+        dayEl.textContent = d;
+        cell.appendChild(dayEl);
+        calEvents.forEach(function(ev){
+            if(ev.y===calYear && ev.m===calMonth && ev.d===d) {
+                if(calCatFilter==='all' || calCatFilter===ev.cat){
+                    var dot = document.createElement('div');
+                    dot.className = 'cal-event-dot ' + ev.cat;
+                    dot.textContent = ev.label;
+                    cell.appendChild(dot);
+                }
+            }
+        });
+        grid.appendChild(cell);
+    }
+}
+function calPrev() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCal(); }
+function calNext() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCal(); }
+function calFilter(btn) {
+    document.querySelectorAll('[data-cf]').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    calCatFilter = btn.getAttribute('data-cf');
+    renderCal();
+}
+renderCal();
+</script>
 
 {% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Communications{% endblock %}
+{% block page_title %}Communication & System Messaging{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+    <div class="super-kpi"><div class="kpi-value">{{ announcements|length }}</div><div class="kpi-label">System Announcements</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ notif_analytics.campaignsSent }}</div><div class="kpi-label">Campaigns Sent</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ notif_analytics.pushOpenRate }}%</div><div class="kpi-label">Push Open Rate</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ notif_analytics.emailOpenRate }}%</div><div class="kpi-label">Email Open Rate</div></div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-bullhorn" style="margin-right:6px;color:#f97316;"></i>Global Announcements</span></div>
+        <form method="post" action="{{ path('super_admin_communications') }}">
+            <div class="form-group"><label class="form-label">Title</label><input class="form-control" name="title" placeholder="Platform-wide update"></div>
+            <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" rows="4" name="body" placeholder="Write announcement content..."></textarea></div>
+            <div class="grid-2" style="gap:10px;">
+                <div class="form-group"><label class="form-label">Target</label><select class="form-control" name="target"><option>All Schools</option><option>All Users</option><option>Admins Only</option><option>Teachers Only</option></select></div>
+                <div class="form-group"><label class="form-label">Channel</label><select class="form-control" name="channel"><option>In-App</option><option>Push</option><option>Email</option><option>Push + Email</option></select></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-orange" type="submit" name="action" value="send_global"><i class="fa fa-paper-plane"></i> Send Now</button>
+                <button class="btn-orange" type="submit" name="action" value="schedule"><i class="fa fa-clock-o"></i> Schedule</button>
+                <button class="btn-orange" type="submit" name="action" value="push_all"><i class="fa fa-bell"></i> Push System-wide</button>
+                <button class="btn-orange" type="submit" name="action" value="email_campaign"><i class="fa fa-envelope"></i> Email Campaign</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-calendar" style="margin-right:6px;color:#f97316;"></i>Scheduled & Sent Messages</span></div>
+        <table class="portal-table">
+            <thead><tr><th>Title</th><th>Target</th><th>Channel</th><th>Schedule</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for a in announcements %}
+            <tr>
+                <td style="font-weight:700;">{{ a.title }}</td>
+                <td>{{ a.target }}</td>
+                <td>{{ a.channel }}</td>
+                <td>{{ a.scheduledAt }}</td>
+                <td><span class="super-tag {{ a.status == 'sent' ? 'active' : 'trial' }}">{{ a.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-filter" style="margin-right:6px;color:#f97316;"></i>Premium: Segmented Messaging</span></div>
+    <form method="post" action="{{ path('super_admin_communications') }}" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:end;">
+        <div class="form-group" style="margin:0;"><label class="form-label">Segment</label><select class="form-control" name="segment">{% for s in segments %}<option>{{ s.name }} ({{ s.count }})</option>{% endfor %}</select></div>
+        <div class="form-group" style="margin:0;"><label class="form-label">Region/School</label><select class="form-control" name="school">{% for sc in schools %}<option>{{ sc.name }}</option>{% endfor %}</select></div>
+        <button class="btn-orange" type="submit" name="action" value="send_segment"><i class="fa fa-send"></i> Send to Segment</button>
+    </form>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-pie-chart" style="margin-right:6px;color:#f97316;"></i>Premium: Notification Analytics</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+        <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Push Open Rate</div><div style="font-size:22px;font-weight:900;color:#9a3412;">{{ notif_analytics.pushOpenRate }}%</div></div>
+        <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Email Open Rate</div><div style="font-size:22px;font-weight:900;color:#0369a1;">{{ notif_analytics.emailOpenRate }}%</div></div>
+        <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Click Rate</div><div style="font-size:22px;font-weight:900;color:#16a34a;">{{ notif_analytics.clickRate }}%</div></div>
+        <div class="super-card"><div style="font-size:12px;color:#7c2d12;">Top Campaign</div><div style="font-size:16px;font-weight:900;color:#c2410c;">{{ notif_analytics.topCampaign }}</div></div>
+    </div>
+</div>
+{% endblock %}

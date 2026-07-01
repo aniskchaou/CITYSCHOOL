@@ -1,0 +1,813 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Why City School | Features, Benefits &amp; Pricing{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ===== VALUES PAGE ===== */
+.val-section     { padding:72px 0; }
+.val-section-alt { padding:72px 0; background:#f7f9fc; }
+.val-section-dark{ padding:72px 0; background:linear-gradient(135deg,#1a237e 0%,#283593 100%); color:#fff; }
+.val-label { display:inline-block; background:#1a237e; color:#fff; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:14px; }
+.val-label-light { background:rgba(255,255,255,.22); }
+.val-title { font-family:'Arvo',serif; font-size:2rem; font-weight:700; color:#1a237e; margin:0 0 10px; line-height:1.2; }
+.val-title-light { color:#fff; }
+.val-sub { color:#6b7a99; font-size:.97rem; margin:0 0 40px; max-width:620px; line-height:1.7; }
+.val-sub-light { color:rgba(255,255,255,.78); }
+.val-center { text-align:center; }
+.val-center .val-sub { margin-left:auto; margin-right:auto; }
+
+/* ── HERO OVERRIDE ── */
+.val-hero-slide .slide-caption h2 { font-size:2.3rem; }
+
+/* ── QUICK ACTIONS BAR ── */
+.val-actions-bar { background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#3949ab 100%); padding:40px 0 34px; }
+.val-actions-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+@media(max-width:900px){ .val-actions-grid { grid-template-columns:repeat(2,1fr); } }
+.val-action-card { background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.18); border-radius:14px; padding:24px 18px; text-align:center; color:#fff; text-decoration:none; transition:background .2s,transform .2s; display:block; }
+.val-action-card:hover { background:rgba(255,255,255,.2); transform:translateY(-4px); color:#fff; text-decoration:none; }
+.val-action-icon { width:48px; height:48px; background:rgba(255,255,255,.15); border-radius:11px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.3rem; }
+.val-action-card h4 { font-family:'Arvo',serif; font-size:.95rem; margin:0 0 5px; }
+.val-action-card p  { font-size:.76rem; opacity:.82; margin:0; line-height:1.5; }
+
+/* ── FEATURES ── */
+.features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+@media(max-width:960px){ .features-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:540px){ .features-grid { grid-template-columns:1fr; } }
+.feature-card { background:#fff; border-radius:16px; padding:30px 24px; box-shadow:0 4px 24px rgba(26,35,126,.07); border:1.5px solid #eef0fb; transition:transform .2s,box-shadow .2s; }
+.feature-card:hover { transform:translateY(-6px); box-shadow:0 14px 40px rgba(26,35,126,.12); }
+.feature-icon { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:18px; }
+.feature-card h3 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 8px; }
+.feature-card p  { font-size:.83rem; color:#6b7a99; margin:0; line-height:1.6; }
+.feature-tag { display:inline-flex; align-items:center; gap:4px; margin-top:14px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:3px 10px; border-radius:20px; }
+.feature-tag.premium { background:#fce4ec; color:#c62828; }
+.feature-tag.core    { background:#e8eaf6; color:#1a237e; }
+
+/* ── BENEFITS ── */
+.benefits-split { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; }
+@media(max-width:860px){ .benefits-split { grid-template-columns:1fr; } }
+.benefit-list { display:flex; flex-direction:column; gap:20px; }
+.benefit-item { display:flex; gap:16px; align-items:flex-start; }
+.benefit-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+.benefit-item h4 { font-family:'Arvo',serif; font-size:.97rem; color:#1a237e; margin:0 0 4px; }
+.benefit-item p  { font-size:.83rem; color:#6b7a99; margin:0; line-height:1.6; }
+.benefit-visual { background:linear-gradient(135deg,#1a237e 0%,#3949ab 100%); border-radius:20px; padding:36px 30px; color:#fff; display:flex; flex-direction:column; gap:18px; }
+.benefit-visual h3 { font-family:'Arvo',serif; font-size:1.3rem; margin:0 0 6px; }
+.benefit-visual p  { font-size:.86rem; opacity:.82; margin:0; line-height:1.6; }
+.benefit-stat-row { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:8px; }
+.benefit-stat { background:rgba(255,255,255,.12); border-radius:12px; padding:16px; text-align:center; }
+.benefit-stat .bs-num  { font-size:1.7rem; font-weight:800; font-family:'Arvo',serif; line-height:1; }
+.benefit-stat .bs-lbl  { font-size:.72rem; opacity:.78; margin-top:4px; }
+
+/* ── PRICING ── */
+.pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:start; }
+@media(max-width:900px){ .pricing-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:560px){ .pricing-grid { grid-template-columns:1fr; } }
+.pricing-card { background:#fff; border-radius:20px; padding:34px 28px; box-shadow:0 4px 24px rgba(26,35,126,.08); border:2px solid #eef0fb; position:relative; }
+.pricing-card.featured { border-color:#1a237e; box-shadow:0 10px 40px rgba(26,35,126,.18); }
+.pricing-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:#1a237e; color:#fff; font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:4px 18px; border-radius:20px; white-space:nowrap; }
+.pricing-tier { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:#8a97b5; margin-bottom:8px; }
+.pricing-name { font-family:'Arvo',serif; font-size:1.3rem; color:#1a237e; font-weight:700; margin:0 0 6px; }
+.pricing-price { display:flex; align-items:flex-end; gap:4px; margin:14px 0 18px; }
+.pricing-price .pp-currency { font-size:1.1rem; font-weight:700; color:#1a237e; padding-bottom:4px; }
+.pricing-price .pp-amount   { font-size:2.6rem; font-weight:800; font-family:'Arvo',serif; color:#1a237e; line-height:1; }
+.pricing-price .pp-period   { font-size:.78rem; color:#8a97b5; padding-bottom:6px; }
+.pricing-desc { font-size:.83rem; color:#6b7a99; margin:0 0 22px; line-height:1.5; }
+.pricing-features { list-style:none; padding:0; margin:0 0 26px; display:flex; flex-direction:column; gap:10px; }
+.pricing-features li { font-size:.83rem; color:#445; display:flex; align-items:flex-start; gap:10px; }
+.pricing-features li i { color:#1a237e; margin-top:1px; flex-shrink:0; }
+.pricing-features li i.fa-times { color:#bbb; }
+.pricing-features li.disabled { color:#bbb; }
+.pricing-btn { display:block; text-align:center; padding:12px; border-radius:10px; font-weight:700; font-size:.88rem; text-decoration:none; transition:opacity .2s; }
+.pricing-btn.primary { background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; }
+.pricing-btn.outline { border:2px solid #1a237e; color:#1a237e; background:transparent; }
+.pricing-btn:hover { opacity:.85; }
+.pricing-note { text-align:center; margin-top:28px; font-size:.82rem; color:#8a97b5; }
+
+/* ── TESTIMONIALS ── */
+.testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+@media(max-width:960px){ .testimonials-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:540px){ .testimonials-grid { grid-template-columns:1fr; } }
+.testi-card { background:#fff; border-radius:16px; padding:28px 24px; box-shadow:0 4px 22px rgba(26,35,126,.08); border:1.5px solid #eef0fb; position:relative; }
+.testi-card::before { content:'\201C'; font-size:4rem; color:#e8eaf6; font-family:'Georgia',serif; line-height:1; position:absolute; top:14px; left:20px; }
+.testi-stars { color:#f57f17; font-size:.88rem; margin-bottom:12px; }
+.testi-text { font-size:.87rem; color:#445; line-height:1.7; margin:0 0 20px; font-style:italic; padding-top:14px; }
+.testi-author { display:flex; align-items:center; gap:12px; }
+.testi-avatar { width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1rem; color:#fff; font-weight:800; }
+.testi-name  { font-size:.87rem; font-weight:700; color:#1a237e; margin:0; }
+.testi-role  { font-size:.74rem; color:#8a97b5; margin:0; }
+
+/* ── CASE STUDIES ── */
+.case-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+@media(max-width:700px){ .case-grid { grid-template-columns:1fr; } }
+.case-card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(26,35,126,.08); border:1.5px solid #eef0fb; display:flex; flex-direction:column; transition:transform .2s,box-shadow .2s; }
+.case-card:hover { transform:translateY(-5px); box-shadow:0 14px 38px rgba(26,35,126,.13); }
+.case-banner { height:130px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; }
+.case-body { padding:22px 22px 24px; flex:1; display:flex; flex-direction:column; }
+.case-cat  { font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; padding:2px 10px; border-radius:20px; background:#e8eaf6; color:#1a237e; margin-bottom:10px; display:inline-block; }
+.case-body h3 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 8px; line-height:1.4; }
+.case-body p  { font-size:.82rem; color:#6b7a99; line-height:1.6; flex:1; }
+.case-result { display:flex; gap:16px; margin-top:16px; flex-wrap:wrap; }
+.case-stat { text-align:center; }
+.case-stat .cs-num { font-size:1.3rem; font-weight:800; font-family:'Arvo',serif; color:#1a237e; display:block; line-height:1; }
+.case-stat .cs-lbl { font-size:.68rem; color:#8a97b5; }
+.case-read { display:inline-flex; align-items:center; gap:5px; margin-top:16px; font-size:.78rem; font-weight:700; color:#1a237e; text-decoration:none; }
+.case-read:hover { text-decoration:underline; }
+
+/* ── COMPARISON ── */
+.comparison-wrap { overflow-x:auto; }
+.comparison-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+.comparison-table thead th { padding:14px 18px; font-family:'Arvo',serif; font-size:.85rem; color:#fff; font-weight:700; text-align:center; }
+.comparison-table thead th:first-child { text-align:left; color:#6b7a99; background:#f7f9fc; }
+.comparison-table thead th.hl { background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:12px 12px 0 0; }
+.comparison-table thead th.hl2 { background:#eef0fb; color:#1a237e; border-radius:12px 12px 0 0; }
+.comparison-table tbody tr { border-bottom:1px solid #f0f2fc; }
+.comparison-table tbody tr:last-child { border-bottom:none; }
+.comparison-table tbody td { padding:13px 18px; color:#445; vertical-align:middle; }
+.comparison-table tbody td:first-child { font-weight:600; color:#1a237e; }
+.comparison-table tbody td { text-align:center; }
+.comparison-table tbody td:first-child { text-align:left; }
+.ct-yes  { color:#2e7d32; font-size:1.1rem; }
+.ct-no   { color:#bbb; font-size:1.1rem; }
+.ct-part { color:#f57f17; font-size:.8rem; font-weight:600; }
+.ct-hl { background:#f0f2fc; }
+
+/* ── CTA ── */
+.val-cta-btn { display:inline-flex; align-items:center; gap:8px; background:#fff; color:#1a237e; padding:12px 28px; border-radius:10px; font-weight:800; font-size:.9rem; text-decoration:none; transition:opacity .2s; }
+.val-cta-btn:hover { opacity:.9; color:#1a237e; }
+.val-cta-btn.outline { background:transparent; border:2px solid rgba(255,255,255,.5); color:#fff; }
+.val-cta-btn.outline:hover { background:rgba(255,255,255,.1); color:#fff; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div id="site-content">
+
+    <!-- ===== HEADER / NAV ===== -->
+    <header class="site-header">
+        <div class="primary-header">
+            <div class="container">
+                <a href="{{ path('index') }}" id="branding">
+                    <img src="/images/logo.png" alt="City School">
+                    <div>
+                        <h1 class="site-title">City School</h1>
+                        <span class="site-subtitle">Premium Learning Institution</span>
+                    </div>
+                </a>
+                <div class="main-navigation">
+                    <ul class="home-main-menu home-nav-v2">
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('index') }}">Home</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('courses') }}">Courses</a></li>
+                        <li class="home-nav-item current-menu-item"><a class="home-nav-link" href="{{ path('values') }}">Values</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('events') }}">Events</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('admissions') }}">Admissions</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('pricing') }}">Pricing</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('contact') }}">Contact</a></li>
+                        <li class="home-nav-item nav-dropdown">
+                            <a class="home-nav-link" href="#"><i class="fa fa-sign-in home-nav-login-icon"></i> Login <span class="arrow">&#9660;</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ path('portal_login') }}"><span class="dm-icon"><i class="fa fa-book"></i></span> Student Portal</a></li>
+                                <li><a href="{{ path('teacher_login') }}"><span class="dm-icon"><i class="fa fa-sitemap"></i></span> Teacher Portal</a></li>
+                                <li><a href="{{ path('parent_login') }}"><span class="dm-icon"><i class="fa fa-home"></i></span> Parent Portal</a></li>
+                                <li><a href="{{ path('admin_login') }}"><span class="dm-icon"><i class="fa fa-cogs"></i></span> Admin Portal</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a href="{{ path('super_admin_login') }}"><span class="dm-icon"><i class="fa fa-shield"></i></span> Super Admin</a></li>
+                            </ul>
+                        </li>
+                        <li class="home-nav-item nav-lang-switcher">
+                            <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+                            <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+                            <button class="lang-btn" data-lang="es" onclick="switchLang('es')">ES</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- HERO -->
+        <div class="home-slider val-hero-slide">
+            <div class="container">
+                <div class="slide-caption">
+                    <h2 class="slide-title">Everything a Great School<br>Should Offer — We Do</h2>
+                    <p>Explore the features that make City School exceptional, the real benefits families experience, transparent pricing, and stories of lives changed through quality education.</p>
+                    <div class="hero-cta-row">
+                        <a href="#features" class="button large hero-btn hero-btn-programs"><i class="fa fa-star"></i> See Our Features</a>
+                        <a href="#pricing" class="button large hero-btn hero-btn-consult"><i class="fa fa-tags"></i> View Pricing</a>
+                    </div>
+                </div>
+                <div class="slider-img">
+                    <img src="/dummy/kid.png" alt="Student at City School">
+                </div>
+            </div>
+        </div>
+    </header>
+</div>
+
+<main>
+
+    <!-- ===== QUICK ACTION BAR ===== -->
+    <div class="val-actions-bar">
+        <div class="container">
+            <div class="val-actions-grid">
+                <a href="#features" class="val-action-card">
+                    <div class="val-action-icon"><i class="fa fa-star"></i></div>
+                    <h4>Features</h4>
+                    <p>Discover every tool and capability the school offers.</p>
+                </a>
+                <a href="#benefits" class="val-action-card">
+                    <div class="val-action-icon"><i class="fa fa-heart"></i></div>
+                    <h4>Benefits</h4>
+                    <p>Why parents and students choose — and stay with — us.</p>
+                </a>
+                <a href="#pricing" class="val-action-card">
+                    <div class="val-action-icon"><i class="fa fa-tags"></i></div>
+                    <h4>Pricing</h4>
+                    <p>Clear, transparent tuition plans for every family.</p>
+                </a>
+                <a href="#testimonials" class="val-action-card">
+                    <div class="val-action-icon"><i class="fa fa-quote-left"></i></div>
+                    <h4>Success Stories</h4>
+                    <p>Real results and testimonials from our community.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 1: FEATURES ===== -->
+    <section class="val-section" id="features">
+        <div class="container">
+            <div class="val-center">
+                <span class="val-label">What We Offer</span>
+                <h2 class="val-title">A Complete School Management &amp; Learning System</h2>
+                <p class="val-sub">From the moment a student walks through our doors, every touchpoint — academic, pastoral, digital — is carefully designed for excellence.</p>
+            </div>
+            <div class="features-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#e8eaf6;color:#1a237e;"><i class="fa fa-laptop"></i></div>
+                    <h3>Student &amp; Parent Portals</h3>
+                    <p>Dedicated digital portals give students access to timetables, grades, assignments, and resources — while parents track attendance, fees, and academic progress in real time.</p>
+                    <span class="feature-tag core"><i class="fa fa-check"></i> Core Feature</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fa fa-book"></i></div>
+                    <h3>Structured Curriculum (Gr. 1–12)</h3>
+                    <p>A full 12-grade curriculum mapped to international standards, with subject streams, electives, and specialisation tracks across STEM, Arts, Business, and Humanities.</p>
+                    <span class="feature-tag core"><i class="fa fa-check"></i> Core Feature</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#fce4ec;color:#c62828;"><i class="fa fa-bar-chart"></i></div>
+                    <h3>Real-Time Grade &amp; Progress Tracking</h3>
+                    <p>Automated grade computation, progress reports, and personalised learning insights delivered instantly — no waiting for end-of-term reports.</p>
+                    <span class="feature-tag core"><i class="fa fa-check"></i> Core Feature</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#fff9c4;color:#e65100;"><i class="fa fa-calendar-check-o"></i></div>
+                    <h3>Digital Attendance System</h3>
+                    <p>Teacher-facing attendance registration with automatic parent notification for absences, late arrivals, and early dismissals. Full audit trail for administration.</p>
+                    <span class="feature-tag core"><i class="fa fa-check"></i> Core Feature</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#e8eaf6;color:#3949ab;"><i class="fa fa-credit-card"></i></div>
+                    <h3>Online Fee Payment &amp; Invoicing</h3>
+                    <p>Secure online payment gateway for tuition, transport, and extra-curricular fees. Automated receipts, outstanding balance alerts, and full payment history per student.</p>
+                    <span class="feature-tag core"><i class="fa fa-check"></i> Core Feature</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#f3e8ff;color:#7c3aed;"><i class="fa fa-comments"></i></div>
+                    <h3>Teacher–Parent Communication Hub</h3>
+                    <p>In-portal messaging, meeting scheduling, and announcements keep parents and teachers aligned throughout the academic year.</p>
+                    <span class="feature-tag core"><i class="fa fa-check"></i> Core Feature</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#e0f7fa;color:#00838f;"><i class="fa fa-book"></i></div>
+                    <h3>Smart Admissions Wizard</h3>
+                    <p>Online application portal with step-by-step wizard, document uploads, application status tracking, and instant email confirmations — applying made simple.</p>
+                    <span class="feature-tag premium"><i class="fa fa-bolt"></i> Premium</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#fff3e0;color:#e65100;"><i class="fa fa-cogs"></i></div>
+                    <h3>Admin &amp; Super-Admin Dashboards</h3>
+                    <p>Full school-management dashboards for administrators: staff management, class timetabling, budget overview, audit logs, branding control, and system integrations.</p>
+                    <span class="feature-tag premium"><i class="fa fa-bolt"></i> Premium</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fa fa-calendar"></i></div>
+                    <h3>Academic Calendar &amp; Event RSVP</h3>
+                    <p>Interactive school calendar with exportable events (Google/Outlook), push notification alerts, and RSVP management for school events and open days.</p>
+                    <span class="feature-tag premium"><i class="fa fa-bolt"></i> Premium</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION 2: BENEFITS ===== -->
+    <section class="val-section-alt" id="benefits">
+        <div class="container">
+            <div class="val-center">
+                <span class="val-label">Why It Matters</span>
+                <h2 class="val-title">The Real Benefits Families Experience</h2>
+                <p class="val-sub">Features are what we build. Benefits are what you live. Here is what City School families consistently tell us changes the most.</p>
+            </div>
+
+            <!-- FOR PARENTS -->
+            <div class="benefits-split" style="margin-bottom:60px;">
+                <div class="benefit-list">
+                    <div style="margin-bottom:6px;">
+                        <span class="val-label">For Parents</span>
+                        <h3 class="val-title" style="margin-top:8px;">Total Visibility Into Your Child's Education</h3>
+                        <p style="color:#6b7a99;font-size:.9rem;line-height:1.7;margin-bottom:24px;">No more guessing. Parents at City School are active participants — not just spectators — in their child's academic journey.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#e8eaf6;color:#1a237e;"><i class="fa fa-eye"></i></div>
+                        <div>
+                            <h4>Transparent Progress Reports</h4>
+                            <p>Live access to grades, attendance, and teacher feedback — available 24/7 on the parent portal, not just at parent-teacher evenings.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fa fa-bell"></i></div>
+                        <div>
+                            <h4>Instant Absence &amp; Fee Alerts</h4>
+                            <p>Get notified the moment your child is marked absent or a fee becomes due — so there are no surprises at the end of term.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#fff9c4;color:#e65100;"><i class="fa fa-comments"></i></div>
+                        <div>
+                            <h4>Direct Line to Teachers</h4>
+                            <p>Message teachers, request meetings, and receive school-wide announcements through one centralised communication hub.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#fce4ec;color:#c62828;"><i class="fa fa-shield"></i></div>
+                        <div>
+                            <h4>Safe, Supportive Environment</h4>
+                            <p>City School's pastoral care system tracks student wellbeing alongside academics, ensuring no child is left struggling in silence.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="benefit-visual">
+                    <h3>Parent Impact at a Glance</h3>
+                    <p>Based on annual parent satisfaction surveys across our community.</p>
+                    <div class="benefit-stat-row">
+                        <div class="benefit-stat"><div class="bs-num">96%</div><div class="bs-lbl">Parent satisfaction rate</div></div>
+                        <div class="benefit-stat"><div class="bs-num">4.9/5</div><div class="bs-lbl">Portal usability score</div></div>
+                        <div class="benefit-stat"><div class="bs-num">2×</div><div class="bs-lbl">More teacher contact vs avg. school</div></div>
+                        <div class="benefit-stat"><div class="bs-num">89%</div><div class="bs-lbl">Re-enrolment rate year-on-year</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOR STUDENTS -->
+            <div class="benefits-split">
+                <div class="benefit-visual" style="background:linear-gradient(135deg,#2e7d32 0%,#43a047 100%);">
+                    <h3>Student Outcomes at City School</h3>
+                    <p>Measured across four years of graduating classes (2022–2025).</p>
+                    <div class="benefit-stat-row">
+                        <div class="benefit-stat"><div class="bs-num">97%</div><div class="bs-lbl">University placement rate</div></div>
+                        <div class="benefit-stat"><div class="bs-num">1:12</div><div class="bs-lbl">Teacher-to-student ratio</div></div>
+                        <div class="benefit-stat"><div class="bs-num">34</div><div class="bs-lbl">Students in top global unis (2025)</div></div>
+                        <div class="benefit-stat"><div class="bs-num">+28%</div><div class="bs-lbl">Avg. grade improvement in Year 1</div></div>
+                    </div>
+                </div>
+                <div class="benefit-list">
+                    <div style="margin-bottom:6px;">
+                        <span class="val-label">For Students</span>
+                        <h3 class="val-title" style="margin-top:8px;">An Education That Builds a Future</h3>
+                        <p style="color:#6b7a99;font-size:.9rem;line-height:1.7;margin-bottom:24px;">Every student at City School benefits from world-class instruction, mentorship, and the tools to realise their unique potential.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#e8eaf6;color:#1a237e;"><i class="fa fa-user"></i></div>
+                        <div>
+                            <h4>Personalised Learning Paths</h4>
+                            <p>Adaptive curriculum tracks, specialist electives, and 1:12 teacher ratios ensure every student is seen, challenged, and supported.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fa fa-trophy"></i></div>
+                        <div>
+                            <h4>Record of Achievement</h4>
+                            <p>Portfolios, academic records, and co-curricular achievements are maintained digitally — ready to accompany university and scholarship applications.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#fff9c4;color:#e65100;"><i class="fa fa-flask"></i></div>
+                        <div>
+                            <h4>State-of-the-Art Facilities</h4>
+                            <p>Modern labs, a digital library, A.I. &amp; Robotics centre, performing arts studio, and sports facilities — all under one roof.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:#fce4ec;color:#c62828;"><i class="fa fa-globe"></i></div>
+                        <div>
+                            <h4>Global Exposure &amp; Exchange</h4>
+                            <p>Student exchange agreements with 8 international institutions and annual global competitions keep our students world-ready.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION 3: PRICING ===== -->
+    <section class="val-section" id="pricing">
+        <div class="container">
+            <div class="val-center">
+                <span class="val-label">Transparent Tuition</span>
+                <h2 class="val-title">Clear, All-Inclusive Pricing</h2>
+                <p class="val-sub">No hidden fees. Each plan includes access to the school's digital systems, extra-curricular programmes, and facilities. Sibling discounts and bursaries available.</p>
+            </div>
+            <div class="pricing-grid">
+
+                <!-- PRIMARY -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Foundation</div>
+                    <div class="pricing-name">Primary School</div>
+                    <p class="pricing-desc">Grades 1–4 — Nurturing the fundamentals of learning, creativity, and character in a safe environment.</p>
+                    <div class="pricing-price">
+                        <span class="pp-currency">$</span>
+                        <span class="pp-amount">4,200</span>
+                        <span class="pp-period">/ year</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fa fa-check"></i> Full curriculum (English, Maths, Science, Arts)</li>
+                        <li><i class="fa fa-check"></i> Parent portal access</li>
+                        <li><i class="fa fa-check"></i> Digital attendance tracking</li>
+                        <li><i class="fa fa-check"></i> Termly progress reports</li>
+                        <li><i class="fa fa-check"></i> Library &amp; sports access</li>
+                        <li><i class="fa fa-check"></i> After-school clubs (2 per term)</li>
+                        <li class="disabled"><i class="fa fa-times"></i> Elective subject streams</li>
+                        <li class="disabled"><i class="fa fa-times"></i> University counselling</li>
+                    </ul>
+                    <a href="{{ path('admissions') }}" class="pricing-btn outline">Apply for Primary</a>
+                </div>
+
+                <!-- MIDDLE — FEATURED -->
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <div class="pricing-tier">Intermediate</div>
+                    <div class="pricing-name">Middle School</div>
+                    <p class="pricing-desc">Grades 5–8 — Building independence, critical thinking, and subject mastery in preparation for secondary.</p>
+                    <div class="pricing-price">
+                        <span class="pp-currency">$</span>
+                        <span class="pp-amount">5,800</span>
+                        <span class="pp-period">/ year</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fa fa-check"></i> Full curriculum + elective choices</li>
+                        <li><i class="fa fa-check"></i> Parent &amp; student portal access</li>
+                        <li><i class="fa fa-check"></i> Real-time grade tracking</li>
+                        <li><i class="fa fa-check"></i> Digital attendance &amp; alerts</li>
+                        <li><i class="fa fa-check"></i> All facilities incl. labs &amp; library</li>
+                        <li><i class="fa fa-check"></i> Unlimited extra-curricular clubs</li>
+                        <li><i class="fa fa-check"></i> Annual student portfolio</li>
+                        <li class="disabled"><i class="fa fa-times"></i> University counselling</li>
+                    </ul>
+                    <a href="{{ path('admissions') }}" class="pricing-btn primary">Apply for Middle</a>
+                </div>
+
+                <!-- SECONDARY -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Advanced</div>
+                    <div class="pricing-name">Secondary School</div>
+                    <p class="pricing-desc">Grades 9–12 — Full academic preparation for university, including specialised tracks and career mentoring.</p>
+                    <div class="pricing-price">
+                        <span class="pp-currency">$</span>
+                        <span class="pp-amount">7,500</span>
+                        <span class="pp-period">/ year</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fa fa-check"></i> Full A-Level / IB-equivalent curriculum</li>
+                        <li><i class="fa fa-check"></i> Specialisation tracks (STEM / Arts / Business)</li>
+                        <li><i class="fa fa-check"></i> All portals + exam portal</li>
+                        <li><i class="fa fa-check"></i> Real-time grades &amp; smart analytics</li>
+                        <li><i class="fa fa-check"></i> All facilities + A.I. &amp; Robotics lab</li>
+                        <li><i class="fa fa-check"></i> Unlimited clubs + leadership roles</li>
+                        <li><i class="fa fa-check"></i> University counselling &amp; UCAS/Common App support</li>
+                        <li><i class="fa fa-check"></i> Exchange programme access</li>
+                    </ul>
+                    <a href="{{ path('admissions') }}" class="pricing-btn outline">Apply for Secondary</a>
+                </div>
+
+            </div>
+            <p class="pricing-note"><i class="fa fa-info-circle"></i> All prices are annual and include registration. Sibling discounts: 10% second child, 15% third+. <a href="{{ path('contact') }}" style="color:#1a237e;font-weight:700;">Contact us</a> to enquire about bursaries and financial aid.</p>
+        </div>
+    </section>
+
+    <!-- ===== SECTION 4: TESTIMONIALS ===== -->
+    <section class="val-section-alt" id="testimonials">
+        <div class="container">
+            <div class="val-center">
+                <span class="val-label">Real Voices</span>
+                <h2 class="val-title">What Our Community Says</h2>
+                <p class="val-sub">Success is best measured in the words of the families and students who live it every day.</p>
+            </div>
+            <div class="testimonials-grid">
+
+                <div class="testi-card">
+                    <div class="testi-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <p class="testi-text">"The academic coaching and live progress reports helped our daughter move from good to truly exceptional. City School transformed how she approaches every challenge."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background:linear-gradient(135deg,#1a237e,#3949ab);">M</div>
+                        <div><p class="testi-name">Mrs. M. Osei</p><p class="testi-role">Parent — Grade 10 Student</p></div>
+                    </div>
+                </div>
+
+                <div class="testi-card">
+                    <div class="testi-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <p class="testi-text">"City School gave me the confidence to speak publicly and think critically. My capstone project landed me a place at a top engineering programme. I owe a lot to this school."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background:linear-gradient(135deg,#2e7d32,#43a047);">K</div>
+                        <div><p class="testi-name">Kwame A.</p><p class="testi-role">Graduate 2025 — Imperial College London</p></div>
+                    </div>
+                </div>
+
+                <div class="testi-card">
+                    <div class="testi-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <p class="testi-text">"The teacher-to-student ratio is exactly what they advertise. My son gets individual attention and mentoring that no other school in our area provides. Worth every penny."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background:linear-gradient(135deg,#e65100,#ffa000);">R</div>
+                        <div><p class="testi-name">Mr. R. Mensah</p><p class="testi-role">Parent — Grade 8 Student</p></div>
+                    </div>
+                </div>
+
+                <div class="testi-card">
+                    <div class="testi-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-half-o"></i></div>
+                    <p class="testi-text">"Switching to City School mid-year was a risk. Within one term, our son's grades improved by 30% and — more importantly — he actually started loving school again."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background:linear-gradient(135deg,#6a1b9a,#ab47bc);">S</div>
+                        <div><p class="testi-name">Mrs. S. Boateng</p><p class="testi-role">Parent — Grade 6 Transfer Student</p></div>
+                    </div>
+                </div>
+
+                <div class="testi-card">
+                    <div class="testi-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <p class="testi-text">"As a teacher here, the admin tools and portal make coordination effortless. I spend less time on paperwork and more time doing what I love — actually teaching."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background:linear-gradient(135deg,#00695c,#00897b);">T</div>
+                        <div><p class="testi-name">Mr. T. Asante</p><p class="testi-role">Mathematics Teacher — 6 years at City School</p></div>
+                    </div>
+                </div>
+
+                <div class="testi-card">
+                    <div class="testi-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <p class="testi-text">"I chose City School after reading about their STEM track. The A.I. lab, the competitions, the mentors — I've learned more here in 2 years than in my previous 4. Absolutely no regrets."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background:linear-gradient(135deg,#1565c0,#1e88e5);">A</div>
+                        <div><p class="testi-name">Abena F.</p><p class="testi-role">Grade 12 Student — STEM Track</p></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION 5: CASE STUDIES (PREMIUM) ===== -->
+    <section class="val-section" id="case-studies">
+        <div class="container">
+            <div class="val-center">
+                <span class="val-label" style="background:#c62828;">Premium — Case Studies</span>
+                <h2 class="val-title">Proof Beyond the Pitch</h2>
+                <p class="val-sub">Deep-dive stories from real students and families — showing exactly what changed, how, and why City School was the turning point.</p>
+            </div>
+            <div class="case-grid">
+
+                <div class="case-card">
+                    <div class="case-banner" style="background:linear-gradient(135deg,#1a237e,#3949ab);"><i class="fa fa-trophy" style="color:rgba(255,255,255,.35);"></i></div>
+                    <div class="case-body">
+                        <span class="case-cat">Academic Transformation</span>
+                        <h3>From D Grades to a Full Scholarship — Yaa's Story</h3>
+                        <p>Yaa Asantewaa joined City School in Grade 9 with a C/D average and limited confidence in Mathematics. Two years later she won a national mathematics competition and received a full scholarship to a top university. We trace the exact interventions — small-group coaching, peer mentoring, and our adaptive testing system — that made it possible.</p>
+                        <div class="case-result">
+                            <div class="case-stat"><span class="cs-num">C→A*</span><span class="cs-lbl">Maths grade change</span></div>
+                            <div class="case-stat"><span class="cs-num">2 yrs</span><span class="cs-lbl">Time to full scholarship</span></div>
+                            <div class="case-stat"><span class="cs-num">1st</span><span class="cs-lbl">National competition place</span></div>
+                        </div>
+                        <a href="{{ path('contact') }}" class="case-read"><i class="fa fa-arrow-right"></i> Read Full Case Study</a>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-banner" style="background:linear-gradient(135deg,#2e7d32,#43a047);"><i class="fa fa-users" style="color:rgba(255,255,255,.35);"></i></div>
+                    <div class="case-body">
+                        <span class="case-cat">Family Experience</span>
+                        <h3>Three Siblings, One School — The Mensah Family Across 11 Years</h3>
+                        <p>The Mensah family enrolled their first child in 2014, their second in 2017, and their third in 2020. Through one lens — a single family's journey — we explore how City School has evolved, what consistency looks like across different learners, and why the Mensahs never considered switching.</p>
+                        <div class="case-result">
+                            <div class="case-stat"><span class="cs-num">3</span><span class="cs-lbl">Siblings enrolled</span></div>
+                            <div class="case-stat"><span class="cs-num">11 yrs</span><span class="cs-lbl">Family loyalty</span></div>
+                            <div class="case-stat"><span class="cs-num">100%</span><span class="cs-lbl">University placement</span></div>
+                        </div>
+                        <a href="{{ path('contact') }}" class="case-read"><i class="fa fa-arrow-right"></i> Read Full Case Study</a>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-banner" style="background:linear-gradient(135deg,#e65100,#ffa000);"><i class="fa fa-flask" style="color:rgba(255,255,255,.35);"></i></div>
+                    <div class="case-body">
+                        <span class="case-cat">STEM Excellence</span>
+                        <h3>How City School's STEM Track Built a Future Engineer</h3>
+                        <p>Kofi Boateng arrived at City School with a passion for coding but no formal pathway. Our STEM track, A.I. lab, and industry partnership with Tech Futures Foundation gave him the environment to build three apps, present at a regional tech summit, and secure an internship — all before graduating.</p>
+                        <div class="case-result">
+                            <div class="case-stat"><span class="cs-num">3</span><span class="cs-lbl">Apps built in-school</span></div>
+                            <div class="case-stat"><span class="cs-num">1</span><span class="cs-lbl">Regional summit speaker</span></div>
+                            <div class="case-stat"><span class="cs-num">MIT</span><span class="cs-lbl">Admission offer received</span></div>
+                        </div>
+                        <a href="{{ path('contact') }}" class="case-read"><i class="fa fa-arrow-right"></i> Read Full Case Study</a>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-banner" style="background:linear-gradient(135deg,#6a1b9a,#ab47bc);"><i class="fa fa-music" style="color:rgba(255,255,255,.35);"></i></div>
+                    <div class="case-body">
+                        <span class="case-cat">Arts &amp; Creativity</span>
+                        <h3>The Arts Track That Built a Young Filmmaker's Career</h3>
+                        <p>When Ama joined City School's Arts track, she had a notebook full of screenplay ideas and no idea how to realise them. Four years later she has won two youth film awards, co-directed our annual Performing Arts showcase, and been accepted into a film school in London with a merit scholarship.</p>
+                        <div class="case-result">
+                            <div class="case-stat"><span class="cs-num">2</span><span class="cs-lbl">Film awards won</span></div>
+                            <div class="case-stat"><span class="cs-num">4 yrs</span><span class="cs-lbl">Arts track duration</span></div>
+                            <div class="case-stat"><span class="cs-num">London</span><span class="cs-lbl">Film school scholarship</span></div>
+                        </div>
+                        <a href="{{ path('contact') }}" class="case-read"><i class="fa fa-arrow-right"></i> Read Full Case Study</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION 6: COMPARISON / WHY US (PREMIUM) ===== -->
+    <section class="val-section-alt" id="why-choose-us">
+        <div class="container">
+            <div class="val-center">
+                <span class="val-label" style="background:#c62828;">Premium — Why Choose Us</span>
+                <h2 class="val-title">City School vs. The Alternatives</h2>
+                <p class="val-sub">An honest, feature-by-feature comparison against typical public schools and standard private schools in our region — so you can make the most informed decision for your family.</p>
+            </div>
+            <div class="comparison-wrap">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="hl2">Public School <span style="font-weight:400;font-size:.74rem;display:block;opacity:.7;">Typical Regional</span></th>
+                            <th class="hl2">Standard Private <span style="font-weight:400;font-size:.74rem;display:block;opacity:.7;">Mid-Tier</span></th>
+                            <th class="hl">City School <span style="font-weight:400;font-size:.74rem;display:block;opacity:.85;">Premium</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Teacher–Student Ratio</td>
+                            <td>1:35+</td>
+                            <td>1:22</td>
+                            <td class="ct-hl"><strong style="color:#2e7d32;">1:12</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Personalised Learning Plan</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><span class="ct-part">Partial</span></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Parent Portal (Live Grades &amp; Attendance)</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><span class="ct-part">Termly PDF only</span></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Online Fee Payment &amp; Invoicing</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><span class="ct-part">Partial</span></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Elective Subject Streams (STEM / Arts / Business)</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><span class="ct-part">Limited</span></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>A.I. &amp; Robotics Lab</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>University Counselling &amp; UCAS/Common App Support</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><span class="ct-part">Grade 12 only</span></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>International Exchange Programme</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Digital Admissions with Real-Time Tracking</td>
+                            <td><i class="fa fa-times ct-no"></i></td>
+                            <td><span class="ct-part">Paper + email</span></td>
+                            <td class="ct-hl"><i class="fa fa-check ct-yes"></i></td>
+                        </tr>
+                        <tr>
+                            <td>University Placement Rate (last 3 years)</td>
+                            <td>62%</td>
+                            <td>81%</td>
+                            <td class="ct-hl"><strong style="color:#2e7d32;">97%</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="text-align:center;font-size:.82rem;color:#8a97b5;margin-top:20px;"><i class="fa fa-info-circle"></i> Comparison data based on publicly available regional averages and parent surveys (2024–2025). <a href="{{ path('contact') }}" style="color:#1a237e;font-weight:700;">Request our full comparison report.</a></p>
+        </div>
+    </section>
+
+    <!-- ===== CTA STRIP ===== -->
+    <section class="val-section-dark">
+        <div class="container" style="text-align:center;">
+            <span class="val-label val-label-light">Take the Next Step</span>
+            <h2 class="val-title val-title-light" style="margin-bottom:14px;">Ready to Give Your Child a City School Education?</h2>
+            <p class="val-sub val-sub-light" style="margin:0 auto 32px;">Applications for 2026–2027 are now open. Join a community that invests in every child's full potential.</p>
+            <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+                <a href="{{ path('admissions') }}" class="val-cta-btn"><i class="fa fa-pencil-square-o"></i> Apply Now</a>
+                <a href="{{ path('contact') }}"    class="val-cta-btn outline"><i class="fa fa-calendar"></i> Book a School Visit</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Contact us</h3>
+                    <address>City School <br>745 Jewel Ave Street <br>Fress Meadows, NY 11365</address>
+                    <a href="mailto:info@cityschool.edu">info@cityschool.edu</a> <br>
+                    <a href="tel:+148942652394">(489) 426-52394</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Social media</h3>
+                    <p>Follow us for news, events, and student achievements.</p>
+                    <div class="social-links circle">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-google-plus"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Featured students</h3>
+                    <ul class="student-list">
+                        <li><a href="#">
+                            <img src="/dummy/student-sm-1.jpg" alt="" class="avatar">
+                            <span class="fn">Sarah Branson</span>
+                            <span class="average">Average: 4.9</span>
+                        </a></li>
+                        <li><a href="#">
+                            <img src="/dummy/student-sm-2.jpg" alt="" class="avatar">
+                            <span class="fn">Dorothy Smith</span>
+                            <span class="average">Average: 4.9</span>
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="widget">
+                    <h3 class="widget-title">Newsletter</h3>
+                    <p>Stay updated with school news and events.</p>
+                    <form action="#" class="subscribe">
+                        <input type="email" placeholder="Email Address...">
+                        <input type="submit" class="light" value="Subscribe">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="copy">Copyright &copy; 2024 City School. All rights reserved.
+            &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('privacy');return false;" style="color:inherit;opacity:.7;">Privacy Policy</a>
+            &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('terms');return false;" style="color:inherit;opacity:.7;">Terms of Service</a>
+            &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('cookie-settings');return false;" style="color:inherit;opacity:.7;">Cookie Settings</a>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script src="/js/plugins.js"></script>
+<script src="/js/app.js"></script>
+
+{% endblock %}

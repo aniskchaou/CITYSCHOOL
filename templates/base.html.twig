@@ -8,13 +8,15 @@
         		<title>City School</title>
         		<!-- Loading third party fonts -->
         		<link href="http://fonts.googleapis.com/css?family=Arvo:400,700|" rel="stylesheet" type="text/css">
-        		<link href="fonts/font-awesome.min.css" rel="stylesheet" type="text/css">
+        		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet" type="text/css">
+        		<link href="/fonts/font-awesome.min.css" rel="stylesheet" type="text/css">
         		<!-- Loading main css file -->
-        		<link rel="stylesheet" href="style.css">
+        		<link rel="stylesheet" href="/style.css">
+			<link rel="stylesheet" href="/css/shared-home-shell.css">
 
         		<!--[if lt IE 9]>
-        		<script src="js/ie-support/html5.js"></script>
-        		<script src="js/ie-support/respond.js"></script>
+        		<script src="/js/ie-support/html5.js"></script>
+        		<script src="/js/ie-support/respond.js"></script>
         		<![endif]-->
 
 
@@ -24,5 +26,479 @@
     <body>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
+
+        <!-- ============================================================
+             COOKIE CONSENT + LEGAL MODALS (global – all pages)
+             ============================================================ -->
+        <style>
+        /* ── language switcher ── */
+        .nav-lang-switcher{display:flex;align-items:center;gap:4px;padding:4px 0 4px 10px;margin-left:2px;border-left:1px solid rgba(255,255,255,.12);}
+        .lang-btn{background:transparent;border:1.5px solid rgba(255,255,255,.22);color:rgba(255,255,255,.6);font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:5px;cursor:pointer;letter-spacing:.06em;line-height:1.3;transition:all .18s;}
+        .lang-btn.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.55);}
+        .lang-btn:hover:not(.active){background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.38);}
+        .lang-toast{position:fixed;top:68px;right:20px;z-index:99998;background:#1a237e;color:#fff;padding:10px 18px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:.79rem;box-shadow:0 6px 22px rgba(0,0,0,.22);pointer-events:none;opacity:0;transform:translateY(-8px);transition:opacity .3s,transform .3s;}
+        .lang-toast.show{opacity:1;transform:translateY(0);}
+
+        /* ── cookie banner ── */
+        #cs-cookie-bar{position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(90deg,#0f2650 0%,#1a237e 100%);color:#fff;padding:18px 24px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;box-shadow:0 -4px 28px rgba(0,0,0,.28);transform:translateY(110%);transition:transform .4s cubic-bezier(.22,.68,0,1.2);}
+        #cs-cookie-bar.visible{transform:translateY(0);}
+        #cs-cookie-bar .cb-text{flex:1;min-width:200px;font-family:'Montserrat',sans-serif;font-size:.82rem;line-height:1.6;color:rgba(255,255,255,.88);}
+        #cs-cookie-bar .cb-text strong{color:#fff;font-size:.88rem;}
+        #cs-cookie-bar .cb-text a{color:#90caf9;text-decoration:underline;cursor:pointer;}
+        #cs-cookie-bar .cb-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+        .cb-btn{border:none;padding:9px 20px;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:opacity .2s;white-space:nowrap;}
+        .cb-btn-accept{background:#fff;color:#1a237e;}
+        .cb-btn-manage{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.35);}
+        .cb-btn-decline{background:transparent;color:rgba(255,255,255,.6);border:1.5px solid rgba(255,255,255,.2);font-size:.72rem;padding:7px 14px;}
+        .cb-btn:hover{opacity:.85;}
+
+        /* ── modal overlay ── */
+        .cs-modal-overlay{position:fixed;inset:0;z-index:100000;background:rgba(10,20,60,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+        .cs-modal-overlay.open{opacity:1;pointer-events:all;}
+        .cs-modal{background:#fff;border-radius:18px;max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 70px rgba(0,0,0,.25);transform:translateY(20px);transition:transform .25s;}
+        .cs-modal-overlay.open .cs-modal{transform:translateY(0);}
+        .cs-modal-head{display:flex;justify-content:space-between;align-items:center;padding:22px 28px 18px;border-bottom:2px solid #f0f2fc;flex-shrink:0;}
+        .cs-modal-head h2{font-family:'Arvo',serif;font-size:1.2rem;color:#1a237e;margin:0;}
+        .cs-modal-head .cs-close{background:none;border:none;font-size:1.3rem;color:#8a97b5;cursor:pointer;line-height:1;padding:0;}
+        .cs-modal-head .cs-close:hover{color:#1a237e;}
+        .cs-modal-body{overflow-y:auto;padding:24px 28px;font-family:'Montserrat',sans-serif;font-size:.85rem;color:#445;line-height:1.8;}
+        .cs-modal-body h3{font-family:'Arvo',serif;font-size:.98rem;color:#1a237e;margin:22px 0 8px;}
+        .cs-modal-body h3:first-child{margin-top:0;}
+        .cs-modal-body p{margin:0 0 12px;}
+        .cs-modal-body ul{padding-left:20px;margin:0 0 12px;}
+        .cs-modal-body ul li{margin-bottom:6px;}
+        .cs-modal-body .cs-badge{display:inline-block;background:#e8eaf6;color:#1a237e;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+        .cs-modal-body .cs-badge.gdpr{background:#fce4ec;color:#c62828;}
+        .cs-modal-foot{padding:18px 28px;border-top:2px solid #f0f2fc;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+        .cs-btn-prim{background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;transition:opacity .2s;}
+        .cs-btn-prim:hover{opacity:.86;}
+        .cs-btn-sec{background:#f0f2fc;color:#1a237e;border:none;padding:10px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;transition:background .2s;}
+        .cs-btn-sec:hover{background:#e8eaf6;}
+
+        /* ── cookie settings toggles ── */
+        .cs-toggle-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid #f0f2fc;}
+        .cs-toggle-row:last-child{border-bottom:none;}
+        .cs-toggle-info h4{font-family:'Arvo',serif;font-size:.9rem;color:#1a237e;margin:0 0 4px;}
+        .cs-toggle-info p{font-size:.79rem;color:#6b7a99;margin:0;line-height:1.5;}
+        .cs-toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+        .cs-toggle input{opacity:0;width:0;height:0;position:absolute;}
+        .cs-toggle-slider{position:absolute;inset:0;background:#dde3f0;border-radius:12px;cursor:pointer;transition:background .2s;}
+        .cs-toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+        .cs-toggle input:checked + .cs-toggle-slider{background:#1a237e;}
+        .cs-toggle input:checked + .cs-toggle-slider::before{transform:translateX(20px);}
+        .cs-toggle input:disabled + .cs-toggle-slider{opacity:.5;cursor:not-allowed;}
+
+        /* ── data table ── */
+        .cs-data-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px;}
+        .cs-data-table th{background:#f0f2fc;color:#1a237e;font-weight:700;padding:8px 12px;text-align:left;font-family:'Arvo',serif;}
+        .cs-data-table td{padding:8px 12px;border-bottom:1px solid #f7f9fc;vertical-align:top;}
+        .cs-data-table tr:last-child td{border-bottom:none;}
+        </style>
+
+        <!-- ── COOKIE BAR ── -->
+        <div id="cs-cookie-bar" role="dialog" aria-label="Cookie consent">
+            <div class="cb-text">
+                <strong>We value your privacy.</strong> City School uses cookies to improve your experience, measure site performance, and support GDPR-compliant data practices.
+                Read our <a onclick="showModal('privacy')">Privacy Policy</a> and <a onclick="showModal('cookie-settings')">Cookie Policy</a>.
+            </div>
+            <div class="cb-actions">
+                <button class="cb-btn cb-btn-accept"  onclick="cookieConsent('accept')">Accept All</button>
+                <button class="cb-btn cb-btn-manage"  onclick="showModal('cookie-settings')">Manage Preferences</button>
+                <button class="cb-btn cb-btn-decline" onclick="cookieConsent('decline')">Decline Non-Essential</button>
+            </div>
+        </div>
+
+        <!-- ── PRIVACY POLICY MODAL ── -->
+        <div class="cs-modal-overlay" id="modal-privacy" role="dialog" aria-modal="true" aria-labelledby="mp-title">
+            <div class="cs-modal">
+                <div class="cs-modal-head">
+                    <h2 id="mp-title"><i class="fa fa-lock" style="margin-right:8px;color:#3949ab;"></i> Privacy Policy</h2>
+                    <button class="cs-close" onclick="closeModal('privacy')" aria-label="Close">&times;</button>
+                </div>
+                <div class="cs-modal-body">
+                    <span class="cs-badge">Last updated: 1 May 2026</span>
+                    <span class="cs-badge gdpr" style="margin-left:6px;">GDPR Compliant</span>
+
+                    <h3>1. Who We Are</h3>
+                    <p>City School ("we", "us", "our") is a private educational institution. Our registered address is 745 Jewel Ave Street, Fress Meadows, NY 11365. Our Data Controller contact is <strong>privacy@cityschool.edu</strong>.</p>
+
+                    <h3>2. What Data We Collect</h3>
+                    <ul>
+                        <li><strong>Contact &amp; identity data:</strong> Name, email address, phone number, date of birth.</li>
+                        <li><strong>Academic data:</strong> Grades, attendance records, assessment results, progress reports.</li>
+                        <li><strong>Financial data:</strong> Fee payment history (no card details stored — processed via PCI-DSS-compliant gateway).</li>
+                        <li><strong>Usage data:</strong> Pages visited, session duration, browser type, IP address (anonymised after 24 h).</li>
+                        <li><strong>Communications:</strong> Messages sent via the parent–teacher portal and contact form enquiries.</li>
+                    </ul>
+
+                    <h3>3. Why We Process Your Data (Legal Basis)</h3>
+                    <p>We process personal data only where we have a lawful basis under GDPR Article 6:</p>
+                    <ul>
+                        <li><strong>Contractual necessity</strong> — to enrol students, issue grades, manage attendance, and process fees.</li>
+                        <li><strong>Legitimate interests</strong> — to improve our services, ensure school security, and communicate with families.</li>
+                        <li><strong>Consent</strong> — for marketing emails and non-essential cookies (which you can withdraw at any time).</li>
+                        <li><strong>Legal obligation</strong> — to comply with educational regulations and safeguarding duties.</li>
+                    </ul>
+
+                    <h3>4. How Long We Keep Your Data</h3>
+                    <ul>
+                        <li>Student academic records: retained for 7 years post-graduation.</li>
+                        <li>Financial records: 7 years (legal requirement).</li>
+                        <li>Enquiry &amp; contact form data: deleted after 12 months if no enrolment follows.</li>
+                        <li>Website usage analytics: anonymised after 24 h, aggregated data held for 24 months.</li>
+                    </ul>
+
+                    <h3>5. Your Rights Under GDPR</h3>
+                    <p>If you are in the EU/EEA or UK, you have the right to: access your data, request correction, request erasure ("right to be forgotten"), restrict processing, data portability, and object to processing. To exercise these rights, email <strong>privacy@cityschool.edu</strong>. We will respond within 30 days.</p>
+
+                    <h3>6. Data Sharing</h3>
+                    <p>We do <strong>not</strong> sell personal data. We share data only with: our portal hosting provider (under a Data Processing Agreement), payment gateway (PCI-DSS compliant), and regulatory bodies where legally required.</p>
+
+                    <h3>7. Cookies</h3>
+                    <p>See our Cookie Policy via the "Manage Preferences" option for full details. Essential cookies cannot be disabled as they are required for the school portal to function.</p>
+
+                    <h3>8. Contact &amp; Complaints</h3>
+                    <p>For privacy enquiries: <strong>privacy@cityschool.edu</strong>. You also have the right to lodge a complaint with your national data protection authority (e.g., ICO in the UK, CNIL in France).</p>
+                </div>
+                <div class="cs-modal-foot">
+                    <button class="cs-btn-sec" onclick="closeModal('privacy')">Close</button>
+                    <button class="cs-btn-prim" onclick="closeModal('privacy');showModal('cookie-settings')"><i class="fa fa-sliders"></i> Manage Cookie Preferences</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TERMS OF SERVICE MODAL ── -->
+        <div class="cs-modal-overlay" id="modal-terms" role="dialog" aria-modal="true" aria-labelledby="mt-title">
+            <div class="cs-modal">
+                <div class="cs-modal-head">
+                    <h2 id="mt-title"><i class="fa fa-file-text-o" style="margin-right:8px;color:#3949ab;"></i> Terms of Service</h2>
+                    <button class="cs-close" onclick="closeModal('terms')" aria-label="Close">&times;</button>
+                </div>
+                <div class="cs-modal-body">
+                    <span class="cs-badge">Last updated: 1 May 2026</span>
+
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By accessing the City School website, student portals, parent portal, or any associated digital services, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use immediately.</p>
+
+                    <h3>2. Permitted Use</h3>
+                    <ul>
+                        <li>You may use our services solely for their intended educational and administrative purposes.</li>
+                        <li>Accounts are personal and non-transferable. You must not share login credentials.</li>
+                        <li>You must not use our services to upload, transmit, or store unlawful, harmful, or abusive content.</li>
+                        <li>Automated scraping, crawling, or reverse-engineering of our portals is strictly prohibited.</li>
+                    </ul>
+
+                    <h3>3. Student Portal Access</h3>
+                    <p>Portal access is granted exclusively to enrolled students, their registered guardians, and authorised school staff. Access is conditional on continued enrolment and compliance with the school's code of conduct.</p>
+
+                    <h3>4. Intellectual Property</h3>
+                    <p>All content on our website — including text, images, logos, and software — is the intellectual property of City School or its licensors. You may not reproduce, distribute, or create derivative works without prior written consent.</p>
+
+                    <h3>5. Fees &amp; Payments</h3>
+                    <p>Tuition fees are due in accordance with the schedule communicated at enrolment. Late payments may incur an administrative charge. City School reserves the right to suspend portal access for accounts with outstanding fees exceeding 30 days.</p>
+
+                    <h3>6. Limitation of Liability</h3>
+                    <p>City School makes every effort to ensure service availability but does not guarantee uninterrupted access. We are not liable for any loss arising from service interruptions, provided they are not caused by gross negligence on our part.</p>
+
+                    <h3>7. Privacy</h3>
+                    <p>Your use of our services is also governed by our Privacy Policy, which forms part of these Terms.</p>
+
+                    <h3>8. Changes to Terms</h3>
+                    <p>We may update these Terms from time to time. Continued use of our services after notification of changes constitutes acceptance of the revised Terms.</p>
+
+                    <h3>9. Governing Law</h3>
+                    <p>These Terms are governed by the laws of the jurisdiction in which City School is registered. Any disputes will be subject to the exclusive jurisdiction of the competent courts in that jurisdiction.</p>
+
+                    <h3>10. Contact</h3>
+                    <p>For questions about these Terms, contact us at <strong>legal@cityschool.edu</strong> or write to City School, 745 Jewel Ave Street, Fress Meadows, NY 11365.</p>
+                </div>
+                <div class="cs-modal-foot">
+                    <button class="cs-btn-sec" onclick="closeModal('terms')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── COOKIE SETTINGS / GDPR MODAL ── -->
+        <div class="cs-modal-overlay" id="modal-cookie-settings" role="dialog" aria-modal="true" aria-labelledby="mc-title">
+            <div class="cs-modal">
+                <div class="cs-modal-head">
+                    <h2 id="mc-title"><i class="fa fa-sliders" style="margin-right:8px;color:#3949ab;"></i> Cookie Preferences &amp; Data Usage</h2>
+                    <button class="cs-close" onclick="closeModal('cookie-settings')" aria-label="Close">&times;</button>
+                </div>
+                <div class="cs-modal-body">
+                    <span class="cs-badge gdpr">GDPR &amp; ePrivacy Compliant</span>
+                    <p style="margin-top:12px;">Choose which cookies you allow. Your preferences are stored locally and never shared. You can change them at any time from the footer link.</p>
+
+                    <div class="cs-toggle-row">
+                        <div class="cs-toggle-info">
+                            <h4>Essential Cookies <span style="font-size:.7rem;background:#e8eaf6;color:#1a237e;padding:1px 8px;border-radius:10px;font-weight:600;vertical-align:middle;">Always On</span></h4>
+                            <p>Required for the website and portals to function. These enable login sessions, security tokens, and navigation. Cannot be disabled.</p>
+                        </div>
+                        <label class="cs-toggle">
+                            <input type="checkbox" id="ck-essential" checked disabled>
+                            <span class="cs-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="cs-toggle-row">
+                        <div class="cs-toggle-info">
+                            <h4>Performance &amp; Analytics Cookies</h4>
+                            <p>Help us understand how visitors use the site — which pages are popular, where errors occur — so we can improve. All data is anonymised and aggregated. No personal identifiers are retained.</p>
+                        </div>
+                        <label class="cs-toggle">
+                            <input type="checkbox" id="ck-analytics">
+                            <span class="cs-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="cs-toggle-row">
+                        <div class="cs-toggle-info">
+                            <h4>Functional Cookies</h4>
+                            <p>Remember your preferences such as language, region, and display settings to provide a more personalised experience on return visits.</p>
+                        </div>
+                        <label class="cs-toggle">
+                            <input type="checkbox" id="ck-functional">
+                            <span class="cs-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="cs-toggle-row">
+                        <div class="cs-toggle-info">
+                            <h4>Marketing &amp; Communications Cookies</h4>
+                            <p>Used to show relevant information about City School on other platforms you visit, and to measure the effectiveness of our campaigns. Only enabled with your explicit consent.</p>
+                        </div>
+                        <label class="cs-toggle">
+                            <input type="checkbox" id="ck-marketing">
+                            <span class="cs-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <h3 style="margin-top:22px;">Transparent Data Usage</h3>
+                    <p>Below is a complete, plain-language overview of every data point City School collects, why, and for how long — in line with our GDPR obligations.</p>
+                    <table class="cs-data-table">
+                        <thead><tr><th>Data Type</th><th>Purpose</th><th>Retention</th><th>Shared With</th></tr></thead>
+                        <tbody>
+                            <tr><td>Name &amp; Email</td><td>Enrolment, portal login, communication</td><td>Duration of enrolment + 7 yrs</td><td>School staff only</td></tr>
+                            <tr><td>Grades &amp; Reports</td><td>Academic tracking &amp; progress monitoring</td><td>7 years post-graduation</td><td>Student, parents, authorised staff</td></tr>
+                            <tr><td>Attendance Records</td><td>Compliance, safeguarding, parent alerts</td><td>7 years</td><td>Parents, regulatory bodies if required</td></tr>
+                            <tr><td>Fee &amp; Payment Data</td><td>Billing, receipts, financial reporting</td><td>7 years (legal)</td><td>Accountant, payment gateway (PCI-DSS)</td></tr>
+                            <tr><td>IP Address</td><td>Security, fraud prevention</td><td>Anonymised after 24 h</td><td>Not shared</td></tr>
+                            <tr><td>Page Views (Analytics)</td><td>Website improvement (only if consented)</td><td>24 months (aggregated)</td><td>Analytics provider (data-processing agreement)</td></tr>
+                            <tr><td>Contact Form Messages</td><td>Responding to enquiries</td><td>12 months if no enrolment</td><td>Admissions team only</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:14px;font-size:.79rem;color:#8a97b5;"><i class="fa fa-info-circle"></i> We never sell data. No data is transferred outside the EU/EEA except where covered by Standard Contractual Clauses (SCCs). To exercise your data rights, email <strong>privacy@cityschool.edu</strong>.</p>
+                </div>
+                <div class="cs-modal-foot">
+                    <button class="cs-btn-sec" onclick="cookieConsent('decline');closeModal('cookie-settings')">Decline Non-Essential</button>
+                    <button class="cs-btn-prim" onclick="saveCookiePrefs()">Save My Preferences</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── JS ── -->
+        <script>
+        (function(){
+            /* ── helpers ── */
+            function getConsent(){ try{ return JSON.parse(localStorage.getItem('cs_cookie_consent')||'null'); } catch(e){ return null; } }
+            function setConsent(obj){ localStorage.setItem('cs_cookie_consent', JSON.stringify(obj)); }
+
+            /* ── show banner if no consent yet ── */
+            var bar = document.getElementById('cs-cookie-bar');
+            if(!getConsent() && bar){
+                setTimeout(function(){ bar.classList.add('visible'); }, 800);
+            }
+
+            /* ── restore toggle state ── */
+            var saved = getConsent();
+            if(saved){
+                var ids = ['ck-analytics','ck-functional','ck-marketing'];
+                ids.forEach(function(id){
+                    var el = document.getElementById(id);
+                    if(el) el.checked = !!(saved[id.replace('ck-','')]);
+                });
+            }
+
+            /* ── global functions ── */
+            window.cookieConsent = function(type){
+                var prefs = { essential:true, analytics: type==='accept', functional: type==='accept', marketing: false };
+                setConsent(prefs);
+                if(bar) bar.classList.remove('visible');
+            };
+
+            window.saveCookiePrefs = function(){
+                var prefs = {
+                    essential : true,
+                    analytics : !!document.getElementById('ck-analytics').checked,
+                    functional: !!document.getElementById('ck-functional').checked,
+                    marketing : !!document.getElementById('ck-marketing').checked
+                };
+                setConsent(prefs);
+                closeModal('cookie-settings');
+                if(bar) bar.classList.remove('visible');
+            };
+
+            window.showModal = function(name){
+                var el = document.getElementById('modal-'+name);
+                if(el) el.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            };
+
+            window.closeModal = function(name){
+                var el = document.getElementById('modal-'+name);
+                if(el) el.classList.remove('open');
+                /* only restore scroll if no other modal is open */
+                var anyOpen = document.querySelector('.cs-modal-overlay.open');
+                if(!anyOpen) document.body.style.overflow = '';
+            };
+
+            /* close on backdrop click */
+            document.querySelectorAll('.cs-modal-overlay').forEach(function(overlay){
+                overlay.addEventListener('click', function(e){
+                    if(e.target === overlay){
+                        var id = overlay.id.replace('modal-','');
+                        closeModal(id);
+                    }
+                });
+            });
+
+            /* close on Escape */
+            document.addEventListener('keydown', function(e){
+                if(e.key === 'Escape'){
+                    document.querySelectorAll('.cs-modal-overlay.open').forEach(function(el){
+                        el.classList.remove('open');
+                    });
+                    document.body.style.overflow = '';
+                }
+            });
+        })();
+        </script>
     </body>
 </html>
+            <!-- ── LANGUAGE SWITCHER + i18n ENGINE ── -->
+            <script>
+            (function(){
+                var LANGS={
+                    en:{
+                        'nav.home':'Home','nav.courses':'Courses','nav.values':'Values',
+                        'nav.events':'Events','nav.admissions':'Admissions','nav.contact':'Contact','nav.login':'Login',
+                        'footer.contact_title':'Contact us','footer.social_title':'Social media',
+                        'footer.social_desc':'Follow us for news, events, and student achievements.',
+                        'footer.students_title':'Featured students','footer.newsletter_title':'Newsletter',
+                        'footer.newsletter_desc':'Stay updated with school news and events.',
+                        'footer.subscribe':'Subscribe','footer.email_ph':'Email Address...',
+                        'footer.privacy':'Privacy Policy','footer.terms':'Terms of Service','footer.cookies':'Cookie Settings'
+                    },
+                    fr:{
+                        'nav.home':'Accueil','nav.courses':'Cours','nav.values':'Valeurs',
+                        'nav.events':'Événements','nav.admissions':'Admissions','nav.contact':'Contact','nav.login':'Connexion',
+                        'footer.contact_title':'Nous contacter','footer.social_title':'Réseaux sociaux',
+                        'footer.social_desc':'Suivez-nous pour les actualités, événements et réussites des élèves.',
+                        'footer.students_title':'Étudiants en vedette','footer.newsletter_title':'Lettre d\'information',
+                        'footer.newsletter_desc':'Restez informé des actualités et événements scolaires.',
+                        'footer.subscribe':'S\'abonner','footer.email_ph':'Adresse e-mail...',
+                        'footer.privacy':'Politique de confidentialité','footer.terms':'Conditions d\'utilisation','footer.cookies':'Paramètres des cookies'
+                    },
+                    es:{
+                        'nav.home':'Inicio','nav.courses':'Cursos','nav.values':'Valores',
+                        'nav.events':'Eventos','nav.admissions':'Admisiones','nav.contact':'Contacto','nav.login':'Acceder',
+                        'footer.contact_title':'Contáctenos','footer.social_title':'Redes sociales',
+                        'footer.social_desc':'Síguenos para noticias, eventos y logros estudiantiles.',
+                        'footer.students_title':'Estudiantes destacados','footer.newsletter_title':'Boletín informativo',
+                        'footer.newsletter_desc':'Mantente actualizado con noticias y eventos escolares.',
+                        'footer.subscribe':'Suscribirse','footer.email_ph':'Dirección de correo...',
+                        'footer.privacy':'Política de privacidad','footer.terms':'Términos de servicio','footer.cookies':'Configuración de cookies'
+                    }
+                };
+
+                /* ── auto-tag translatable elements by their English source text ── */
+                function autoTag(){
+                    var navMap={'Home':'nav.home','Courses':'nav.courses','Values':'nav.values',
+                                'Events':'nav.events','Admissions':'nav.admissions','Contact':'nav.contact'};
+                    var ftTitleMap={'Contact us':'footer.contact_title','Social media':'footer.social_title',
+                                    'Featured students':'footer.students_title','Newsletter':'footer.newsletter_title'};
+                    var ftDescMap={'Stay updated with school news and events.':'footer.newsletter_desc',
+                                   'Follow us for news, events, and student achievements.':'footer.social_desc'};
+                    var copyMap={'Privacy Policy':'footer.privacy','Terms of Service':'footer.terms','Cookie Settings':'footer.cookies'};
+
+                    /* nav simple links */
+                    document.querySelectorAll('.home-main-menu .home-nav-link').forEach(function(el){
+                        var txt=el.textContent.trim();
+                        if(navMap[txt]){ el.setAttribute('data-i18n',navMap[txt]); return; }
+                        /* login button — update only the text node between icon & arrow */
+                        el.childNodes.forEach(function(node){
+                            if(node.nodeType===3 && node.textContent.trim()==='Login'){
+                                var span=document.createElement('span');
+                                span.setAttribute('data-i18n','nav.login');
+                                span.textContent='Login';
+                                node.parentNode.replaceChild(span,node);
+                            }
+                        });
+                    });
+                    /* footer widget titles */
+                    document.querySelectorAll('.site-footer .widget-title').forEach(function(el){
+                        var k=ftTitleMap[el.textContent.trim()]; if(k) el.setAttribute('data-i18n',k);
+                    });
+                    /* footer widget paragraphs */
+                    document.querySelectorAll('.site-footer .widget>p').forEach(function(el){
+                        var k=ftDescMap[el.textContent.trim()]; if(k) el.setAttribute('data-i18n',k);
+                    });
+                    /* subscribe button & email placeholder */
+                    document.querySelectorAll('.site-footer .subscribe input[type=submit]').forEach(function(el){
+                        el.setAttribute('data-i18n-value','footer.subscribe');
+                    });
+                    document.querySelectorAll('.site-footer .subscribe input[type=email]').forEach(function(el){
+                        el.setAttribute('data-i18n-placeholder','footer.email_ph');
+                    });
+                    /* copy links */
+                    document.querySelectorAll('.copy a').forEach(function(el){
+                        var k=copyMap[el.textContent.trim()]; if(k) el.setAttribute('data-i18n',k);
+                    });
+                }
+
+                /* ── apply translations ── */
+                function applyTranslations(lang){
+                    var d=LANGS[lang]||LANGS['en'];
+                    document.querySelectorAll('[data-i18n]').forEach(function(el){
+                        var k=el.getAttribute('data-i18n'); if(d[k]!==undefined) el.textContent=d[k];
+                    });
+                    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+                        var k=el.getAttribute('data-i18n-placeholder'); if(d[k]!==undefined) el.placeholder=d[k];
+                    });
+                    document.querySelectorAll('[data-i18n-value]').forEach(function(el){
+                        var k=el.getAttribute('data-i18n-value'); if(d[k]!==undefined) el.value=d[k];
+                    });
+                    document.documentElement.lang=lang;
+                    document.querySelectorAll('.lang-btn').forEach(function(btn){
+                        btn.classList.toggle('active',btn.getAttribute('data-lang')===lang);
+                    });
+                    localStorage.setItem('cs_lang',lang);
+                }
+
+                window.switchLang=function(lang){ applyTranslations(lang); };
+
+                /* ── PREMIUM: auto-detect browser language ── */
+                var saved=localStorage.getItem('cs_lang');
+                var detected=null;
+                if(!saved){
+                    var bl=(navigator.language||navigator.userLanguage||'en').toLowerCase().slice(0,2);
+                    if(LANGS[bl]&&bl!=='en') detected=bl;
+                }
+                var activeLang=saved||detected||'en';
+
+                document.addEventListener('DOMContentLoaded',function(){
+                    autoTag();
+                    applyTranslations(activeLang);
+                    /* show toast when language was auto-detected */
+                    if(detected){
+                        var toast=document.createElement('div');
+                        toast.className='lang-toast';
+                        var name={fr:'Français',es:'Español'}[detected]||detected.toUpperCase();
+                        toast.innerHTML='<i class="fa fa-map-marker" style="margin-right:6px;color:#90caf9;"></i> Language auto-detected: <strong>'+name+'</strong>';
+                        document.body.appendChild(toast);
+                        setTimeout(function(){toast.classList.add('show');},700);
+                        setTimeout(function(){toast.classList.remove('show');},4200);
+                    }
+                });
+            })();
+            </script>

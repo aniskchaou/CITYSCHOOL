@@ -1,0 +1,175 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Meetings{% endblock %}
+{% block page_title %}Meetings & Appointments{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-handshake-o"></i></div>
+        <div><div class="stat-value">{{ meetings|length }}</div><div class="stat-label">Meetings Scheduled</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-bell"></i></div>
+        <div><div class="stat-value">{{ reminders|length }}</div><div class="stat-label">Reminders</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-magic"></i></div>
+        <div><div class="stat-value">{{ suggestedSlots|length }}</div><div class="stat-label">Suggested Slots</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-sticky-note-o"></i></div>
+        <div><div class="stat-value">{{ summaries|length }}</div><div class="stat-label">Meeting Notes</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar-plus-o t-accent" style="margin-right:6px;"></i>Book Parent-Teacher Meetings</span>
+        </div>
+        <form method="post" action="{{ path('teacher_meetings') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_book') }}">
+            <input type="hidden" name="action" value="book_meeting">
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Parent Name</label>
+                    <input type="text" name="parent" class="form-control" placeholder="e.g. Mrs. Johnson">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Student</label>
+                    <input type="text" name="student" class="form-control" placeholder="e.g. Alice Johnson">
+                </div>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Time</label>
+                    <input type="time" name="time" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Topic</label>
+                <input type="text" name="topic" class="form-control" placeholder="Main discussion point">
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn-teal" type="submit"><i class="fa fa-save"></i> Book Meeting</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-clock-o t-accent" style="margin-right:6px;"></i>Meeting Schedule</span>
+            <form method="post" action="{{ path('teacher_meetings') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_view_schedule') }}">
+                <input type="hidden" name="action" value="view_schedule">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        <table class="portal-table">
+            <thead>
+                <tr>
+                    <th>Parent</th>
+                    <th>Student</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in meetings %}
+                <tr>
+                    <td style="font-weight:700;">{{ item.parent }}</td>
+                    <td>{{ item.student }}</td>
+                    <td>{{ item.date }}</td>
+                    <td>{{ item.time }}</td>
+                    <td><span class="badge badge-{{ item.status == 'scheduled' ? 'success' : 'warning' }}">{{ item.status|capitalize }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bell-o t-accent" style="margin-right:6px;"></i>Receive Reminders & Join Virtual Meetings</span>
+        </div>
+        {% for reminder in reminders %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:700;">{{ reminder.title }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ reminder.time }} · {{ reminder.channel }}</div>
+        </div>
+        {% endfor %}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <form method="post" action="{{ path('teacher_meetings') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_reminders') }}">
+                <input type="hidden" name="action" value="enable_reminders">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-bell"></i> Enable Reminders</button>
+            </form>
+            <form method="post" action="{{ path('teacher_meetings') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_join') }}">
+                <input type="hidden" name="action" value="join_virtual_meeting">
+                <button class="btn-teal" type="submit"><i class="fa fa-video-camera"></i> Join Virtual Meeting</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond t-accent" style="margin-right:6px;"></i>Premium Scheduling & Video</span>
+        </div>
+        <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div style="font-size:13px;font-weight:800;">Automated Scheduling</div>
+                <form method="post" action="{{ path('teacher_meetings') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_slots') }}">
+                    <input type="hidden" name="action" value="suggest_time_slots">
+                    <button class="btn btn-outline btn-sm" type="submit">Suggest Slots</button>
+                </form>
+            </div>
+            {% for slot in suggestedSlots %}
+            <div style="padding:8px;border-left:4px solid #0891b2;background:#f8fafc;border-radius:6px;margin-bottom:7px;">
+                <div style="font-size:12px;font-weight:700;">{{ slot.slot }}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:3px;">{{ slot.reason }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;">Video Meeting Integration</div>
+            <form method="post" action="{{ path('teacher_meetings') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_video') }}">
+                <input type="hidden" name="action" value="connect_video_meeting">
+                <button class="btn btn-outline btn-sm" type="submit">Connect</button>
+            </form>
+        </div>
+        <div style="font-size:12px;color:#64748b;">Connect meeting rooms and one-click join links for conferences and reviews.</div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-sticky-note t-accent" style="margin-right:6px;"></i>Premium: Meeting Summaries & Notes</span>
+        <form method="post" action="{{ path('teacher_meetings') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_meetings_notes') }}">
+            <input type="hidden" name="action" value="save_meeting_notes">
+            <button class="btn btn-outline btn-sm" type="submit">Save Notes</button>
+        </form>
+    </div>
+    {% for summary in summaries %}
+    <div style="padding:10px;border-bottom:1px solid #f1f5f9;">
+        <div style="display:flex;justify-content:space-between;gap:8px;">
+            <div style="font-size:13px;font-weight:700;">{{ summary.parent }} · {{ summary.student }}</div>
+            <div style="font-size:11px;color:#94a3b8;">{{ summary.date }}</div>
+        </div>
+        <div style="font-size:12px;color:#475569;margin-top:4px;">{{ summary.notes }}</div>
+        <div style="font-size:11px;color:#0891b2;margin-top:4px;">Follow-up: {{ summary.followUp }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

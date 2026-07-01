@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Attribute\Route;
 
-class EventController extends Controller
+class EventController extends AbstractController
 {
-    /**
-     * @Route("/event", name="event")
-     */
+    #[Route('/event', name: 'event')]
     public function index()
     {
         return $this->render('event/index.html.twig', [

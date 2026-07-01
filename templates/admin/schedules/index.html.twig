@@ -1,0 +1,111 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Timetable & Scheduling{% endblock %}
+{% block page_title %}Timetable & Scheduling{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-calendar"></i></div><div class="stat-body"><div class="stat-value">{{ schedules|length }}</div><div class="stat-label">Schedule Slots</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-user-circle"></i></div><div class="stat-body"><div class="stat-value">{{ teachers|length }}</div><div class="stat-label">Teachers Available</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#22c55e;"><i class="fa fa-building-o"></i></div><div class="stat-body"><div class="stat-value">{{ rooms|length }}</div><div class="stat-label">Rooms</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div><div class="stat-body"><div class="stat-value">{{ conflicts|length }}</div><div class="stat-label">Detected Conflicts</div></div></div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+    <form method="post" action="{{ path('admin_schedules') }}" style="display:inline;"><button class="btn-purple" name="action" value="auto_generate"><i class="fa fa-magic"></i> Auto Timetable Generator</button></form>
+    <form method="post" action="{{ path('admin_schedules') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="detect_conflicts"><i class="fa fa-search"></i> Detect Conflicts</button></form>
+    <form method="post" action="{{ path('admin_schedules') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="drag_drop_save"><i class="fa fa-hand-paper-o"></i> Save Drag-and-Drop Layout</button></form>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-plus-square-o a-accent" style="margin-right:6px;"></i>Create Class Schedules</span></div>
+        <form method="post" action="{{ path('admin_schedules') }}">
+            <input type="hidden" name="action" value="save_schedule">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Class</label><select class="form-control" name="class_id">{% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Subject</label><select class="form-control" name="subject_id">{% for s in subjects %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Day</label><select class="form-control" name="day">{% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday'] %}<option>{{ d }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Room</label><select class="form-control" name="room">{% for r in rooms %}<option>{{ r.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Start</label><input class="form-control" type="time" name="time_start" value="08:00"></div>
+                <div class="form-group"><label class="form-label">End</label><input class="form-control" type="time" name="time_end" value="09:30"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Class Schedule</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-random a-accent" style="margin-right:6px;"></i>Assign Teachers to Time Slots</span></div>
+        <form method="post" action="{{ path('admin_schedules') }}">
+            <input type="hidden" name="action" value="assign_teacher_slot">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Teacher</label><select class="form-control" name="teacher_id">{% for t in teachers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Class Slot</label><select class="form-control" name="slot_id">{% for s in schedules %}<option value="{{ s.id }}">{{ s.class }} · {{ s.day }} {{ s.time_start }}-{{ s.time_end }}</option>{% endfor %}</select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Assign Teacher</button>
+        </form>
+
+        <hr style="border:none;border-top:1px solid #ede9fe;margin:16px 0;">
+
+        <div class="card-header" style="padding:0 0 10px 0;"><span class="card-title"><i class="fa fa-building-o a-accent" style="margin-right:6px;"></i>Manage Room Allocation</span></div>
+        <form method="post" action="{{ path('admin_schedules') }}">
+            <input type="hidden" name="action" value="allocate_room">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Schedule Slot</label><select class="form-control" name="slot_id">{% for s in schedules %}<option value="{{ s.id }}">{{ s.subject }} · {{ s.day }} {{ s.time_start }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Room</label><select class="form-control" name="room">{% for r in rooms %}<option>{{ r.name }} ({{ r.type }})</option>{% endfor %}</select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Room Allocation</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-exclamation-triangle a-accent" style="margin-right:6px;"></i>Handle Schedule Conflicts</span></div>
+    {% if conflicts|length == 0 %}
+    <div style="font-size:13px;color:#64748b;">No conflicts detected.</div>
+    {% else %}
+    <table class="portal-table" style="margin-bottom:10px;">
+        <thead><tr><th>Type</th><th>Detail</th><th>Severity</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for c in conflicts %}
+        <tr>
+            <td style="font-weight:700;">{{ c.type }}</td>
+            <td>{{ c.detail }}</td>
+            <td><span class="role-badge {{ c.severity == 'danger' ? 'status-overdue' : 'status-pending' }}">{{ c.severity }}</span></td>
+            <td>
+                <form method="post" action="{{ path('admin_schedules') }}" style="display:inline;">
+                    <input type="hidden" name="action" value="resolve_conflict">
+                    <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-wrench"></i> Resolve</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <form method="post" action="{{ path('admin_schedules') }}">
+        <input type="hidden" name="action" value="dynamic_update">
+        <button class="btn-purple" type="submit"><i class="fa fa-refresh"></i> Update Timetable Dynamically</button>
+    </form>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium: Drag-and-Drop Scheduler Board</span></div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;">
+        {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday'] %}
+        <div style="border:1px dashed #c4b5fd;border-radius:8px;background:#faf5ff;padding:10px;min-height:130px;">
+            <div style="font-size:12px;font-weight:800;color:#6d28d9;margin-bottom:8px;">{{ day }}</div>
+            {% for s in schedules|filter(x => x.day == day)|slice(0,2) %}
+            <div style="background:#fff;border:1px solid #ddd6fe;border-radius:6px;padding:6px 8px;font-size:11px;margin-bottom:6px;cursor:grab;">
+                <strong>{{ s.subject }}</strong><br>
+                {{ s.time_start }}-{{ s.time_end }}<br>
+                {{ s.room }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <div style="font-size:12px;color:#6d28d9;margin-top:8px;">Use this board to preview drag-and-drop scheduling before saving layout changes.</div>
+</div>
+
+{% endblock %}

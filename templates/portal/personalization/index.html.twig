@@ -1,0 +1,107 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Personalization{% endblock %}
+{% block page_title %}Personalization{% endblock %}
+
+{% block content %}
+
+<div class="grid-2" style="gap:20px;margin-bottom:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-th-large" style="color:#2563eb;margin-right:6px;"></i>Customize Dashboard</span>
+        </div>
+        <form method="post" action="{{ path('portal_personalization') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_dashboard_customization') }}">
+            <input type="hidden" name="action" value="save_dashboard_customization">
+            {% for widget in dashboardCustomization.widgets %}
+            <label style="display:block;font-size:13px;margin-bottom:8px;">
+                <input type="checkbox" {% if widget.enabled %}checked{% endif %}> {{ widget.name }}
+            </label>
+            {% endfor %}
+            <div class="form-group" style="margin-top:10px;">
+                <label class="form-label">Layout</label>
+                <input class="form-control" type="text" value="{{ dashboardCustomization.layout }}" name="layout">
+            </div>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save Dashboard</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-adjust" style="color:#16a34a;margin-right:6px;"></i>Choose Theme (Light/Dark)</span>
+        </div>
+        <form method="post" action="{{ path('portal_personalization') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_theme') }}">
+            <input type="hidden" name="action" value="save_theme">
+            {% for theme in themePreferences.available %}
+            <label style="display:block;font-size:13px;margin-bottom:8px;">
+                <input type="radio" name="theme" value="{{ theme }}" {% if themePreferences.selected == theme %}checked{% endif %}> {{ theme|capitalize }}
+            </label>
+            {% endfor %}
+            <button class="btn btn-outline" type="submit"><i class="fa fa-save"></i> Save Theme</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-book" style="color:#0ea5e9;margin-right:6px;"></i>Set Study Preferences</span>
+        </div>
+        <form method="post" action="{{ path('portal_personalization') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_study_preferences') }}">
+            <input type="hidden" name="action" value="save_study_preferences">
+            <div class="form-group">
+                <label class="form-label">Learning style</label>
+                <input class="form-control" type="text" value="{{ studyPreferences.style }}" name="style">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Preferred pace</label>
+                <input class="form-control" type="text" value="{{ studyPreferences.pace }}" name="pace">
+            </div>
+            <div class="grid-2" style="gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Study window</label>
+                    <input class="form-control" type="text" value="{{ studyPreferences.studyWindow }}" name="study_window">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Support mode</label>
+                    <input class="form-control" type="text" value="{{ studyPreferences.supportMode }}" name="support_mode">
+                </div>
+            </div>
+            <button class="btn btn-outline" type="submit"><i class="fa fa-save"></i> Save Preferences</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Personalization</span>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Adaptive UI (based on usage)</div>
+        <div style="padding:10px;background:#f5f3ff;border-radius:8px;margin-bottom:10px;">
+            <div style="font-size:12px;color:#475569;">{{ adaptiveUi.behavior }}</div>
+        </div>
+        <form method="post" action="{{ path('portal_personalization') }}" style="margin-bottom:12px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('toggle_adaptive_ui') }}">
+            <input type="hidden" name="action" value="toggle_adaptive_ui">
+            <label style="font-size:13px;"><input type="checkbox" {% if adaptiveUi.enabled %}checked{% endif %}> Enable adaptive UI</label>
+            <div style="margin-top:8px;">
+                <button class="btn btn-outline btn-sm" type="submit">Save Adaptive UI</button>
+            </div>
+        </form>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Accessibility options</div>
+        <form method="post" action="{{ path('portal_personalization') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_accessibility_options') }}">
+            <input type="hidden" name="action" value="save_accessibility_options">
+            <label style="display:block;font-size:13px;margin-bottom:6px;"><input type="checkbox" {% if accessibility.highContrast %}checked{% endif %}> High contrast</label>
+            <label style="display:block;font-size:13px;margin-bottom:6px;"><input type="checkbox" {% if accessibility.largeText %}checked{% endif %}> Large text</label>
+            <label style="display:block;font-size:13px;margin-bottom:6px;"><input type="checkbox" {% if accessibility.reduceMotion %}checked{% endif %}> Reduce motion</label>
+            <label style="display:block;font-size:13px;margin-bottom:8px;"><input type="checkbox" {% if accessibility.keyboardHints %}checked{% endif %}> Keyboard navigation hints</label>
+            <button class="btn btn-outline btn-sm" type="submit">Save Accessibility</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+
+<div class="grid-2">
+
+    {# Profile Summary Card #}
+    <div class="card" style="text-align:center;">
+        <div style="position:relative;display:inline-block;margin-bottom:16px;">
+            <img src="{{ student.avatar }}" alt="Avatar"
+                 style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid #4361ee;">
+            <button onclick="alert('Photo upload coming soon!')" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:#4361ee;border:none;color:#fff;cursor:pointer;font-size:12px;">
+                <i class="fa fa-camera"></i>
+            </button>
+        </div>
+        <div style="font-size:20px;font-weight:800;">{{ student.name }}</div>
+        <div style="font-size:13px;color:#64748b;margin-bottom:4px;">{{ student.grade }} &middot; ID: {{ student.student_id }}</div>
+        <div style="font-size:13px;color:#4361ee;margin-bottom:16px;">{{ student.email }}</div>
+
+        <div style="display:flex;justify-content:space-around;padding:14px 0;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;margin-bottom:16px;">
+            <div><div style="font-size:20px;font-weight:800;color:#4361ee;">{{ student.gpa }}</div><div style="font-size:11px;color:#64748b;">GPA</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#22c55e;">{{ student.attendance }}%</div><div style="font-size:11px;color:#64748b;">Attendance</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#f59e0b;">#{{ student.rank }}</div><div style="font-size:11px;color:#64748b;">Rank</div></div>
+        </div>
+
+        <div style="text-align:left;font-size:13px;color:#475569;">
+            <div style="padding:6px 0;border-bottom:1px solid #f1f5f9;"><i class="fa fa-envelope-o" style="width:18px;color:#4361ee;margin-right:6px;"></i>{{ student.email }}</div>
+            <div style="padding:6px 0;border-bottom:1px solid #f1f5f9;"><i class="fa fa-id-card-o" style="width:18px;color:#4361ee;margin-right:6px;"></i>Student ID: {{ student.student_id }}</div>
+            <div style="padding:6px 0;border-bottom:1px solid #f1f5f9;"><i class="fa fa-book" style="width:18px;color:#4361ee;margin-right:6px;"></i>{{ student.grade }}</div>
+            <div style="padding:6px 0;"><i class="fa fa-calendar" style="width:18px;color:#4361ee;margin-right:6px;"></i>Enrolled: September 2022</div>
+        </div>
+    </div>
+
+    {# Edit Form #}
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-edit" style="color:#4361ee;margin-right:6px;"></i>Edit Profile</span></div>
+        <form method="post" action="{{ path('portal_profile') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('profile_update') }}">
+            <input type="hidden" name="action" value="save_profile">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-control" value="Alice" name="first_name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" class="form-control" value="Johnson" name="last_name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" value="{{ student.email }}" name="email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" value="+1 (555) 234-5678" name="phone">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Bio / About Me</label>
+                <textarea class="form-control" rows="3" name="bio" style="resize:vertical;">Passionate about mathematics and computer science. Aiming for a career in software engineering.</textarea>
+            </div>
+
+            <div class="card-header" style="margin-top:10px;margin-bottom:16px;padding-top:14px;border-top:1px solid #e2e8f0;">
+                <span class="card-title"><i class="fa fa-lock" style="color:#ef4444;margin-right:6px;"></i>Change Password</span>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:8px;">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save Changes</button>
+                <a href="{{ path('portal_dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<div class="grid-2" style="margin-top:20px;gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-key" style="color:#0ea5e9;margin-right:6px;"></i>Account Access</span></div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:10px;">Use email login or SSO providers to access your student portal account.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+            <a href="{{ path('portal_login') }}" class="btn btn-outline"><i class="fa fa-sign-in"></i> Log in with Email</a>
+            <form method="post" action="{{ path('portal_profile') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('student_start_signup') }}">
+                <input type="hidden" name="action" value="start_signup">
+                <button type="submit" class="btn btn-outline"><i class="fa fa-user-plus"></i> Start Sign Up</button>
+            </form>
+        </div>
+
+        <div class="card-header"><span class="card-title"><i class="fa fa-sign-in" style="color:#4361ee;margin-right:6px;"></i>Sign In & Security</span></div>
+        <div style="padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="font-size:13px;font-weight:700;">Email login</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ accountAccess.emailLogin }}</div>
+        </div>
+        <div style="padding:12px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px;">SSO connections</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <form method="post" action="{{ path('portal_profile') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('student_google_sso') }}">
+                    <input type="hidden" name="action" value="connect_google">
+                    <button type="submit" class="btn btn-outline"><i class="fa fa-google"></i> {{ accountAccess.googleConnected ? 'Google Connected' : 'Connect Google' }}</button>
+                </form>
+                <form method="post" action="{{ path('portal_profile') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('student_microsoft_sso') }}">
+                    <input type="hidden" name="action" value="connect_microsoft">
+                    <button type="submit" class="btn btn-outline"><i class="fa fa-windows"></i> {{ accountAccess.microsoftConnected ? 'Microsoft Connected' : 'Connect Microsoft' }}</button>
+                </form>
+            </div>
+        </div>
+        <form method="post" action="{{ path('portal_profile') }}" style="padding-top:12px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('student_password_update') }}">
+            <input type="hidden" name="action" value="update_password">
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" class="form-control" name="current_password" placeholder="Enter current password">
+            </div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" name="new_password" placeholder="Min 8 characters">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" name="confirm_password" placeholder="Repeat new password">
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button type="submit" class="btn btn-outline"><i class="fa fa-lock"></i> Update Password</button>
+            </div>
+        </form>
+        <form method="post" action="{{ path('portal_profile') }}" style="margin-top:12px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('student_enable_2fa') }}">
+            <input type="hidden" name="action" value="enable_2fa">
+            <button type="submit" class="btn btn-outline"><i class="fa fa-shield"></i> {{ accountAccess.twoFactorEnabled ? '2FA Enabled' : 'Enable 2FA' }}</button>
+            <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Last security update: {{ accountAccess.lastSecurityUpdate }}</div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-bell-o" style="color:#4361ee;margin-right:6px;"></i>Notifications & Privacy</span></div>
+        <form method="post" action="{{ path('portal_profile') }}" style="margin-bottom:16px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('student_notification_prefs') }}">
+            <input type="hidden" name="action" value="save_notifications">
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Notification preferences</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:12px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.assignments %}checked{% endif %}> Assignments</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.grades %}checked{% endif %}> Grades</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.announcements %}checked{% endif %}> Announcements</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.messages %}checked{% endif %}> Messages</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.liveClasses %}checked{% endif %}> Live classes</label>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Delivery</label>
+                <input type="text" class="form-control" value="{{ notificationPreferences.delivery }}" name="delivery">
+            </div>
+            <button type="submit" class="btn btn-outline"><i class="fa fa-save"></i> Save Notifications</button>
+        </form>
+
+        <form method="post" action="{{ path('portal_profile') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('student_privacy_settings') }}">
+            <input type="hidden" name="action" value="save_privacy">
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Privacy settings</div>
+            <div style="display:grid;gap:8px;margin-bottom:12px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if privacySettings.showProfilePhoto %}checked{% endif %}> Show profile photo</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if privacySettings.showProgressToPeers %}checked{% endif %}> Share progress with peers</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if privacySettings.allowMentorMessages %}checked{% endif %}> Allow mentor messages</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if privacySettings.shareActivityStatus %}checked{% endif %}> Share activity status</label>
+            </div>
+            <button type="submit" class="btn btn-outline"><i class="fa fa-user-secret"></i> Save Privacy Settings</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid-2" style="margin-top:20px;gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium: Learning Preferences</span></div>
+        <form method="post" action="{{ path('portal_profile') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('student_learning_preferences') }}">
+            <input type="hidden" name="action" value="save_learning_preferences">
+            <div class="form-group">
+                <label class="form-label">Preferred learning style</label>
+                <input type="text" class="form-control" value="{{ learningPreferences.style }}" name="style">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Preferred pace</label>
+                <input type="text" class="form-control" value="{{ learningPreferences.pace }}" name="pace">
+            </div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group">
+                    <label class="form-label">Study window</label>
+                    <input type="text" class="form-control" value="{{ learningPreferences.studyWindow }}" name="study_window">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Support mode</label>
+                    <input type="text" class="form-control" value="{{ learningPreferences.supportMode }}" name="support_mode">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-outline"><i class="fa fa-save"></i> Save Learning Preferences</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-bullseye" style="color:#7c3aed;margin-right:6px;"></i>Premium: Personal Goals</span></div>
+        {% for goal in goals %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ goal.subject }}</div>
+                <div style="font-size:11px;color:#4361ee;font-weight:700;">Target {{ goal.targetGrade }}</div>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">Current score: {{ goal.currentScore }}%</div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ goal.goal }}</div>
+        </div>
+        {% endfor %}
+        <form method="post" action="{{ path('portal_profile') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('student_personal_goals') }}">
+            <input type="hidden" name="action" value="save_personal_goals">
+            <button type="submit" class="btn btn-outline"><i class="fa fa-flag"></i> Update Goals</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

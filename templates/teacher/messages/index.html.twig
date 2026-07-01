@@ -1,0 +1,181 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
+{% block content %}
+
+<div class="grid-2" style="gap:18px;margin-bottom:20px;grid-template-columns:1.2fr 1fr;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bullhorn t-accent" style="margin-right:6px;"></i>School/Admin Announcements</span>
+        </div>
+        {% for item in schoolAnnouncements %}
+        <div style="padding:9px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ item.title }}</div>
+                <span class="badge badge-{{ item.priority == 'urgent' ? 'danger' : 'primary' }}">{{ item.priority|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ item.source }} · {{ item.time }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-flag t-accent" style="margin-right:6px;"></i>Premium: Priority Messaging</span>
+        </div>
+        {% for thread in priorityThreads %}
+        <div style="padding:9px;border:1px solid #fecaca;background:#fff1f2;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ thread.contact }}</div>
+                <div style="font-size:11px;font-weight:800;color:#991b1b;">{{ thread.flag|upper }}</div>
+            </div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ thread.reason }}</div>
+        </div>
+        {% endfor %}
+        <form method="post" action="{{ path('teacher_messages') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_messages_priority') }}">
+            <input type="hidden" name="action" value="flag_priority">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-exclamation-circle"></i> Apply Urgent Flag</button>
+        </form>
+    </div>
+</div>
+
+<div class="chat-layout">
+
+    {# ── Contact List ── #}
+    <div class="chat-contacts">
+        <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;">
+            <input type="text" placeholder="Search contacts…" class="form-control" style="font-size:13px;padding:7px 12px;">
+        </div>
+        {% for c in contacts %}
+        <div class="chat-contact-item {% if loop.first %}active{% endif %}" onclick="selectContact(this, '{{ c.name }}')">
+            <div style="position:relative;flex-shrink:0;">
+                <div style="width:40px;height:40px;border-radius:50%;background:{% if c.role=='Student' %}#e0f2fe{% elseif c.role=='Parent' %}#dcfce7{% else %}#ede9fe{% endif %};display:flex;align-items:center;justify-content:center;font-weight:700;color:{% if c.role=='Student' %}#0891b2{% elseif c.role=='Parent' %}#16a34a{% else %}#7c3aed{% endif %};">
+                    {{ c.name|split(' ')|first|slice(0,1) }}
+                </div>
+                {% if c.online %}
+                <span style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></span>
+                {% endif %}
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <span style="font-size:13px;font-weight:700;">{{ c.name }}</span>
+                    <span style="font-size:11px;color:#94a3b8;">{{ c.time }}</span>
+                </div>
+                <div style="font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.last_msg }}</div>
+                <span style="font-size:10px;color:{% if c.role=='Student' %}#0891b2{% elseif c.role=='Parent' %}#16a34a{% else %}#7c3aed{% endif %};font-weight:600;">{{ c.role }}</span>
+            </div>
+            {% if c.unread > 0 %}
+            <span class="badge-count">{{ c.unread }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Chat Window ── #}
+    <div class="chat-window">
+        <div class="chat-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:38px;height:38px;border-radius:50%;background:#e0f2fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0891b2;">A</div>
+                <div>
+                    <div style="font-weight:700;font-size:14px;" id="chat-name">Alice Johnson</div>
+                    <div style="font-size:11px;color:#64748b;"><span style="width:7px;height:7px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:3px;"></span>Online · Student</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="alert('Video call not yet implemented')" title="Start video call">
+                    <i class="fa fa-video-camera"></i>
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="alert('View student profile')" title="View profile">
+                    <i class="fa fa-user"></i>
+                </button>
+                <form method="post" action="{{ path('teacher_messages') }}" style="display:inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_messages_translate') }}">
+                    <input type="hidden" name="action" value="translate_message">
+                    <button class="btn btn-outline btn-sm" type="submit" title="Translate message">
+                        <i class="fa fa-language"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            {% for msg in thread %}
+            <div class="chat-msg {% if msg.me %}me{% else %}them{% endif %}">
+                <div class="chat-bubble">{{ msg.text }}</div>
+                <div class="chat-time">{{ msg.time }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="padding:12px 16px;border-top:1px solid #f1f5f9;background:#fafafa;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div style="font-size:12px;font-weight:700;color:#334155;"><i class="fa fa-history" style="margin-right:4px;"></i>Conversation History available for parent-student-teacher threads</div>
+                <form method="post" action="{{ path('teacher_messages') }}" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_messages_meeting') }}">
+                    <input type="hidden" name="action" value="schedule_meeting">
+                    <input type="date" name="meeting_date" class="form-control" style="width:160px;">
+                    <input type="time" name="meeting_time" class="form-control" style="width:140px;">
+                    <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-calendar"></i> Premium: Schedule Meeting</button>
+                </form>
+            </div>
+        </div>
+
+        <form class="chat-input-bar" id="chat-form" method="post" action="{{ path('teacher_messages') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_messages_send') }}">
+            <input type="hidden" name="action" value="send_message">
+            <button type="button" class="btn btn-outline btn-sm" onclick="alert('Attach file')" title="Attach file">
+                <i class="fa fa-paperclip"></i>
+            </button>
+            <input type="text" id="chat-input" name="message" class="form-control" placeholder="Write a message to a student, parent, or admin…" autocomplete="off">
+            <button type="submit" class="btn-teal"><i class="fa fa-paper-plane"></i></button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-handshake-o t-accent" style="margin-right:6px;"></i>Premium: Scheduled Parent-Teacher Meetings</span>
+    </div>
+    <table class="portal-table">
+        <thead>
+            <tr>
+                <th>Parent</th>
+                <th>Student</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Topic</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for meeting in meetings %}
+            <tr>
+                <td style="font-weight:700;">{{ meeting.parent }}</td>
+                <td>{{ meeting.student }}</td>
+                <td>{{ meeting.date }}</td>
+                <td>{{ meeting.time }}</td>
+                <td style="font-size:12px;color:#64748b;">{{ meeting.topic }}</td>
+                <td><span class="badge badge-{{ meeting.status == 'scheduled' ? 'success' : 'warning' }}">{{ meeting.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% block javascripts %}
+<script>
+function selectContact(el, name) {
+    document.querySelectorAll('.chat-contact-item').forEach(function(i){ i.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('chat-name').textContent = name;
+    var container = document.getElementById('chat-messages');
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;"><i class="fa fa-comment-o" style="font-size:28px;display:block;margin-bottom:8px;"></i>Start a conversation with ' + name + '</div>';
+}
+
+document.getElementById('chat-messages').scrollTop = 999999;
+</script>
+{% endblock %}
+
+{% endblock %}

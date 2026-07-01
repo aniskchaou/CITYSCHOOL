@@ -1,0 +1,412 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Billing & Subscription{% endblock %}
+{% block page_title %}Billing & Subscription{% endblock %}
+
+{% block content %}
+{% if subscription.payment_health != 'healthy' or subscription.cancellation_requested %}
+<div class="grid-2" style="gap:20px;margin-bottom:24px;align-items:start;">
+    {% if subscription.payment_health != 'healthy' %}
+    <div class="card" style="border:1px solid {% if subscription.payment_health == 'grace_period' %}#fdba74{% else %}#fecaca{% endif %};background:{% if subscription.payment_health == 'grace_period' %}#fff7ed{% else %}#fef2f2{% endif %};">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-exclamation-triangle" style="margin-right:6px;color:#dc2626;"></i>Failed Payment Handling</span>
+            <span class="role-badge {% if subscription.payment_health == 'grace_period' %}status-pending{% else %}status-danger{% endif %}">{{ subscription.payment_health|replace({'_':' '})|title }}</span>
+        </div>
+        {% for warning in subscription.warnings %}
+        <div style="font-size:13px;line-height:1.7;color:#7f1d1d;margin-bottom:8px;">{{ warning }}</div>
+        {% endfor %}
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;">
+            <div style="padding:12px;border-radius:12px;background:#fff;border:1px solid #fee2e2;">
+                <div style="font-size:11px;color:#991b1b;text-transform:uppercase;font-weight:700;">Failures</div>
+                <div style="font-size:24px;font-weight:900;color:#7f1d1d;">{{ subscription.payment_failures }}</div>
+            </div>
+            <div style="padding:12px;border-radius:12px;background:#fff;border:1px solid #fee2e2;">
+                <div style="font-size:11px;color:#991b1b;text-transform:uppercase;font-weight:700;">Failed Invoice</div>
+                <div style="font-size:14px;font-weight:800;color:#7f1d1d;">{{ subscription.failed_invoice_ref }}</div>
+            </div>
+            <div style="padding:12px;border-radius:12px;background:#fff;border:1px solid #fee2e2;">
+                <div style="font-size:11px;color:#991b1b;text-transform:uppercase;font-weight:700;">Grace Period</div>
+                <div style="font-size:14px;font-weight:800;color:#7f1d1d;">{{ subscription.grace_days_remaining is not null ? subscription.grace_days_remaining ~ ' days left' : 'Not started' }}</div>
+            </div>
+        </div>
+
+        <div style="font-size:12px;font-weight:700;color:#991b1b;text-transform:uppercase;margin-bottom:8px;">Smart Retry Schedule</div>
+        <ul style="margin:0 0 14px 18px;padding:0;color:#7f1d1d;line-height:1.8;">
+            {% for retry in subscription.retry_schedule %}
+            <li>Automatic retry scheduled for {{ retry }}</li>
+            {% else %}
+            <li>No retries scheduled.</li>
+            {% endfor %}
+        </ul>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <form method="post" action="{{ path('admin_billing') }}">
+                <input type="hidden" name="action" value="retry_payment_now">
+                <button class="btn-purple btn-sm" type="submit"><i class="fa fa-refresh"></i> Retry Payment Now</button>
+            </form>
+            <a href="#payment-method" class="btn btn-outline btn-sm"><i class="fa fa-credit-card"></i> Update Payment Method</a>
+        </div>
+
+        {% if subscription.feature_restriction %}
+        <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff;border:1px dashed #f59e0b;color:#92400e;line-height:1.7;">
+            Premium features are currently restricted. Access remains visible during the grace period so there is no sudden lockout.
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if subscription.cancellation_requested %}
+    <div class="card" style="border:1px solid #cbd5e1;background:#f8fafc;">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-ban" style="margin-right:6px;color:#475569;"></i>Cancellation Status</span>
+            <span class="role-badge status-pending">{{ subscription.cancellation_mode == 'immediate' ? 'Immediate' : 'End of period' }}</span>
+        </div>
+        <div style="font-size:13px;color:#475569;line-height:1.7;">
+            {% if subscription.cancellation_mode == 'immediate' %}
+                Subscription cancelled immediately on {{ subscription.cancellation_effective_date|date('M d, Y') }}. Export access remains available while data is prepared.
+            {% else %}
+                Subscription will remain active until {{ subscription.cancellation_effective_date|date('M d, Y') }}. No sudden lockout will occur before the billing period ends.
+            {% endif %}
+        </div>
+        {% if subscription.data_export_ready %}
+        <div style="margin-top:12px;padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;">Data export requested. Archive package is being prepared for download.</div>
+        {% endif %}
+        {% if subscription.cancellation_feedback %}
+        <div style="margin-top:12px;font-size:12px;color:#64748b;line-height:1.7;"><strong>Feedback:</strong> {{ subscription.cancellation_feedback }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-diamond"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ subscription.current_plan }}</div>
+            <div class="stat-label">Current Plan</div>
+        </div>
+    </div>
+    <div class="stat-card teal">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-repeat"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ subscription.billing_cycle|capitalize }}</div>
+            <div class="stat-label">Billing Cycle</div>
+        </div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-calendar"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ subscription.next_payment_date|date('M d') }}</div>
+            <div class="stat-label">Next Payment Date</div>
+        </div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-dollar"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">${{ subscription.next_payment_amount }}</div>
+            <div class="stat-label">Next Charge</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;align-items:start;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bar-chart a-accent" style="margin-right:6px;"></i>Usage Overview</span>
+            <span class="role-badge status-active">{{ subscription.status }}</span>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:16px;">
+            <div class="stat-card" style="box-shadow:none;border:1px solid #eef2f7;">
+                <div class="stat-body">
+                    <div class="stat-value">{{ subscription.student_count }}</div>
+                    <div class="stat-label">Students Using Platform</div>
+                </div>
+            </div>
+            <div class="stat-card" style="box-shadow:none;border:1px solid #eef2f7;">
+                <div class="stat-body">
+                    <div class="stat-value">{{ subscription.storage_used_gb }} GB</div>
+                    <div class="stat-label">Storage Used / {{ subscription.storage_limit_gb }} GB</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:8px;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;">Storage Capacity</div>
+        <div style="height:12px;border-radius:999px;background:#eef2f7;overflow:hidden;margin-bottom:8px;">
+            <div style="height:100%;width:{{ subscription.usage_percent }}%;background:{% if subscription.usage_percent > 85 %}#ef4444{% elseif subscription.usage_percent > 65 %}#f59e0b{% else %}#14b8a6{% endif %};"></div>
+        </div>
+        <div style="font-size:12px;color:#64748b;">{{ subscription.usage_percent }}% of included storage consumed. Upgrade instantly to increase storage and unlock premium modules.</div>
+
+        {% if subscription.pending_plan_change %}
+        <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:#fff7df;border:1px solid #f0d879;color:#7a5a00;">
+            Downgrade to <strong>{{ subscription.pending_plan_change }}</strong> is scheduled for <strong>{{ subscription.pending_plan_effective_date|date('M d, Y') }}</strong> and will apply on the next billing cycle.
+        </div>
+        {% endif %}
+
+        {% if subscription.feature_unlocks is not empty %}
+        <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:#ecfdf5;border:1px solid #86efac;color:#166534;">
+            Upgrade applied instantly. Newly unlocked: {{ subscription.feature_unlocks|join(', ') }}.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card" id="payment-method">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-credit-card a-accent" style="margin-right:6px;"></i>Payment Method</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid #eef2f7;border-radius:12px;margin-bottom:14px;">
+            <div>
+                {% if subscription.payment_method.provider == 'paypal' %}
+                <div style="font-weight:700;">PayPal · {{ subscription.payment_method.paypal_email }}</div>
+                <div style="font-size:12px;color:#64748b;">Linked PayPal billing agreement</div>
+                {% else %}
+                <div style="font-weight:700;">{{ subscription.payment_method.brand }} ending in {{ subscription.payment_method.last4 }}</div>
+                <div style="font-size:12px;color:#64748b;">Expires {{ subscription.payment_method.exp }}</div>
+                {% endif %}
+            </div>
+            <span class="role-badge status-active">{{ subscription.payment_method.provider == 'paypal' ? 'PayPal' : 'Stripe' }}</span>
+        </div>
+
+        <form method="post" action="{{ path('admin_billing') }}">
+            <input type="hidden" name="action" value="update_payment_method">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Payment Provider</label>
+                <select class="form-control" id="payment-provider-select" name="payment_provider">
+                    <option value="stripe" {{ subscription.payment_method.provider != 'paypal' ? 'selected' : '' }}>Stripe Card</option>
+                    <option value="paypal" {{ subscription.payment_method.provider == 'paypal' ? 'selected' : '' }}>PayPal</option>
+                </select>
+            </div>
+            <div class="grid-3" id="card-fields-group" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                <div class="form-group"><label class="form-label">Brand</label><input class="form-control" name="card_brand" placeholder="Visa"></div>
+                <div class="form-group"><label class="form-label">Card Number</label><input class="form-control" name="card_number" placeholder="4242 4242 4242 4242"></div>
+                <div class="form-group"><label class="form-label">Expiry</label><input class="form-control" name="card_expiry" placeholder="08/28"></div>
+            </div>
+            <div class="form-group" id="paypal-field-group" style="margin-top:12px;">
+                <label class="form-label">PayPal Email (for PayPal provider)</label>
+                <input class="form-control" type="email" name="paypal_email" placeholder="billing@school.com" value="{{ subscription.payment_method.paypal_email ?? '' }}">
+            </div>
+            <div style="font-size:12px;color:#64748b;margin:6px 0 12px;line-height:1.6;">
+                Choose <strong>Stripe Card</strong> to use brand/number/expiry, or choose <strong>PayPal</strong> and enter the PayPal email.
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Update Payment Method</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;align-items:start;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-random a-accent" style="margin-right:6px;"></i>Change Plan</span>
+            <span style="font-size:12px;color:#64748b;">Upgrade is immediate. Downgrade applies next billing cycle.</span>
+        </div>
+
+        <div style="display:grid;gap:12px;">
+            {% for plan in plan_catalog %}
+            <div style="border:1px solid {{ plan.is_current ? '#c4b5fd' : '#eef2f7' }};border-radius:14px;padding:14px;{% if plan.is_current %}background:#f5f3ff;{% endif %}">
+                <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+                    <div>
+                        <div style="font-size:18px;font-weight:800;color:#0f172a;">{{ plan.name }}</div>
+                        <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ plan.students_limit }} students · {{ plan.storage_limit_gb }} GB storage</div>
+                        <div style="font-size:12px;color:#64748b;margin-top:8px;">
+                            {% if plan.change_type == 'upgrade' %}
+                                Prorated due now: <strong>${{ plan.delta }}</strong>. Features unlock immediately.
+                            {% elseif plan.change_type == 'downgrade' %}
+                                Lower rate starts on your next billing cycle.
+                            {% else %}
+                                Your current plan.
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="text-align:right;min-width:110px;">
+                        <div style="font-size:26px;font-weight:900;color:#7c3aed;">${{ plan.amount }}</div>
+                        <div style="font-size:12px;color:#64748b;">per {{ subscription.billing_cycle == 'yearly' ? 'year' : 'month' }}</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+                    <form method="post" action="{{ path('admin_billing') }}">
+                        <input type="hidden" name="action" value="change_plan">
+                        <input type="hidden" name="target_plan" value="{{ plan.name }}">
+                        <button class="{{ plan.is_current ? 'btn btn-outline btn-sm' : 'btn-purple btn-sm' }}" type="submit" {% if plan.is_current %}disabled{% endif %}>
+                            {{ plan.is_current ? 'Current Plan' : 'Change Plan' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-refresh a-accent" style="margin-right:6px;"></i>Renewal Settings</span>
+        </div>
+        <div style="padding:12px 14px;border:1px solid #eef2f7;border-radius:12px;margin-bottom:14px;">
+            <div style="font-weight:700;color:#0f172a;">{{ subscription.renewal_mode == 'auto' ? 'Automatic renewal' : 'Manual renewal' }}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.6;">
+                {% if subscription.renewal_mode == 'auto' %}
+                    {{ subscription.payment_method.provider == 'paypal' ? 'PayPal' : 'Stripe' }} charges automatically on {{ subscription.next_payment_date|date('M d, Y') }}, then sends the invoice and confirmation email.
+                {% else %}
+                    The system will notify you before expiry so you can click Renew Now and complete payment manually.
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="post" action="{{ path('admin_billing') }}" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="toggle_renewal_mode">
+            <button class="{{ subscription.renewal_mode == 'auto' ? 'btn-purple btn-sm' : 'btn btn-outline btn-sm' }}" type="submit" name="renewal_mode" value="auto">Enable Auto Renewal</button>
+            <button class="{{ subscription.renewal_mode == 'manual' ? 'btn-purple btn-sm' : 'btn btn-outline btn-sm' }}" type="submit" name="renewal_mode" value="manual">Switch to Manual</button>
+        </form>
+
+        <form method="post" action="{{ path('admin_billing') }}">
+            <input type="hidden" name="action" value="renew_now">
+            <button class="btn-purple" type="submit"><i class="fa fa-bolt"></i> Renew Now</button>
+        </form>
+
+        {% if subscription.renewal_notice %}
+        <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;line-height:1.6;">
+            {{ subscription.renewal_notice }}
+        </div>
+        {% endif %}
+
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #eef2f7;display:flex;gap:10px;flex-wrap:wrap;">
+            <form method="post" action="{{ path('admin_billing') }}">
+                <input type="hidden" name="action" value="simulate_payment_failure">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-times-circle"></i> Simulate Failed Payment</button>
+            </form>
+        </div>
+
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #eef2f7;">
+            <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;">Mailer Connectivity Test</div>
+            <form method="post" action="{{ path('admin_billing') }}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <input type="hidden" name="action" value="send_test_email">
+                <input class="form-control" type="email" name="test_email" placeholder="billing-admin@school.com" style="max-width:280px;">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-envelope-o"></i> Send Test Email</button>
+            </form>
+            <div style="margin-top:6px;font-size:12px;color:#94a3b8;">Leave empty to send to the default admin email.</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;align-items:start;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-file-text-o a-accent" style="margin-right:6px;"></i>Subscription Invoices</span>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Reference</th><th>Type</th><th>Amount</th><th>Issued</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            {% for invoice in subscription_invoices %}
+            <tr>
+                <td style="font-weight:700;">{{ invoice.ref }}</td>
+                <td>{{ invoice.type }}</td>
+                <td>${{ invoice.amount }}</td>
+                <td>{{ invoice.issued_on }}</td>
+                <td><span class="role-badge {{ invoice.status == 'paid' ? 'status-active' : 'status-pending' }}">{{ invoice.status }}</span></td>
+                <td>
+                    <form method="post" action="{{ path('admin_billing') }}" style="display:inline;">
+                        <input type="hidden" name="action" value="download_invoice">
+                        <input type="hidden" name="invoice_ref" value="{{ invoice.ref }}">
+                        <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-download"></i> Download</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-users a-accent" style="margin-right:6px;"></i>Billable Usage Snapshot</span>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Student</th><th>Class</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for user in student_usage %}
+            <tr>
+                <td style="font-weight:700;">{{ user.name }}</td>
+                <td>{{ user.class }}</td>
+                <td><span class="role-badge {{ user.status == 'active' ? 'status-active' : 'status-pending' }}">{{ user.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top:12px;font-size:12px;color:#64748b;line-height:1.6;">Usage updates continuously. Higher plans increase billable capacity and storage immediately after upgrade.</div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:24px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-ban a-accent" style="margin-right:6px;"></i>Cancel Subscription</span>
+        <span style="font-size:12px;color:#64748b;">Offer a downgrade before cancelling, and keep access until the period ends when requested.</span>
+    </div>
+
+    <div class="grid-2" style="gap:20px;align-items:start;">
+        <div>
+            <form method="post" action="{{ path('admin_billing') }}">
+                <input type="hidden" name="action" value="cancel_subscription">
+                <div class="form-group">
+                    <label class="form-label">Cancellation Timing</label>
+                    <select class="form-control" name="cancel_mode">
+                        <option value="period_end">End of current billing period</option>
+                        <option value="immediate">Cancel immediately</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Why are you leaving?</label>
+                    <textarea class="form-control" name="cancel_feedback" rows="4" placeholder="Optional feedback to help improve the subscription experience"></textarea>
+                </div>
+                <div style="display:grid;gap:8px;margin-bottom:14px;">
+                    <label style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#475569;"><input type="checkbox" name="export_data" value="1"> Prepare a data export before access ends</label>
+                    <label style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#475569;"><input type="checkbox" name="offer_downgrade" value="1"> Accept downgrade offer instead of cancelling</label>
+                </div>
+                <button class="btn-purple" type="submit"><i class="fa fa-ban"></i> Submit Cancellation Request</button>
+            </form>
+        </div>
+
+        <div>
+            <div style="padding:14px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;margin-bottom:14px;">
+                <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;">Downgrade Offer</div>
+                <div style="font-size:16px;font-weight:800;color:#0f172a;">Move to {{ subscription.downgrade_offer_plan }}</div>
+                <div style="font-size:13px;color:#64748b;line-height:1.7;margin-top:8px;">Keep access, reduce cost, and avoid a disruptive offboarding. This option applies on the next billing cycle.</div>
+            </div>
+            <div style="padding:14px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;">
+                <div style="font-size:12px;font-weight:700;color:#9a3412;text-transform:uppercase;margin-bottom:8px;">No sudden lockout</div>
+                <div style="font-size:13px;color:#9a3412;line-height:1.7;">If cancellation is scheduled for end of period, the platform keeps access until {{ subscription.next_payment_date|date('M d, Y') }} and reminds the admin before access ends.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var providerSelect = document.getElementById('payment-provider-select');
+    var cardFieldsGroup = document.getElementById('card-fields-group');
+    var paypalFieldGroup = document.getElementById('paypal-field-group');
+
+    if (!providerSelect || !cardFieldsGroup || !paypalFieldGroup) {
+        return;
+    }
+
+    var cardInputs = cardFieldsGroup.querySelectorAll('input');
+    var paypalInputs = paypalFieldGroup.querySelectorAll('input');
+
+    function togglePaymentFields() {
+        var isPaypal = providerSelect.value === 'paypal';
+
+        cardFieldsGroup.style.display = isPaypal ? 'none' : 'grid';
+        paypalFieldGroup.style.display = isPaypal ? 'block' : 'none';
+
+        for (var i = 0; i < cardInputs.length; i++) {
+            cardInputs[i].disabled = isPaypal;
+        }
+
+        for (var j = 0; j < paypalInputs.length; j++) {
+            paypalInputs[j].disabled = !isPaypal;
+        }
+    }
+
+    providerSelect.addEventListener('change', togglePaymentFields);
+    togglePaymentFields();
+})();
+</script>
+{% endblock %}

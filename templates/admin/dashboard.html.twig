@@ -1,0 +1,164 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+{% if trial_context %}
+<div class="card" style="margin-bottom:24px;border:{% if trial_context.trial_expired %}1px solid #f2b8b5{% else %}1px solid #f0d879{% endif %};background:{% if trial_context.trial_expired %}#fff1f0{% else %}#fff7df{% endif %};">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:{% if trial_context.trial_expired %}#7b241c{% else %}#7a5a00{% endif %};margin-bottom:6px;">School Trial Status</div>
+            <div style="font-size:18px;font-weight:800;color:#0f3a60;">
+                {% if trial_context.trial_expired %}
+                    Upgrade to continue using the platform
+                {% else %}
+                    {{ trial_context.trial_days_remaining }} day{{ trial_context.trial_days_remaining == 1 ? '' : 's' }} left in your free trial
+                {% endif %}
+            </div>
+            <div style="font-size:13px;color:#64748b;margin-top:6px;max-width:760px;">
+                Premium features such as advanced analytics, API integrations, white-label branding, and priority support stay limited until you upgrade.
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="{{ path('pricing') }}" class="btn btn-sm" style="background:#1a7aa3;color:#fff;">Upgrade Now</a>
+            {% if not trial_context.trial_expired %}
+            <a href="{{ path('subscribe_trial_dashboard') }}" class="btn btn-outline btn-sm">View Trial Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ── KPI Stats ──────────────────────────────────────────────── #}
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-users"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon" style="background:#dcfce7;color:#22c55e;"><i class="fa fa-book"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-label">Students</div>
+        </div>
+    </div>
+    <div class="stat-card teal">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-chalkboard-teacher" style="font-size:inherit;"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ total_teachers }}</div>
+            <div class="stat-label">Teachers</div>
+        </div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-th-large"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ total_classes }}</div>
+            <div class="stat-label">Active Classes</div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+    <div class="stat-card green">
+        <div class="stat-icon" style="background:#dcfce7;color:#22c55e;"><i class="fa fa-dollar"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">${{ revenue_paid|number_format(0) }}</div>
+            <div class="stat-label">Revenue Collected</div>
+        </div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-clock-o"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-label">Pending Payments</div>
+        </div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ overdue_count }}</div>
+            <div class="stat-label">Overdue Payments</div>
+        </div>
+    </div>
+</div>
+
+{# ── Analytics Trend ────────────────────────────────────────── #}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-bar-chart a-accent" style="margin-right:6px;"></i>Enrollment Trend (Spring 2026)</span>
+        <a href="{{ path('admin_reports') }}" class="btn btn-outline btn-sm">Full Report</a>
+    </div>
+    <div class="bar-chart" style="gap:10px;align-items:flex-end;height:100px;">
+        {% set months = [['Jan',72],['Feb',85],['Mar',91],['Apr',88],['May',95],['Jun',0]] %}
+        {% for m in months %}
+        <div class="bar-wrap">
+            <div class="bar" style="height:{{ m[1] }}%;background:{% if m[0]=='May' %}#7c3aed{% else %}#c4b5fd{% endif %};border-radius:4px 4px 0 0;"></div>
+            <div style="font-size:10px;color:#64748b;margin-top:4px;text-align:center;">{{ m[0] }}<br><b>{{ m[1] > 0 ? m[1] : '—' }}</b></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;">
+    {# ── Recent Activity / Audit ─────────────────── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-history a-accent" style="margin-right:6px;"></i>Recent Activity</span>
+            <a href="{{ path('admin_audit') }}" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>User</th><th>Action</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for log in recent_logs %}
+            <tr class="audit-row-{{ log.severity }}">
+                <td><code style="font-size:12px;">{{ log.user }}</code></td>
+                <td>
+                    <span class="role-badge audit-badge-{{ log.severity }}" style="font-size:10px;">{{ log.action }}</span>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px;">{{ log.description|slice(0,50) }}{% if log.description|length > 50 %}…{% endif %}</div>
+                </td>
+                <td style="font-size:11px;color:#94a3b8;white-space:nowrap;">{{ log.timestamp|slice(11,16) }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# ── Announcements ──────────────────────────── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bullhorn a-accent" style="margin-right:6px;"></i>Announcements</span>
+            <a href="{{ path('admin_announcements') }}" class="btn-purple btn-sm" style="padding:5px 12px;font-size:12px;">+ New</a>
+        </div>
+        {% for ann in announcements %}
+        <div style="padding:12px 0;border-bottom:1px solid #f1f5f9;{% if ann.pinned %}border-left:3px solid #7c3aed;padding-left:12px;{% endif %}">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                {% if ann.pinned %}<i class="fa fa-thumb-tack" style="color:#7c3aed;font-size:11px;"></i>{% endif %}
+                <span style="font-weight:700;font-size:13px;">{{ ann.title }}</span>
+                <span class="role-badge" style="background:#f1f5f9;color:#64748b;font-size:10px;margin-left:auto;">{{ ann.target }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;">{{ ann.body|slice(0,80) }}{% if ann.body|length > 80 %}…{% endif %}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;"><i class="fa fa-eye"></i> {{ ann.views }} views · {{ ann.created_at }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ── Quick Links ─────────────────────────────────────────────── #}
+<div class="card">
+    <div class="card-header"><span class="card-title"><i class="fa fa-bolt a-accent" style="margin-right:6px;"></i>Quick Actions</span></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;padding:4px 0;">
+        <a href="{{ path('admin_users') }}" class="btn-purple"><i class="fa fa-user-plus"></i> Add User</a>
+        <a href="{{ path('admin_classes') }}" class="btn-purple"><i class="fa fa-plus"></i> New Class</a>
+        <a href="{{ path('admin_reports') }}" class="btn btn-outline"><i class="fa fa-file-text"></i> Grade Reports</a>
+        <a href="{{ path('admin_payments') }}" class="btn btn-outline"><i class="fa fa-credit-card"></i> Fee Overview</a>
+        <a href="{{ path('admin_billing') }}" class="btn btn-outline"><i class="fa fa-refresh"></i> Billing &amp; Subscription</a>
+        <a href="{{ path('admin_audit') }}" class="btn btn-outline"><i class="fa fa-history"></i> Audit Logs</a>
+        <a href="{{ path('admin_settings') }}" class="btn btn-outline"><i class="fa fa-cog"></i> Settings</a>
+    </div>
+</div>
+
+{% endblock %}

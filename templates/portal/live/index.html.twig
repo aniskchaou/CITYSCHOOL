@@ -1,0 +1,263 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Live Classes{% endblock %}
+{% block page_title %}Live Classes{% endblock %}
+
+{% block content %}
+
+{% set live_sessions = sessions|filter(s => s.status == 'live') %}
+{% set upcoming_sessions = sessions|filter(s => s.status == 'upcoming') %}
+{% set recorded_sessions = sessions|filter(s => s.status == 'recorded') %}
+
+<div class="grid-2" style="gap:20px;margin-bottom:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-folder-open" style="color:#2563eb;margin-right:6px;"></i>Shared Materials During Class</span>
+        </div>
+        {% for item in sharedMaterials %}
+        <div style="padding:9px;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;align-items:center;">
+            <div>
+                <div style="font-size:12px;font-weight:700;">{{ item.title }}</div>
+                <div style="font-size:11px;color:#64748b;">{{ item.course }} &middot; {{ item.type|upper }}</div>
+            </div>
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('shared_mat_'~loop.index) }}">
+                <input type="hidden" name="action" value="open_shared_material">
+                <button class="btn btn-outline btn-sm" type="submit">Open</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Live Tools</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Integrated video tools</div>
+        {% for tool in videoTools %}
+        <div style="padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <span style="font-size:12px;">{{ tool.name }}</span>
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('video_tool_'~loop.index) }}">
+                <input type="hidden" name="action" value="launch_video_tool">
+                <button class="btn btn-outline btn-sm" type="submit">Launch</button>
+            </form>
+        </div>
+        {% endfor %}
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 8px 0;">Auto-recordings saved to course</div>
+        {% for record in autoRecordings %}
+        <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-video-camera" style="color:#ef4444;margin-right:5px;"></i>{{ record.course }}: {{ record.session }} -> {{ record.savedTo }}</div>
+        {% endfor %}
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 8px 0;">Live polls & quizzes</div>
+        {% for poll in livePolls %}
+        <div style="padding:8px;background:#f8fafc;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <span style="font-size:12px;">{{ poll.title }} ({{ poll.questions }} Q)</span>
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('poll_'~loop.index) }}">
+                <input type="hidden" name="action" value="run_live_poll">
+                <button class="btn btn-outline btn-sm" type="submit">Start</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar" style="color:#2563eb;margin-right:6px;"></i>Class Timetable</span>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Room</th></tr></thead>
+            <tbody>
+                {% for row in classTimetable %}
+                <tr>
+                    <td style="font-size:12px;font-weight:700;">{{ row.day }}</td>
+                    <td style="font-size:12px;">{{ row.time }}</td>
+                    <td style="font-size:12px;color:#475569;">{{ row.subject }}</td>
+                    <td style="font-size:12px;color:#64748b;">{{ row.room }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar-o" style="color:#dc2626;margin-right:6px;"></i>Exam Dates & Deadlines</span>
+        </div>
+        {% for exam in examCalendar %}
+        <div style="padding:9px;border-left:4px solid #ef4444;background:#fff7ed;border-radius:6px;margin-bottom:8px;">
+            <div style="font-size:12px;font-weight:700;">{{ exam.subject }} - {{ exam.exam }}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:3px;">{{ exam.date }} at {{ exam.time }} ({{ exam.duration }})</div>
+        </div>
+        {% endfor %}
+        <div style="padding-top:8px;border-top:1px solid #e2e8f0;">
+            {% for task in assignmentDeadlines %}
+            <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-flag" style="color:{{ task.status == 'urgent' ? '#ef4444' : '#f59e0b' }};margin-right:5px;"></i>{{ task.title }} ({{ task.course }}) - {{ task.deadline }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-refresh" style="color:#0891b2;margin-right:6px;"></i>Sync with Personal Calendar</span>
+        </div>
+        {% for app in calendarSyncOptions %}
+        <div style="padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:12px;font-weight:700;">{{ app.name }}</div>
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('sync_'~loop.index) }}">
+                <input type="hidden" name="action" value="sync_calendar">
+                <button class="btn btn-outline btn-sm" type="submit">{{ app.connected ? 'Re-sync' : 'Connect' }}</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Schedule Assistant</span>
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('refresh_reminders') }}">
+                <input type="hidden" name="action" value="refresh_reminders">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Smart reminders</div>
+        {% for reminder in smartReminders %}
+        <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-bell" style="color:{{ reminder.type == 'danger' ? '#ef4444' : (reminder.type == 'warning' ? '#f59e0b' : '#0ea5e9') }};margin-right:5px;"></i>{{ reminder.message }}</div>
+        {% endfor %}
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 6px 0;">Conflict detection</div>
+        {% for conflict in scheduleConflicts %}
+        <div style="padding:8px;background:#f8fafc;border-left:4px solid {{ conflict.impact == 'High' ? '#ef4444' : '#f59e0b' }};border-radius:6px;margin-bottom:7px;">
+            <div style="font-size:12px;font-weight:700;">{{ conflict.itemA }} vs {{ conflict.itemB }}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px;">{{ conflict.resolution }}</div>
+        </div>
+        {% endfor %}
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 6px 0;">Study planning assistant</div>
+        {% for slot in studyPlan %}
+        <div style="font-size:12px;color:#475569;margin-bottom:5px;"><i class="fa fa-clock-o" style="color:#16a34a;margin-right:5px;"></i>{{ slot.slot }} - {{ slot.task }} ({{ slot.goal }})</div>
+        {% endfor %}
+        <div style="display:flex;gap:8px;margin-top:8px;">
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('detect_conflicts') }}">
+                <input type="hidden" name="action" value="detect_conflicts">
+                <button class="btn btn-outline btn-sm" type="submit">Detect Conflicts</button>
+            </form>
+            <form method="post" action="{{ path('portal_live') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('refresh_study_plan') }}">
+                <input type="hidden" name="action" value="refresh_study_plan">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh Plan</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ── Live Now ── #}
+{% if live_sessions|length > 0 %}
+<div style="margin-bottom:24px;">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <span class="live-badge"><span class="dot"></span> LIVE NOW</span>
+        {{ live_sessions|length }} session(s) in progress
+    </h2>
+    <div class="grid-auto">
+        {% for s in live_sessions %}
+        <div class="card" style="border:2px solid #fecaca;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+                <div>
+                    <div style="font-size:16px;font-weight:800;margin-bottom:4px;">{{ s.course }}</div>
+                    <div style="font-size:13px;color:#64748b;">{{ s.topic }}</div>
+                    <div style="font-size:12px;color:#64748b;margin-top:4px;"><i class="fa fa-user"></i> {{ s.teacher }}</div>
+                </div>
+                <span class="live-badge"><span class="dot"></span> LIVE</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;color:#64748b;">
+                    <i class="fa fa-users"></i> {{ s.participants }} students joined &middot; {{ s.time }}
+                </span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                    <form method="post" action="{{ path('portal_live') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('join_live_'~s.id) }}">
+                        <input type="hidden" name="action" value="join_live">
+                        <button class="btn btn-live" type="submit"><i class="fa fa-video-camera"></i> Join Now</button>
+                    </form>
+                    <form method="post" action="{{ path('portal_live') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('raise_hand_'~s.id) }}">
+                        <input type="hidden" name="action" value="raise_hand">
+                        <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-hand-paper-o"></i> Raise Hand</button>
+                    </form>
+                    <form method="post" action="{{ path('portal_live') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('class_chat_'~s.id) }}">
+                        <input type="hidden" name="action" value="class_chat">
+                        <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-comments"></i> Class Chat</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{# ── Upcoming ── #}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-clock-o" style="color:#f59e0b;margin-right:6px;"></i>Upcoming Sessions</span>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>Course</th><th>Topic</th><th>Teacher</th><th>Time</th><th>Action</th></tr></thead>
+        <tbody>
+            {% for s in upcoming_sessions %}
+            <tr>
+                <td class="fw-bold" style="font-size:13px;">{{ s.course }}</td>
+                <td style="font-size:13px;">{{ s.topic }}</td>
+                <td style="font-size:12px;color:#64748b;">{{ s.teacher }}</td>
+                <td style="font-size:12px;">{{ s.time }}</td>
+                <td>
+                    <a href="#" class="btn btn-outline btn-sm" onclick="alert('Session starts at {{ s.time }}');return false;">
+                        <i class="fa fa-bell"></i> Remind Me
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Recordings ── #}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-play-circle" style="color:#8b5cf6;margin-right:6px;"></i>Recorded Sessions</span>
+    </div>
+    <div class="grid-auto">
+        {% for s in recorded_sessions %}
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;border:1px solid #e2e8f0;">
+            <div style="font-size:14px;font-weight:700;margin-bottom:4px;">{{ s.course }}</div>
+            <div style="font-size:13px;color:#64748b;margin-bottom:6px;">{{ s.topic }}</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:12px;">
+                <i class="fa fa-calendar"></i> {{ s.time }} &middot;
+                <i class="fa fa-users"></i> {{ s.participants }} students
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <a href="#" class="btn btn-outline btn-sm w-full" style="justify-content:center;" onclick="alert('Playing recording: {{ s.topic }}');return false;">
+                    <i class="fa fa-play"></i> Watch Recording
+                </a>
+                <form method="post" action="{{ path('portal_live') }}" style="width:100%;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('save_recording_'~s.id) }}">
+                    <input type="hidden" name="action" value="save_recording">
+                    <button class="btn btn-outline btn-sm w-full" style="justify-content:center;" type="submit"><i class="fa fa-save"></i> Save To Course</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

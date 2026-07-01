@@ -1,0 +1,80 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications &amp; Alerts{% endblock %}
+
+{% block content %}
+
+{% set unread = notifications|filter(n => not n.read) %}
+{% set alert_notifs = notifications|filter(n => n.type == 'alert') %}
+
+{# ── Stats Row ───────────────────────────────────────────────────── #}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-bell"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ notifications|length }}</div><div class="stat-label">Total Notifications</div></div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-envelope-o"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ unread|length }}</div><div class="stat-label">Unread</div></div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ alert_notifs|length }}</div><div class="stat-label">Action Required</div></div>
+    </div>
+</div>
+
+{# ── Filter tabs ─────────────────────────────────────────────────── #}
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    {% for label, type in {'All': '', 'Alerts': 'alert', 'Grades': 'grade', 'Attendance': 'absent', 'Payments': 'payment', 'Reports': 'report'} %}
+    <button onclick="filterNotif('{{ type }}')" class="child-tab {{ type == '' ? 'active' : '' }}" id="tab-{{ type == '' ? 'all' : type }}" style="border-radius:8px;padding:6px 16px;font-size:12px;">{{ label }}</button>
+    {% endfor %}
+</div>
+
+{# ── Notification list ────────────────────────────────────────────── #}
+<div id="notif-list">
+{% for n in notifications %}
+<div class="notif-card {{ not n.read ? 'unread' : '' }} notif-item" data-type="{{ n.type }}">
+    <div class="notif-icon notif-{{ n.type }}"><i class="fa fa-{{ n.icon }}"></i></div>
+    <div style="flex:1;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div>
+                <div style="font-size:14px;font-weight:800;margin-bottom:3px;">{{ n.title }}</div>
+                <div style="font-size:13px;color:#475569;line-height:1.5;">{{ n.body }}</div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:5px;">
+                    <i class="fa fa-clock-o"></i> {{ n.time }}
+                    &nbsp;·&nbsp; <span style="color:#16a34a;font-weight:700;"><i class="fa fa-child"></i> {{ n.child }}</span>
+                </div>
+            </div>
+            {% if not n.read %}<div class="notif-dot" style="position:relative;top:0;right:0;flex-shrink:0;margin-top:4px;"></div>{% endif %}
+        </div>
+        {% if n.type == 'alert' %}
+        <div style="margin-top:10px;display:flex;gap:8px;">
+            <a href="{{ path('parent_messages') }}" class="btn-green" style="font-size:11px;padding:5px 12px;"><i class="fa fa-comments"></i> Message Teacher</a>
+            <button class="btn btn-outline btn-sm" onclick="this.closest('.notif-card').style.opacity='.5'">Mark as read</button>
+        </div>
+        {% endif %}
+        {% if n.type == 'payment' %}
+        <div style="margin-top:10px;">
+            <a href="{{ path('parent_payments') }}" class="btn-green" style="font-size:11px;padding:5px 12px;"><i class="fa fa-credit-card"></i> Pay Now</a>
+        </div>
+        {% endif %}
+        {% if n.type == 'report' %}
+        <div style="margin-top:10px;">
+            <a href="{{ path('parent_reports') }}" class="btn-green" style="font-size:11px;padding:5px 12px;"><i class="fa fa-file-text-o"></i> View Report</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+</div>
+
+<script>
+function filterNotif(type) {
+    document.querySelectorAll('.notif-item').forEach(function(el) {
+        el.style.display = (!type || el.dataset.type === type) ? '' : 'none';
+    });
+    document.querySelectorAll('[id^="tab-"]').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('tab-' + (type || 'all')).classList.add('active');
+}
+</script>
+{% endblock %}

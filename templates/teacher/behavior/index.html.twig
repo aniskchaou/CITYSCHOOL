@@ -1,0 +1,116 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Behavior Monitoring{% endblock %}
+{% block page_title %}Behavior & Alerts Monitoring{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-clipboard"></i></div>
+        <div><div class="stat-value">{{ reports|length }}</div><div class="stat-label">Behavior Reports</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div>
+        <div><div class="stat-value">{{ incidents|length }}</div><div class="stat-label">Incident Alerts</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-bullseye"></i></div>
+        <div><div class="stat-value">{{ warnings|length }}</div><div class="stat-label">Early Warnings</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-lightbulb-o"></i></div>
+        <div><div class="stat-value">{{ suggestions|length }}</div><div class="stat-label">Suggested Actions</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-clipboard t-accent" style="margin-right:6px;"></i>Behavior Reports</span>
+            <form method="post" action="{{ path('teacher_behavior') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_behavior_reports') }}">
+                <input type="hidden" name="action" value="view_behavior_reports">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for item in reports %}
+        <div style="padding:10px;border-left:4px solid {{ item.status == 'positive' ? '#16a34a' : (item.status == 'warning' ? '#f59e0b' : '#ef4444') }};background:#f8fafc;border-radius:6px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ item.student }}</div>
+                <span class="badge badge-{{ item.status == 'positive' ? 'success' : (item.status == 'warning' ? 'warning' : 'danger') }}">{{ item.category|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ item.detail }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ item.date }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bell-o t-accent" style="margin-right:6px;"></i>Incident Alerts</span>
+            <form method="post" action="{{ path('teacher_behavior') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_behavior_incidents') }}">
+                <input type="hidden" name="action" value="view_incident_alerts">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh Alerts</button>
+            </form>
+        </div>
+        {% for incident in incidents %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ incident.title }}</div>
+                <span class="badge badge-{{ incident.severity == 'high' ? 'danger' : 'warning' }}">{{ incident.severity|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ incident.student }} · {{ incident.time }}</div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ incident.message }}</div>
+            <form method="post" action="{{ path('teacher_behavior') }}" style="margin-top:8px;">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_behavior_ack_' ~ loop.index) }}">
+                <input type="hidden" name="action" value="acknowledge_notification">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-check"></i> Acknowledge</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond t-accent" style="margin-right:6px;"></i>Premium: Early Warning System</span>
+            <form method="post" action="{{ path('teacher_behavior') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_behavior_warnings') }}">
+                <input type="hidden" name="action" value="view_early_warnings">
+                <button class="btn btn-outline btn-sm" type="submit">Run Check</button>
+            </form>
+        </div>
+        {% for warning in warnings %}
+        <div style="padding:10px;border:1px solid {{ warning.risk == 'high' ? '#fecaca' : '#fde68a' }};background:{{ warning.risk == 'high' ? '#fff1f2' : '#fffbeb' }};border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ warning.student }}</div>
+                <div style="font-size:11px;font-weight:800;color:{{ warning.risk == 'high' ? '#991b1b' : '#92400e' }};">{{ warning.risk|upper }}</div>
+            </div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ warning.type|capitalize }} risk: {{ warning.summary }}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;">Recommended next step: {{ warning.action }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-lightbulb-o t-accent" style="margin-right:6px;"></i>Premium: Suggested Actions</span>
+            <form method="post" action="{{ path('teacher_behavior') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_behavior_actions') }}">
+                <input type="hidden" name="action" value="view_suggested_actions">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh Actions</button>
+            </form>
+        </div>
+        {% for suggestion in suggestions %}
+        <div style="padding:9px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ suggestion.student }}</div>
+                <div style="font-size:11px;color:#94a3b8;">{{ suggestion.priority|upper }}</div>
+            </div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ suggestion.suggestion }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages — Teachers{% endblock %}
+
+{% block content %}
+
+<div class="grid-2" style="gap:20px;">
+
+    {# ── Inbox ───────────────────────────────────────────────────── #}
+    <div class="card" style="padding:0;">
+        <div style="padding:16px 18px;border-bottom:1px solid #f0fdf4;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:15px;font-weight:800;"><i class="fa fa-inbox p-accent" style="margin-right:6px;"></i>Inbox</span>
+            <button class="btn-green" style="font-size:12px;padding:6px 14px;" onclick="openModal('modal-compose')"><i class="fa fa-pencil"></i> New Message</button>
+        </div>
+        {% for msg in messages %}
+        <div class="msg-item {{ not msg.read ? 'unread' : '' }}" onclick="showMessage({{ msg.id }})">
+            <div class="msg-av">{{ msg.avatar }}</div>
+            <div style="flex:1;overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:13px;font-weight:{{ not msg.read ? '800' : '600' }};color:#1e293b;">{{ msg.teacher }}</span>
+                    <span style="font-size:11px;color:#94a3b8;">{{ msg.time }}</span>
+                </div>
+                <div style="font-size:13px;font-weight:{{ not msg.read ? '700' : '400' }};color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ msg.subject }}</div>
+                <div style="font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ msg.preview }}</div>
+            </div>
+            {% if not msg.read %}<div style="width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;margin-top:4px;"></div>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Message View ─────────────────────────────────────────────── #}
+    <div class="card" id="msg-view">
+        <div style="text-align:center;padding:40px 0;color:#94a3b8;">
+            <i class="fa fa-comments" style="font-size:40px;margin-bottom:12px;display:block;color:#86efac;"></i>
+            <div style="font-size:14px;">Select a conversation to read</div>
+        </div>
+        <div id="msg-detail" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #f0fdf4;">
+                <div class="msg-av" id="mv-av"></div>
+                <div>
+                    <div id="mv-teacher" style="font-size:15px;font-weight:800;"></div>
+                    <div id="mv-subject" style="font-size:12px;color:#16a34a;font-weight:700;"></div>
+                </div>
+            </div>
+            <div id="mv-body" style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:20px;padding:14px;background:#f0fdf4;border-radius:8px;"></div>
+            <form method="post" action="{{ path('parent_messages') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_msg_reply') }}">
+                <div class="form-group"><label class="form-label">Reply</label><textarea class="form-control" name="reply" rows="4" placeholder="Type your message…"></textarea></div>
+                <button type="submit" class="btn-green"><i class="fa fa-paper-plane"></i> Send Reply</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ── Compose Modal ────────────────────────────────────────────────── #}
+<div class="p-modal-overlay" id="modal-compose">
+    <div class="p-modal">
+        <div class="p-modal-header">
+            <span class="p-modal-title"><i class="fa fa-pencil p-accent" style="margin-right:6px;"></i>New Message to Teacher</span>
+            <button class="p-modal-close" onclick="closeModal('modal-compose')">×</button>
+        </div>
+        <form method="post" action="{{ path('parent_messages') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_msg_send') }}">
+            <div class="form-group">
+                <label class="form-label">To (Teacher)</label>
+                <select class="form-control" name="teacher">
+                    <option>Mr. Smith (Mathematics)</option>
+                    <option>Ms. Brown (English)</option>
+                    <option>Dr. Patel (Science)</option>
+                    <option>Ms. Williams (Grade 8-B)</option>
+                    <option>Mr. Taylor (History)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Regarding</label>
+                <select class="form-control" name="child_id">
+                    {% for child in messages|map(m => m.teacher) %}{% endfor %}
+                    <option>Emma Jones</option>
+                    <option>Liam Jones</option>
+                </select>
+            </div>
+            <div class="form-group"><label class="form-label">Subject</label><input type="text" class="form-control" name="subject" placeholder="Message subject…"></div>
+            <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" rows="5" name="body" placeholder="Write your message…"></textarea></div>
+            <div style="display:flex;gap:10px;">
+                <button type="submit" class="btn-green"><i class="fa fa-paper-plane"></i> Send Message</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-compose')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+var msgs = {{ messages|json_encode|raw }};
+function showMessage(id) {
+    var m = msgs.find(function(x) { return x.id == id; });
+    if (!m) return;
+    document.getElementById('mv-av').textContent       = m.avatar;
+    document.getElementById('mv-teacher').textContent  = m.teacher;
+    document.getElementById('mv-subject').textContent  = m.subject;
+    document.getElementById('mv-body').textContent     = m.preview;
+    document.getElementById('msg-detail').style.display = '';
+    document.querySelector('#msg-view > div:first-child').style.display = 'none';
+}
+</script>
+{% endblock %}

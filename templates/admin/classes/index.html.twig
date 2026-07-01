@@ -1,0 +1,94 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Classes{% endblock %}
+{% block page_title %}Class Management{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-th-large"></i></div><div class="stat-body"><div class="stat-value">{{ classes|length }}</div><div class="stat-label">Total Classes</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#22c55e;"><i class="fa fa-users"></i></div><div class="stat-body"><div class="stat-value">{{ classes|map(c => c.students)|reduce((carry, v) => carry + v, 0) }}</div><div class="stat-label">Total Students</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-user-circle"></i></div><div class="stat-body"><div class="stat-value">{{ teachers|length }}</div><div class="stat-label">Teachers</div></div></div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div class="filter-bar" style="flex:1;margin-bottom:0;">
+        <i class="fa fa-search" style="color:#94a3b8;"></i>
+        <input type="search" placeholder="Search class name or teacher…">
+    </div>
+    <button class="btn-purple" style="margin-left:12px;" onclick="openModal('modal-create-class')"><i class="fa fa-plus"></i> New Class</button>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+{% for cls in classes %}
+<div class="card" style="position:relative;overflow:hidden;padding:0;">
+    <div style="height:4px;background:#7c3aed;"></div>
+    <div style="padding:18px 18px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:16px;font-weight:800;">{{ cls.name }}</div>
+            <span class="role-badge status-{{ cls.status }}">{{ cls.status }}</span>
+        </div>
+        <div style="font-size:13px;color:#475569;margin-bottom:10px;">
+            <i class="fa fa-user-circle a-accent" style="margin-right:4px;"></i>{{ cls.teacher }}<br>
+            <i class="fa fa-map-marker a-accent" style="margin-right:4px;margin-top:4px;display:inline-block;"></i>{{ cls.room }}
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <div style="flex:1;text-align:center;background:#f8fafc;border-radius:8px;padding:8px 0;">
+                <div style="font-size:18px;font-weight:800;color:#7c3aed;">{{ cls.students }}</div>
+                <div style="font-size:10px;color:#64748b;">Students</div>
+            </div>
+            <div style="flex:1;text-align:center;background:#f8fafc;border-radius:8px;padding:8px 0;">
+                <div style="font-size:18px;font-weight:800;color:#0891b2;">{{ cls.subjects }}</div>
+                <div style="font-size:10px;color:#64748b;">Subjects</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" style="flex:1;" onclick="openModal('modal-edit-class')"><i class="fa fa-pencil"></i> Edit</button>
+            <button class="btn-danger-sm" onclick="confirm('Delete {{ cls.name }}?')"><i class="fa fa-trash"></i></button>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+{# ── Create Class Modal ───────────────────────────────────────── #}
+<div class="a-modal-overlay" id="modal-create-class">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-plus a-accent" style="margin-right:6px;"></i>Create New Class</span>
+            <button class="a-modal-close" onclick="closeModal('modal-create-class')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_classes') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_class_create') }}">
+            <div class="form-group"><label class="form-label">Class Name</label><input type="text" class="form-control" name="name" placeholder="e.g. Grade 10-C" required></div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group">
+                    <label class="form-label">Class Teacher</label>
+                    <select class="form-control" name="teacher_id">
+                        {% for t in teachers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Room</label><input type="text" class="form-control" name="room" placeholder="e.g. Room 205"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Max Students</label><input type="number" class="form-control" name="max_students" value="30"></div>
+            <div style="display:flex;gap:10px;margin-top:6px;">
+                <button type="submit" class="btn-purple"><i class="fa fa-save"></i> Create Class</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-create-class')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="a-modal-overlay" id="modal-edit-class">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-pencil a-accent" style="margin-right:6px;"></i>Edit Class</span>
+            <button class="a-modal-close" onclick="closeModal('modal-edit-class')">×</button>
+        </div>
+        <div class="form-group"><label class="form-label">Class Name</label><input type="text" class="form-control" value="Grade 10-A"></div>
+        <div class="form-group"><label class="form-label">Class Teacher</label><select class="form-control">{% for t in teachers %}<option>{{ t.name }}</option>{% endfor %}</select></div>
+        <div class="form-group"><label class="form-label">Room</label><input type="text" class="form-control" value="Room 201"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control"><option>active</option><option>inactive</option></select></div>
+        <button class="btn-purple"><i class="fa fa-save"></i> Save Changes</button>
+    </div>
+</div>
+{% endblock %}

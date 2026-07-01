@@ -1,0 +1,157 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Account & Child Management{% endblock %}
+{% block page_title %}Account & Child Management{% endblock %}
+
+{% block content %}
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-user-circle-o p-accent" style="margin-right:6px;"></i>Parent Profile & Contacts</span>
+        </div>
+        <form method="post" action="{{ path('parent_account_children') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_profile') }}">
+            <input type="hidden" name="action" value="save_profile">
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group"><label class="form-label">Full Name</label><input class="form-control" name="name" value="{{ parent.name }}"></div>
+                <div class="form-group"><label class="form-label">Username</label><input class="form-control" name="username" value="{{ parent.username }}"></div>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{ parent.email }}"></div>
+                <div class="form-group"><label class="form-label">Phone</label><input class="form-control" name="phone" value="{{ parent.phone }}"></div>
+            </div>
+            <button class="btn-green" type="submit"><i class="fa fa-save"></i> Save Profile</button>
+        </form>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #dcfce7;">
+
+        <form method="post" action="{{ path('parent_account_children') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_contacts') }}">
+            <input type="hidden" name="action" value="save_contacts">
+            <div class="form-group">
+                <label class="form-label">Emergency Contact</label>
+                <input class="form-control" name="emergency_contact" value="+1 (555) 777-9922">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Alternate Email</label>
+                <input class="form-control" name="alt_email" value="family.jones@email.com">
+            </div>
+            <button class="btn btn-outline" type="submit"><i class="fa fa-address-card"></i> Update Contact Details</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-child p-accent" style="margin-right:6px;"></i>Linked Children & Switching</span>
+        </div>
+
+        {% for child in children %}
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0fdf4;">
+            <div class="av-init" style="width:32px;height:32px;font-size:11px;background:#dcfce7;color:#16a34a;">{{ child.avatar }}</div>
+            <div style="flex:1;">
+                <div style="font-size:13px;font-weight:800;">{{ child.name }}</div>
+                <div style="font-size:11px;color:#64748b;">{{ child.class }} · {{ child.teacher }}</div>
+            </div>
+            <form method="post" action="{{ path('parent_account_children') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_switch_' ~ child.id) }}">
+                <input type="hidden" name="action" value="switch_child">
+                <input type="hidden" name="child_id" value="{{ child.id }}">
+                <button type="submit" class="btn btn-outline btn-sm"><i class="fa fa-exchange"></i> Switch</button>
+            </form>
+        </div>
+        {% endfor %}
+
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+            <form method="post" action="{{ path('parent_account_children') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_link') }}">
+                <input type="hidden" name="action" value="link_child">
+                <button type="submit" class="btn-green"><i class="fa fa-link"></i> Link Another Child</button>
+            </form>
+            <form method="post" action="{{ path('parent_account_children') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_unified') }}">
+                <input type="hidden" name="action" value="view_unified_dashboard">
+                <button type="submit" class="btn btn-outline"><i class="fa fa-object-group"></i> Premium: Unified Dashboard</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bell p-accent" style="margin-right:6px;"></i>Notification Preferences</span>
+        </div>
+        <form method="post" action="{{ path('parent_account_children') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_notifications') }}">
+            <input type="hidden" name="action" value="save_notifications">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.email %}checked{% endif %}> Email notifications</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.sms %}checked{% endif %}> SMS notifications</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.push %}checked{% endif %}> Push notifications</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.missingAssignments %}checked{% endif %}> Missing assignments alerts</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.lowAttendance %}checked{% endif %}> Low attendance alerts</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.newGrades %}checked{% endif %}> New grade alerts</label>
+            </div>
+            <div class="form-group"><label class="form-label">Quiet Hours</label><input class="form-control" value="{{ notificationPreferences.quietHours }}"></div>
+            <div class="form-group"><label class="form-label">Delivery Frequency</label><input class="form-control" value="{{ notificationPreferences.frequency }}"></div>
+            <button class="btn-green" type="submit"><i class="fa fa-save"></i> Save Notification Preferences</button>
+        </form>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #dcfce7;">
+
+        <form method="post" action="{{ path('parent_account_children') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_2fa') }}">
+            <input type="hidden" name="action" value="enable_2fa">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                <div>
+                    <div style="font-size:13px;font-weight:800;color:#1f2937;">Secure Login (Optional 2FA)</div>
+                    <div style="font-size:12px;color:#64748b;">Protect your parent account with an additional verification step.</div>
+                </div>
+                <button class="btn btn-outline" type="submit"><i class="fa fa-shield"></i> Enable 2FA</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-users p-accent" style="margin-right:6px;"></i>Premium: Role Sharing & Multi-Child Comparison</span>
+        </div>
+
+        <div style="margin-bottom:12px;font-size:12px;color:#64748b;">Both parents can share access to the same child with controlled visibility and action rights.</div>
+
+        {% for member in roleSharing %}
+        <div style="padding:10px;border:1px solid #dcfce7;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+                <div>
+                    <div style="font-size:13px;font-weight:800;">{{ member.name }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ member.email }}</div>
+                    <div style="font-size:11px;color:#16a34a;margin-top:4px;">{{ member.access }}</div>
+                </div>
+                <span class="role-badge p-status-active" style="font-size:10px;">{{ member.status }}</span>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Last login: {{ member.lastLogin }}</div>
+        </div>
+        {% endfor %}
+
+        <div style="margin-top:14px;">
+            <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:8px;">Unified Dashboard Snapshot</div>
+            {% for snapshot in childSnapshots %}
+            {% set child = children|filter(c => c.id == snapshot.childId)|first %}
+            <div style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                    <div style="font-size:13px;font-weight:700;">{{ child.name }}</div>
+                    <span class="role-badge {{ snapshot.riskLevel == 'high' ? 'p-status-blocked' : 'p-status-pending' }}" style="font-size:10px;">{{ snapshot.riskLevel|upper }} RISK</span>
+                </div>
+                <div style="font-size:12px;color:#475569;margin-top:4px;">{{ snapshot.focus }}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px;">Homework today: {{ snapshot.homeworkDueToday }} · Attendance trend: {{ snapshot.attendanceTrend }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" action="{{ path('parent_account_children') }}" style="margin-top:10px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_account_children_role_sharing') }}">
+            <input type="hidden" name="action" value="manage_role_sharing">
+            <button class="btn btn-outline" type="submit"><i class="fa fa-user-plus"></i> Manage Role Sharing</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

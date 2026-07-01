@@ -1,0 +1,293 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pricing for Schools - City School SaaS{% endblock %}
+
+{% block stylesheets %}
+<style>
+body { margin: 0; background: #f4f8fc; font-family: 'Montserrat', sans-serif; color: #15314a; }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 20px; }
+.site-header { background: linear-gradient(90deg, #0f3a60 0%, #145483 100%); position: sticky; top: 0; z-index: 999; box-shadow: 0 8px 26px rgba(0,0,0,.22); }
+.primary-header .container { display: flex; align-items: center; min-height: 62px; gap: 0; }
+#branding { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: 22px; }
+#branding img { height: 38px; width: auto; }
+.site-title { margin: 0; font-size: 18px; font-weight: 800; color: #eef8ff; font-family: 'Montserrat', sans-serif; }
+.site-subtitle { font-size: 9px; color: #a5d6f2; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.main-navigation { flex: 1; display: flex; justify-content: flex-end; }
+.home-main-menu { list-style: none; margin: 0; padding: 4px; display: flex; align-items: center; gap: 2px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1); border-radius: 999px; }
+.home-main-menu > li { display: flex; align-items: stretch; height: 34px; }
+.home-nav-link { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 12px; border-radius: 999px; color: #d9efff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+.home-nav-link:hover, .current-menu-item > .home-nav-link { background: #fff; color: #0f3a60; }
+.nav-dropdown { position: relative; }
+.nav-dropdown:hover .dropdown-menu { display: block; }
+.dropdown-menu { display: none; position: absolute; top: calc(100% + 8px); left: 0; min-width: 216px; padding: 8px 0; border-radius: 12px; border: 1px solid rgba(90,168,220,.45); background: #0d3150; box-shadow: 0 14px 38px rgba(0,0,0,.34); }
+.dropdown-menu li { list-style: none; }
+.dropdown-menu a { display: grid; grid-template-columns: 24px 1fr; gap: 8px; padding: 8px 14px; color: #d7ecfd; text-decoration: none; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
+.dropdown-menu a:hover { background: rgba(103,194,255,.2); color: #fff; }
+.dm-icon { width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; background: rgba(75,179,255,.18); color: #67c2ff; }
+.dropdown-divider { height: 1px; margin: 6px 12px; background: rgba(103,194,255,.32); }
+
+.pricing-hero { padding: 64px 0 28px; background: radial-gradient(circle at 12% 10%, #e8f6ff 0%, transparent 38%), radial-gradient(circle at 84% 0%, #e8fff6 0%, transparent 30%), #f4f8fc; }
+.pricing-hero h1 { margin: 0 0 10px; font-size: 42px; line-height: 1.15; color: #10395e; font-family: 'Arvo', serif; }
+.pricing-hero p { margin: 0; max-width: 760px; color: #4f738f; line-height: 1.75; }
+
+.billing-toggle-wrap { margin-top: 24px; display: inline-flex; border: 1px solid #d2e6f4; border-radius: 999px; overflow: hidden; background: #fff; }
+.billing-toggle-wrap button { border: 0; background: transparent; padding: 10px 18px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #557996; cursor: pointer; }
+.billing-toggle-wrap button.active { background: #1a7aa3; color: #fff; }
+.yearly-save { margin-left: 10px; font-size: 12px; color: #1a7a4f; font-weight: 700; }
+
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 28px 0 18px; }
+.plan-card { position: relative; border: 1px solid #d7e9f7; background: #fff; border-radius: 16px; padding: 22px; box-shadow: 0 10px 26px rgba(15,63,95,.08); }
+.plan-card.recommended { border: 2px solid #1a7aa3; transform: translateY(-6px); box-shadow: 0 20px 36px rgba(13,75,112,.18); }
+.plan-badge { position: absolute; top: -12px; right: 14px; border-radius: 999px; background: #1a7aa3; color: #fff; font-size: 10px; font-weight: 800; padding: 5px 10px; text-transform: uppercase; letter-spacing: .06em; }
+.plan-name { margin: 0; font-size: 24px; color: #123b60; font-family: 'Arvo', serif; }
+.plan-desc { margin: 8px 0 14px; color: #62839d; font-size: 13px; min-height: 34px; }
+.plan-price { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 12px; }
+.plan-price .amount { font-size: 42px; font-weight: 900; color: #0f3a60; line-height: 1; }
+.plan-price .cycle { font-size: 13px; color: #6c8ea9; font-weight: 700; margin-bottom: 5px; }
+.plan-limit { font-size: 12px; color: #1a7a4f; font-weight: 700; margin-bottom: 14px; }
+.plan-features { list-style: none; margin: 0 0 18px; padding: 0; }
+.plan-features li { font-size: 13px; color: #4f718d; padding: 6px 0; border-bottom: 1px dashed #e5f0f8; }
+.plan-features li:last-child { border-bottom: 0; }
+.plan-features i { color: #1a7aa3; margin-right: 6px; }
+.plan-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.plan-btn { border: 0; border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; cursor: pointer; text-decoration: none; }
+.plan-btn.trial { background: #e8f6ff; color: #0e5f95; }
+.plan-btn.subscribe { background: #1a7aa3; color: #fff; }
+.plan-btn.subscribe:hover { background: #135b7b; }
+
+.table-wrap { margin-top: 16px; border: 1px solid #d7e9f7; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 10px 22px rgba(15,63,95,.07); }
+.feature-table { width: 100%; border-collapse: collapse; }
+.feature-table th, .feature-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #e8f0f7; text-align: left; }
+.feature-table th { background: #f0f7fc; color: #173f60; font-weight: 800; }
+.feature-table td:not(:first-child) { text-align: center; font-weight: 700; color: #3e6786; }
+
+.faq { margin: 26px 0 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.faq-item { background: #fff; border: 1px solid #d7e9f7; border-radius: 12px; padding: 14px 16px; }
+.faq-item h4 { margin: 0 0 6px; color: #123b60; font-size: 15px; }
+.faq-item p { margin: 0; color: #5b7d98; font-size: 13px; line-height: 1.65; }
+
+.site-footer { background: #0e2d45; color: #9ab8cc; padding: 34px 0 0; }
+.site-footer .row { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
+.widget-title { margin: 0 0 10px; color: #e0f0fb; font-size: 16px; }
+.widget a { color: #9ab8cc; text-decoration: none; }
+.widget a:hover { color: #fff; }
+.copy { text-align: center; color: #6f92a7; border-top: 1px solid #1e3f55; margin-top: 24px; padding: 14px 0; font-size: 13px; }
+
+@media (max-width: 980px) {
+  .pricing-grid, .faq, .site-footer .row { grid-template-columns: 1fr; }
+  .plan-card.recommended { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div id="site-content">
+    <header class="site-header">
+        <div class="primary-header">
+            <div class="container">
+                <a id="branding" href="{{ path('index') }}">
+                    <img src="{{ asset('images/logo.png') }}" alt="City School">
+                    <div>
+                        <h1 class="site-title">City School</h1>
+                        <small class="site-subtitle">Excellence In Education</small>
+                    </div>
+                </a>
+
+                <nav class="main-navigation">
+                    <ul class="home-main-menu home-nav-v2">
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('index') }}">Home</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('courses') }}">Courses</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('values') }}">Values</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('events') }}">Events</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('admissions') }}">Admissions</a></li>
+                        <li class="home-nav-item current-menu-item"><a class="home-nav-link" href="{{ path('pricing') }}">Pricing</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('contact') }}">Contact</a></li>
+                        <li class="home-nav-item nav-dropdown">
+                            <a class="home-nav-link" href="#"><i class="fa fa-sign-in home-nav-login-icon"></i><span>Login</span><span class="arrow">▼</span></a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="{{ path('portal_login') }}"><span class="dm-icon"><i class="fa fa-home"></i></span> Student</a></li>
+                                <li><a href="{{ path('teacher_login') }}"><span class="dm-icon"><i class="fa fa-cogs"></i></span> Teacher</a></li>
+                                <li><a href="{{ path('admin_login') }}"><span class="dm-icon"><i class="fa fa-recycle"></i></span> Admin</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a href="{{ path('parent_login') }}"><span class="dm-icon"><i class="fa fa-users"></i></span> Parent</a></li>
+                                <li><a href="{{ path('super_admin_login') }}"><span class="dm-icon"><i class="fa fa-shield"></i></span> Super Admin</a></li>
+                            </ul>
+                        </li>
+                        <li class="home-nav-item nav-lang-switcher">
+                            <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+                            <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+                            <button class="lang-btn" data-lang="es" onclick="switchLang('es')">ES</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="pricing-hero">
+        <div class="container">
+            <h1>Simple SaaS Plans for Every School Size</h1>
+            <p>Start with a free trial, compare platform limits, and choose the subscription that fits your school growth strategy. Built for school admins who need enrollment, learning, billing, and analytics in one place.</p>
+
+            <div>
+                <div class="billing-toggle-wrap" role="group" aria-label="Billing cycle">
+                    <button id="billMonthly" class="active" type="button">Monthly</button>
+                    <button id="billYearly" type="button">Yearly</button>
+                </div>
+                <span class="yearly-save">Save up to 20% with yearly billing</span>
+            </div>
+
+            <section class="pricing-grid">
+                <article class="plan-card" data-monthly="79" data-yearly="756">
+                    <h2 class="plan-name">Basic</h2>
+                    <p class="plan-desc">Best for small schools launching digital operations.</p>
+                    <div class="plan-price"><span class="amount">$79</span><span class="cycle">/month</span></div>
+                    <div class="plan-limit">Up to 300 students • 50 GB storage</div>
+                    <ul class="plan-features">
+                        <li><i class="fa fa-check"></i> Student & teacher portals</li>
+                        <li><i class="fa fa-check"></i> Attendance + gradebook</li>
+                        <li><i class="fa fa-check"></i> Parent notifications</li>
+                        <li><i class="fa fa-check"></i> Standard email support</li>
+                    </ul>
+                    <div class="plan-actions">
+                        <a href="{{ path('subscribe_step1', {plan: 'Basic', cycle: 'monthly', mode: 'trial'}) }}" class="plan-btn trial" id="trial-Basic">Start Free Trial</a>
+                        <a href="{{ path('subscribe_step2', {plan: 'Basic', cycle: 'monthly'}) }}" class="plan-btn subscribe" id="sub-Basic">Subscribe Now</a>
+                    </div>
+                </article>
+
+                <article class="plan-card recommended" data-monthly="149" data-yearly="1428">
+                    <span class="plan-badge">Recommended</span>
+                    <h2 class="plan-name">Pro</h2>
+                    <p class="plan-desc">For growing schools that need automation and deeper insights.</p>
+                    <div class="plan-price"><span class="amount">$149</span><span class="cycle">/month</span></div>
+                    <div class="plan-limit">Up to 1200 students • 300 GB storage</div>
+                    <ul class="plan-features">
+                        <li><i class="fa fa-check"></i> Everything in Basic</li>
+                        <li><i class="fa fa-check"></i> Advanced analytics dashboards</li>
+                        <li><i class="fa fa-check"></i> Subscription billing tools</li>
+                        <li><i class="fa fa-check"></i> API access + integrations</li>
+                    </ul>
+                    <div class="plan-actions">
+                        <a href="{{ path('subscribe_step1', {plan: 'Pro', cycle: 'monthly', mode: 'trial'}) }}" class="plan-btn trial" id="trial-Pro">Start Free Trial</a>
+                        <a href="{{ path('subscribe_step2', {plan: 'Pro', cycle: 'monthly'}) }}" class="plan-btn subscribe" id="sub-Pro">Subscribe Now</a>
+                    </div>
+                </article>
+
+                <article class="plan-card" data-monthly="299" data-yearly="2868">
+                    <h2 class="plan-name">Enterprise</h2>
+                    <p class="plan-desc">For multi-campus organizations and district-scale deployments.</p>
+                    <div class="plan-price"><span class="amount">$299</span><span class="cycle">/month</span></div>
+                    <div class="plan-limit">Unlimited students • 2 TB storage</div>
+                    <ul class="plan-features">
+                        <li><i class="fa fa-check"></i> Everything in Pro</li>
+                        <li><i class="fa fa-check"></i> White-label + custom domain</li>
+                        <li><i class="fa fa-check"></i> Dedicated success manager</li>
+                        <li><i class="fa fa-check"></i> Priority SLA support</li>
+                    </ul>
+                    <div class="plan-actions">
+                        <a href="{{ path('subscribe_step1', {plan: 'Enterprise', cycle: 'monthly', mode: 'trial'}) }}" class="plan-btn trial" id="trial-Enterprise">Start Free Trial</a>
+                        <a href="{{ path('subscribe_step2', {plan: 'Enterprise', cycle: 'monthly'}) }}" class="plan-btn subscribe" id="sub-Enterprise">Subscribe Now</a>
+                    </div>
+                </article>
+            </section>
+
+            <section class="table-wrap">
+                <table class="feature-table">
+                    <thead>
+                        <tr>
+                            <th>Feature Comparison</th>
+                            <th>Basic</th>
+                            <th>Pro</th>
+                            <th>Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Max students</td><td>300</td><td>1200</td><td>Unlimited</td></tr>
+                        <tr><td>Storage</td><td>50 GB</td><td>300 GB</td><td>2 TB</td></tr>
+                        <tr><td>Parent portal</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                        <tr><td>AI analytics</td><td>-</td><td>Yes</td><td>Yes</td></tr>
+                        <tr><td>Custom branding</td><td>-</td><td>Limited</td><td>Full White-label</td></tr>
+                        <tr><td>API integrations</td><td>-</td><td>Yes</td><td>Advanced + Webhooks</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="faq">
+                <div class="faq-item">
+                    <h4>Can we migrate from another LMS?</h4>
+                    <p>Yes. We provide guided migration for students, classes, historical grades, and attendance records.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is yearly billing cheaper?</h4>
+                    <p>Yes, yearly billing gives up to 20% savings and includes onboarding priority.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can we upgrade anytime?</h4>
+                    <p>Absolutely. Upgrades are prorated and applied instantly to your subscription.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Do you offer free trials?</h4>
+                    <p>Every plan includes a 14-day trial so your admin team can evaluate the full workflow before subscribing.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="widget">
+                    <h3 class="widget-title">Contact us</h3>
+                    <p>745 Jewel Ave Street, Fress Meadows, NY 11365<br><a href="mailto:office@cityschool.edu">office@cityschool.edu</a></p>
+                </div>
+                <div class="widget">
+                    <h3 class="widget-title">Social media</h3>
+                    <p>Follow us for news, events, and student achievements.</p>
+                </div>
+                <div class="widget">
+                    <h3 class="widget-title">Featured students</h3>
+                    <p>Celebrating excellence in every class and every campus.</p>
+                </div>
+                <div class="widget">
+                    <h3 class="widget-title">Newsletter</h3>
+                    <p>Stay updated with school news and events.</p>
+                    <form class="subscribe"><input type="email" placeholder="Email Address..."><input type="submit" value="Subscribe"></form>
+                </div>
+            </div>
+        </div>
+        <div class="copy">
+            <p>Copyright 2024 City School. All rights reserved. <a href="#" data-open-modal="privacyModal">Privacy Policy</a> • <a href="#" data-open-modal="termsModal">Terms of Service</a> • <a href="#" data-open-modal="cookiesModal">Cookie Settings</a></p>
+        </div>
+    </footer>
+</div>
+
+<script>
+(function(){
+    const monthlyBtn = document.getElementById('billMonthly');
+    const yearlyBtn = document.getElementById('billYearly');
+    const cards = Array.from(document.querySelectorAll('.plan-card'));
+
+    function setBilling(mode) {
+        monthlyBtn.classList.toggle('active', mode === 'monthly');
+        yearlyBtn.classList.toggle('active', mode === 'yearly');
+        cards.forEach(card => {
+            const monthly = Number(card.getAttribute('data-monthly'));
+            const yearly = Number(card.getAttribute('data-yearly'));
+            const amount = card.querySelector('.amount');
+            const cycle = card.querySelector('.cycle');
+            if (!amount || !cycle) return;
+            if (mode === 'yearly') {
+                amount.textContent = '$' + Math.round(yearly / 12);
+                cycle.textContent = '/month (billed yearly)';
+            } else {
+                amount.textContent = '$' + monthly;
+                cycle.textContent = '/month';
+            }
+        });
+    }
+
+    monthlyBtn.addEventListener('click', function(){ setBilling('monthly'); });
+    yearlyBtn.addEventListener('click', function(){ setBilling('yearly'); });
+})();
+</script>
+{% endblock %}

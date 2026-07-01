@@ -1,0 +1,268 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+
+{# ── Stats row ── #}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-users"></i></div>
+        <div><div class="stat-value">{{ total_students }}</div><div class="stat-label">Total Students</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-book"></i></div>
+        <div><div class="stat-value">{{ courses|length }}</div><div class="stat-label">Active Courses</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa fa-check-square-o"></i></div>
+        <div><div class="stat-value">{{ pending_grades }}</div><div class="stat-label">Pending Grades</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-pencil-square-o"></i></div>
+        <div><div class="stat-value">{{ active_quizzes }}</div><div class="stat-label">Active Quizzes</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fa fa-exclamation-triangle"></i></div>
+        <div><div class="stat-value">{{ at_risk|length }}</div><div class="stat-label">At-Risk Students</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;">
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar t-accent" style="margin-right:6px;"></i>Today&#39;s Schedule</span>
+            <form method="post" action="{{ path('teacher_dashboard') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_dashboard_schedule') }}">
+                <input type="hidden" name="action" value="refresh_schedule">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for item in todaySchedule %}
+        <div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;align-items:flex-start;">
+            <div>
+                <div style="font-size:13px;font-weight:700;">{{ item.title }}</div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ item.location }} · {{ item.type|capitalize }}</div>
+            </div>
+            <div style="font-size:12px;font-weight:800;color:#0891b2;white-space:nowrap;">{{ item.time }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-tasks t-accent" style="margin-right:6px;"></i>Upcoming Assignments & Tests</span>
+            <form method="post" action="{{ path('teacher_dashboard') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_dashboard_upcoming') }}">
+                <input type="hidden" name="action" value="open_upcoming">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for item in upcomingAssessments %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ item.title }}</div>
+                <span class="badge badge-{{ item.kind == 'test' ? 'danger' : 'warning' }}">{{ item.kind|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ item.course }} · Due {{ item.due }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;">
+
+    {# ── My Courses ── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-book t-accent" style="margin-right:6px;"></i>My Courses</span>
+            <a href="{{ path('teacher_courses') }}" class="btn-teal" style="font-size:12px;padding:6px 12px;">
+                <i class="fa fa-plus"></i> New Course
+            </a>
+        </div>
+        {% for course in courses %}
+        <a href="{{ path('teacher_course_show', {id: course.id}) }}" style="text-decoration:none;color:inherit;">
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+                <div style="width:10px;height:38px;border-radius:3px;background:{{ course.color }};flex-shrink:0;"></div>
+                <div style="flex:1;">
+                    <div style="font-weight:700;font-size:13px;">{{ course.name }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ course.code }} · {{ course.grade }} · {{ course.students }} students</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:16px;font-weight:800;color:{{ course.avg >= 80 ? '#16a34a' : (course.avg >= 70 ? '#4361ee' : '#f59e0b') }};">{{ course.avg }}%</div>
+                    <div style="font-size:11px;color:#64748b;">avg score</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {# ── Pending Submissions ── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-inbox" style="color:#f59e0b;margin-right:6px;"></i>Needs Grading</span>
+            <a href="{{ path('teacher_grading') }}" class="btn-outline btn-sm">Grade All</a>
+        </div>
+        {% if pending_submissions|length == 0 %}
+        <div style="text-align:center;padding:24px;color:#64748b;font-size:13px;">
+            <i class="fa fa-check-circle" style="font-size:32px;color:#22c55e;display:block;margin-bottom:8px;"></i>
+            All submissions graded!
+        </div>
+        {% else %}
+        {% for s in pending_submissions %}
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#fef9c3;display:flex;align-items:center;justify-content:center;color:#a16207;flex-shrink:0;">
+                <i class="fa fa-user"></i>
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:13px;font-weight:600;">{{ s.student }}</div>
+                <div style="font-size:12px;color:#64748b;">{{ s.assignment }} · {{ s.course }}</div>
+            </div>
+            {% if s.auto_score %}
+            <span class="auto-chip"><i class="fa fa-bolt"></i> AI: {{ s.auto_score }}%</span>
+            {% endif %}
+            <a href="{{ path('teacher_grading') }}" class="btn-teal" style="font-size:11px;padding:5px 10px;">Grade</a>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+
+    {# ── At-Risk Students ── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-exclamation-triangle" style="color:#ef4444;margin-right:6px;"></i>At-Risk Students</span>
+            <a href="{{ path('teacher_analytics') }}" class="btn-outline btn-sm">View All</a>
+        </div>
+        {% if at_risk|length == 0 %}
+        <div style="text-align:center;padding:20px;color:#64748b;font-size:13px;">No at-risk students 🎉</div>
+        {% else %}
+        {% for s in at_risk %}
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;color:#b91c1c;flex-shrink:0;font-weight:700;font-size:13px;">
+                {{ s.name|split(' ')|first|slice(0,1) }}{{ s.name|split(' ')|last|slice(0,1) }}
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:13px;font-weight:600;">{{ s.name }}</div>
+                <div style="font-size:12px;color:#64748b;">Avg: {{ s.avg_score }}% · Attendance: {{ s.attendance }}%</div>
+            </div>
+            <a href="{{ path('teacher_messages') }}" class="btn-outline btn-sm" style="font-size:11px;">
+                <i class="fa fa-envelope-o"></i> Contact
+            </a>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    {# ── Announcements ── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bullhorn t-accent" style="margin-right:6px;"></i>Recent Announcements</span>
+            <a href="{{ path('teacher_announcements') }}" class="btn-teal" style="font-size:12px;padding:6px 12px;">
+                <i class="fa fa-plus"></i> New
+            </a>
+        </div>
+        {% for a in announcements %}
+        <div class="announce-item {% if a.pinned %}pinned{% endif %}" style="margin-bottom:10px;padding:12px 14px;border-radius:10px;border:1px solid #e2e8f0;{% if a.pinned %}border-left:4px solid #0891b2;{% endif %}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="font-size:13px;font-weight:700;">
+                    {% if a.pinned %}<i class="fa fa-thumb-tack" style="color:#0891b2;margin-right:5px;"></i>{% endif %}
+                    {{ a.title }}
+                </div>
+                <span style="font-size:11px;color:#94a3b8;white-space:nowrap;margin-left:8px;">{{ a.date }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ a.course }} · <i class="fa fa-eye"></i> {{ a.views }} views</div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div class="grid-2" style="gap:20px;margin-top:20px;">
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-link t-accent" style="margin-right:6px;"></i>Quick Course Links</span>
+            <form method="post" action="{{ path('teacher_dashboard') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_dashboard_quick_links') }}">
+                <input type="hidden" name="action" value="open_quick_links">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            {% for course in courses %}
+            <a href="{{ path('teacher_course_show', {id: course.id}) }}" class="btn btn-outline btn-sm" style="border-color:{{ course.color }};color:{{ course.color }};">
+                <i class="fa fa-book"></i> {{ course.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond t-accent" style="margin-right:6px;"></i>Premium: Today&#39;s Focus</span>
+            <form method="post" action="{{ path('teacher_dashboard') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_dashboard_focus') }}">
+                <input type="hidden" name="action" value="refresh_focus">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="padding:10px;background:#f5f3ff;border-radius:8px;font-size:12px;color:#475569;line-height:1.5;margin-bottom:10px;">{{ todayFocus.headline }}</div>
+        {% for item in todayFocus.priorities %}
+        <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-check-circle" style="color:#7c3aed;margin-right:5px;"></i>{{ item }}</div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-line-chart t-accent" style="margin-right:6px;"></i>Premium: Progress Snapshot</span>
+            <form method="post" action="{{ path('teacher_dashboard') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_dashboard_snapshot') }}">
+                <input type="hidden" name="action" value="refresh_snapshot">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#16a34a;">{{ progressSnapshot.gradesReady }}</div>
+                <div style="font-size:10px;color:#64748b;">Grades Ready</div>
+            </div>
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#0891b2;">{{ progressSnapshot.attendanceSubmitted }}</div>
+                <div style="font-size:10px;color:#64748b;">Attendance Posted</div>
+            </div>
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:18px;font-weight:800;color:#f59e0b;">{{ progressSnapshot.tasksOpen }}</div>
+                <div style="font-size:10px;color:#64748b;">Open Tasks</div>
+            </div>
+            <div style="text-align:center;background:#f8fafc;border-radius:8px;padding:10px;">
+                <div style="font-size:12px;font-weight:800;color:#7c3aed;">{{ progressSnapshot.courseHealth }}</div>
+                <div style="font-size:10px;color:#64748b;">Course Health</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-exclamation-triangle" style="color:#ef4444;margin-right:6px;"></i>Premium: Urgent Alerts</span>
+            <form method="post" action="{{ path('teacher_dashboard') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_dashboard_urgent') }}">
+                <input type="hidden" name="action" value="refresh_urgent_alerts">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for alert in urgentAlerts %}
+        <div style="padding:10px;border-left:4px solid {{ alert.severity == 'high' ? '#ef4444' : '#f59e0b' }};background:#fff7ed;border-radius:6px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:700;">{{ alert.label }}</div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">{{ alert.message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

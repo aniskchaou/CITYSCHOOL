@@ -1,0 +1,154 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Academic Structure Setup{% endblock %}
+{% block page_title %}Academic Structure Setup{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-th-large"></i></div><div class="stat-body"><div class="stat-value">{{ classes|length }}</div><div class="stat-label">Classes & Sections</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-book"></i></div><div class="stat-body"><div class="stat-value">{{ subjects|length }}</div><div class="stat-label">Subjects</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-calendar"></i></div><div class="stat-body"><div class="stat-value">{{ terms|length }}</div><div class="stat-label">Terms</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-line-chart"></i></div><div class="stat-body"><div class="stat-value">{{ grading_systems|length }}</div><div class="stat-label">Grading Systems</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-language"></i></div><div class="stat-body"><div class="stat-value">{{ multilingual_courses|length }}</div><div class="stat-label">Multi-Language Courses</div></div></div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-sitemap a-accent" style="margin-right:6px;"></i>Create Classes, Grades, Sections</span></div>
+        <form method="post" action="{{ path('admin_academic') }}">
+            <input type="hidden" name="action" value="create_class">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Grade</label><input class="form-control" name="grade" placeholder="Grade 10" required></div>
+                <div class="form-group"><label class="form-label">Section</label><input class="form-control" name="section" placeholder="Section A" required></div>
+                <div class="form-group"><label class="form-label">Class Name</label><input class="form-control" name="class_name" placeholder="Grade 10-A" required></div>
+                <div class="form-group"><label class="form-label">Default Room</label><input class="form-control" name="room" placeholder="Room 201"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Structure</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-book a-accent" style="margin-right:6px;"></i>Define Subjects & Curriculum</span></div>
+        <form method="post" action="{{ path('admin_academic') }}">
+            <input type="hidden" name="action" value="save_subject_curriculum">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Subject</label><input class="form-control" name="subject" placeholder="Mathematics" required></div>
+                <div class="form-group"><label class="form-label">Subject Code</label><input class="form-control" name="code" placeholder="MATH-201" required></div>
+                <div class="form-group"><label class="form-label">Grade Scope</label><input class="form-control" name="grade_scope" placeholder="Grades 10-12"></div>
+                <div class="form-group"><label class="form-label">Curriculum Framework</label><input class="form-control" name="framework" placeholder="National Core Curriculum"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Subject Mapping</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-calendar a-accent" style="margin-right:6px;"></i>Set Academic Year / Semesters / Terms</span></div>
+        <form method="post" action="{{ path('admin_academic') }}">
+            <input type="hidden" name="action" value="save_term">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Academic Year</label>
+                    <select class="form-control" name="academic_year">
+                        {% for ay in academic_years %}<option>{{ ay.name }} ({{ ay.term_model }})</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Term</label>
+                    <select class="form-control" name="term_name">
+                        {% for t in terms %}<option>{{ t.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Start Date</label><input class="form-control" type="date" name="start"></div>
+                <div class="form-group"><label class="form-label">End Date</label><input class="form-control" type="date" name="end"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Calendar Window</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-user-circle a-accent" style="margin-right:6px;"></i>Assign Class Teachers</span></div>
+        <form method="post" action="{{ path('admin_academic') }}">
+            <input type="hidden" name="action" value="assign_class_teacher">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Class / Section</label>
+                    <select class="form-control" name="class_id">{% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+                </div>
+                <div class="form-group"><label class="form-label">Class Teacher</label>
+                    <select class="form-control" name="teacher_id">{% for t in teachers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select>
+                </div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Assignment</button>
+        </form>
+    </div>
+    
+    <div class="card" style="grid-column:1 / -1;">
+        <div class="card-header"><span class="card-title"><i class="fa fa-percent a-accent" style="margin-right:6px;"></i>Configure Grading System (A-F, %, GPA)</span></div>
+        <table class="portal-table" style="margin-bottom:14px;">
+            <thead><tr><th>Name</th><th>Scale</th><th>Pass Mark</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for g in grading_systems %}
+            <tr>
+                <td style="font-weight:700;">{{ g.name }}</td>
+                <td>{{ g.scale }}</td>
+                <td>{{ g.pass_mark }}</td>
+                <td><span class="role-badge {{ g.status == 'active' ? 'status-active' : 'status-inactive' }}">{{ g.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_academic') }}" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="configure_grading">
+            <div class="form-group" style="margin-bottom:0;min-width:220px;"><label class="form-label">Grading Model</label><select class="form-control" name="grading_name">{% for g in grading_systems %}<option>{{ g.name }}</option>{% endfor %}</select></div>
+            <div class="form-group" style="margin-bottom:0;min-width:180px;"><label class="form-label">Pass Mark</label><input class="form-control" name="pass_mark" placeholder="e.g. 50%"></div>
+            <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Apply Grading System</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Features</span></div>
+    <div class="grid-2" style="gap:18px;">
+        <div style="border:1px solid #ede9fe;border-radius:10px;padding:14px;background:#faf5ff;">
+            <div style="font-size:14px;font-weight:800;color:#4c1d95;margin-bottom:10px;">Custom Grading Models Per School</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>School</th><th>Model</th><th>Scope</th></tr></thead>
+                <tbody>{% for m in custom_grading_models %}<tr><td>{{ m.school }}</td><td>{{ m.model }}</td><td>{{ m.scope }}</td></tr>{% endfor %}</tbody>
+            </table>
+            <form method="post" action="{{ path('admin_academic') }}" style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input type="hidden" name="action" value="save_custom_grading">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-save"></i> Save Custom Model</button>
+            </form>
+        </div>
+
+        <div style="border:1px solid #ede9fe;border-radius:10px;padding:14px;background:#faf5ff;">
+            <div style="font-size:14px;font-weight:800;color:#4c1d95;margin-bottom:10px;">Curriculum Templates (Reuse Each Year)</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>Template</th><th>Grades</th><th>Subjects</th><th>Last Used</th></tr></thead>
+                <tbody>{% for tpl in curriculum_templates %}<tr><td>{{ tpl.name }}</td><td>{{ tpl.grades }}</td><td>{{ tpl.subjects }}</td><td>{{ tpl.last_used }}</td></tr>{% endfor %}</tbody>
+            </table>
+            <form method="post" action="{{ path('admin_academic') }}" style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input type="hidden" name="action" value="apply_curriculum_template">
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-clone"></i> Apply Template</button>
+            </form>
+        </div>
+    </div>
+
+    <div style="margin-top:16px;border:1px solid #ede9fe;border-radius:10px;padding:14px;background:#faf5ff;">
+        <div style="font-size:14px;font-weight:800;color:#4c1d95;margin-bottom:10px;">Multi-Language Course Support</div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Course</th><th>Languages</th></tr></thead>
+            <tbody>
+            {% for c in multilingual_courses %}
+            <tr>
+                <td style="font-weight:700;">{{ c.course }}</td>
+                <td>{{ c.languages|join(', ') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_academic') }}">
+            <input type="hidden" name="action" value="save_multilanguage">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-language"></i> Save Language Support</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

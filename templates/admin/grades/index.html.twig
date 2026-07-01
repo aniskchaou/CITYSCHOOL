@@ -1,0 +1,151 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Grades, Exams & Reports{% endblock %}
+{% block page_title %}Grades, Exams & Reports{% endblock %}
+
+{% block content %}
+
+{% set approved_results = student_reports|filter(r => r.status == 'approved') %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-pencil-square-o"></i></div><div class="stat-body"><div class="stat-value">{{ exam_configs|length }}</div><div class="stat-label">Configured Exams</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-balance-scale"></i></div><div class="stat-body"><div class="stat-value">{{ grading_policies|length }}</div><div class="stat-label">Grading Policies</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check-circle"></i></div><div class="stat-body"><div class="stat-value">{{ approved_results|length }}</div><div class="stat-label">Approved Results</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-files-o"></i></div><div class="stat-body"><div class="stat-value">{{ student_reports|length }}</div><div class="stat-label">Student Reports</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-line-chart"></i></div><div class="stat-body"><div class="stat-value">{{ trend_series|length }}</div><div class="stat-label">Trend Points</div></div></div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+    <form method="post" action="{{ path('admin_grades') }}" style="display:inline;"><button class="btn-purple" name="action" value="generate_report_cards"><i class="fa fa-file-text-o"></i> Generate Report Cards</button></form>
+    <form method="post" action="{{ path('admin_grades') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="generate_report_cards_pdf"><i class="fa fa-file-pdf-o"></i> Auto-Generate PDF Report Cards</button></form>
+    <form method="post" action="{{ path('admin_grades') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="run_performance_comparison"><i class="fa fa-exchange"></i> Class vs School Comparison</button></form>
+    <form method="post" action="{{ path('admin_grades') }}" style="display:inline;"><button class="btn btn-outline btn-sm" name="action" value="run_trend_analysis"><i class="fa fa-area-chart"></i> Run Trend Analysis</button></form>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-calendar-plus-o a-accent" style="margin-right:6px;"></i>Configure Exams (Midterm, Final, Quizzes)</span></div>
+        <form method="post" action="{{ path('admin_grades') }}">
+            <input type="hidden" name="action" value="configure_exam">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Exam Name</label><input class="form-control" name="exam_name" placeholder="Math Midterm" required></div>
+                <div class="form-group"><label class="form-label">Type</label><select class="form-control" name="exam_type"><option>Midterm</option><option>Final</option><option>Quiz</option></select></div>
+                <div class="form-group"><label class="form-label">Class</label><select class="form-control" name="class_id">{% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Date</label><input class="form-control" type="date" name="exam_date"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Exam Config</button>
+        </form>
+
+        <table class="portal-table" style="margin-top:12px;">
+            <thead><tr><th>Exam</th><th>Type</th><th>Class</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for e in exam_configs %}
+            <tr>
+                <td style="font-weight:700;">{{ e.name }}</td>
+                <td>{{ e.type }}</td>
+                <td>{{ e.class }}</td>
+                <td>{{ e.date }}</td>
+                <td><span class="role-badge {{ e.status == 'scheduled' ? 'status-active' : 'status-pending' }}">{{ e.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-sliders a-accent" style="margin-right:6px;"></i>Manage Grading Policies</span></div>
+        <table class="portal-table" style="margin-bottom:12px;">
+            <thead><tr><th>Policy</th><th>Value</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for p in grading_policies %}
+            <tr>
+                <td style="font-weight:700;">{{ p.name }}</td>
+                <td>{{ p.value }}</td>
+                <td><span class="role-badge {{ p.status == 'active' ? 'status-active' : 'status-inactive' }}">{{ p.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_grades') }}">
+            <input type="hidden" name="action" value="save_grading_policy">
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Policies</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-table a-accent" style="margin-right:6px;"></i>View Grade Reports (Student/Class Level)</span></div>
+    <div class="grid-2" style="gap:16px;">
+        <div>
+            <h4 style="font-size:13px;font-weight:800;color:#334155;margin-bottom:8px;">Student Results</h4>
+            <table class="portal-table">
+                <thead><tr><th>Student</th><th>Class</th><th>Average</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for r in student_reports %}
+                <tr>
+                    <td style="font-weight:700;">{{ r.student }}</td>
+                    <td>{{ r.class }}</td>
+                    <td>{{ r.avg }}%</td>
+                    <td><span class="role-badge {{ r.status == 'approved' ? 'status-active' : 'status-pending' }}">{{ r.status }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h4 style="font-size:13px;font-weight:800;color:#334155;margin-bottom:8px;">Class Performance</h4>
+            <table class="portal-table">
+                <thead><tr><th>Class</th><th>Average</th><th>Pass Rate</th></tr></thead>
+                <tbody>
+                {% for c in class_reports %}
+                <tr>
+                    <td style="font-weight:700;">{{ c.class }}</td>
+                    <td>{{ c.average }}%</td>
+                    <td>{{ c.pass_rate }}%</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-check-square a-accent" style="margin-right:6px;"></i>Approve Final Results</span></div>
+    <form method="post" action="{{ path('admin_grades') }}">
+        <input type="hidden" name="action" value="approve_final_results">
+        <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Approve Final Results</button>
+    </form>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Analytics</span></div>
+    <div class="grid-2" style="gap:18px;">
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:700;color:#4c1d95;">Automated Report Card Generation (PDF)</div>
+            <div style="font-size:12px;color:#6d28d9;margin-top:5px;">Generate signed PDF report cards in bulk for each class with one click.</div>
+        </div>
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:700;color:#4c1d95;">Performance Comparison (Class vs School)</div>
+            <div style="font-size:12px;color:#6d28d9;margin-top:5px;">Compare class-level outcomes with whole-school averages for each exam cycle.</div>
+        </div>
+    </div>
+
+    <div style="margin-top:14px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+        <div style="font-size:13px;font-weight:700;color:#4c1d95;margin-bottom:8px;">Trend Analysis Over Time</div>
+        <table class="portal-table">
+            <thead><tr><th>Period</th><th>Class Avg</th><th>School Avg</th><th>Gap</th></tr></thead>
+            <tbody>
+            {% for t in trend_series %}
+            <tr>
+                <td style="font-weight:700;">{{ t.period }}</td>
+                <td>{{ t.class_avg }}%</td>
+                <td>{{ t.school_avg }}%</td>
+                <td>{{ t.class_avg - t.school_avg }}%</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

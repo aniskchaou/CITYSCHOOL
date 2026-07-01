@@ -1,0 +1,122 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Global Settings{% endblock %}
+{% block page_title %}Global Settings{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ path('super_admin_global_settings') }}">
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-globe"></i> Core Platform Settings</div>
+        <div class="settings-row"><label>Default Timezone</label><select class="form-control" name="timezone" style="max-width:240px;"><option {% if settings.defaultTimezone == 'UTC' %}selected{% endif %}>UTC</option><option>Europe/Paris</option><option>America/New_York</option></select></div>
+        <div class="settings-row"><label>Maintenance Mode</label><span class="super-tag {{ settings.maintenanceMode ? 'trial' : 'active' }}">{{ settings.maintenanceMode ? 'ON' : 'OFF' }}</span></div>
+        <div class="settings-row"><label>Max Upload Size</label><input class="form-control" style="max-width:140px;" value="{{ settings.maxUploadMb }}" name="upload_mb"></div>
+    </div>
+
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-flask"></i> Environment Control (Premium)</div>
+        <div class="settings-row">
+            <label>Active Environment</label>
+            <select class="form-control" name="active_environment" style="max-width:220px;">
+                {% for env in environments %}
+                <option {{ env == active_environment ? 'selected' : '' }}>{{ env|upper }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="settings-row">
+            <label>Deployment Safety Lock</label>
+            <span class="super-tag active">Enabled</span>
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-random"></i> Shared Actions Toggle</div>
+        <div class="settings-row"><label>Real-time Notifications</label><span class="super-tag {{ settings.realTimeNotifications ? 'active' : 'trial' }}">{{ settings.realTimeNotifications ? 'Enabled' : 'Disabled' }}</span></div>
+        <div class="settings-row"><label>Email Notifications</label><span class="super-tag {{ settings.emailNotifications ? 'active' : 'trial' }}">{{ settings.emailNotifications ? 'Enabled' : 'Disabled' }}</span></div>
+        <div class="settings-row"><label>Calendar Sync</label><span class="super-tag {{ settings.calendarSync ? 'active' : 'trial' }}">{{ settings.calendarSync ? 'Enabled' : 'Disabled' }}</span></div>
+        <div class="settings-row"><label>File Storage Provider</label><span class="super-tag active">{{ settings.fileStorageProvider }}</span></div>
+        <div class="settings-row"><label>Messaging / Chat</label><span class="super-tag {{ settings.chatEnabled ? 'active' : 'trial' }}">{{ settings.chatEnabled ? 'Enabled' : 'Disabled' }}</span></div>
+    </div>
+
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-toggle-on"></i> Feature Flags Per School (Premium)</div>
+        <table class="portal-table">
+            <thead>
+                <tr>
+                    <th>School</th>
+                    <th>Advanced Reports</th>
+                    <th>Parent Live Chat</th>
+                    <th>AI Assistant</th>
+                    <th>Custom Domain</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for s in schools %}
+                <tr>
+                    <td><strong>{{ s.name }}</strong><div style="font-size:11px;color:#94a3b8;">{{ s.code }}</div></td>
+                    <td><span class="super-tag {{ s.featureFlags.advanced_reports ? 'active' : 'trial' }}">{{ s.featureFlags.advanced_reports ? 'ON' : 'OFF' }}</span></td>
+                    <td><span class="super-tag {{ s.featureFlags.parent_live_chat ? 'active' : 'trial' }}">{{ s.featureFlags.parent_live_chat ? 'ON' : 'OFF' }}</span></td>
+                    <td><span class="super-tag {{ s.featureFlags.ai_assistant ? 'active' : 'trial' }}">{{ s.featureFlags.ai_assistant ? 'ON' : 'OFF' }}</span></td>
+                    <td><span class="super-tag {{ s.featureFlags.custom_domain ? 'active' : 'trial' }}">{{ s.featureFlags.custom_domain ? 'ON' : 'OFF' }}</span></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-unlock-alt"></i> Platform-Wide Roles & Permissions</div>
+        <table class="portal-table">
+            <thead><tr><th>Role</th><th>Scope</th><th>Permissions</th></tr></thead>
+            <tbody>
+            {% for role in roles %}
+                <tr>
+                    <td><span class="role-badge plan-enterprise">{{ role.name }}</span></td>
+                    <td>{{ role.scope }}</td>
+                    <td>
+                        {% for p in role.permissions %}
+                            <span class="metric-chip" style="margin:2px 4px 2px 0;">{{ p }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-plug"></i> Integrations Control</div>
+        <table class="portal-table">
+            <thead><tr><th>Integration</th><th>Type</th><th>Scope</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            {% for i in integrations %}
+                <tr>
+                    <td><strong>{{ i.name }}</strong></td>
+                    <td>{{ i.type }}</td>
+                    <td>{{ i.scope }}</td>
+                    <td><span class="super-tag {{ i.status == 'connected' ? 'active' : 'trial' }}">{{ i.status }}</span></td>
+                    <td><button type="button" class="btn-orange" style="font-size:12px;padding:5px 12px;"><i class="fa fa-sliders"></i> Configure</button></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="settings-section">
+        <div class="settings-section-title"><i class="fa fa-globe"></i> Regional Settings</div>
+        <table class="portal-table">
+            <thead><tr><th>Region</th><th>Language</th><th>Timezone</th><th>Grading System</th></tr></thead>
+            <tbody>
+            {% for reg in regions %}
+                <tr>
+                    <td>{{ reg.region }}</td>
+                    <td>{{ reg.language }}</td>
+                    <td>{{ reg.timezone }}</td>
+                    <td><span class="metric-chip">{{ reg.gradingSystem }}</span></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <button class="btn-orange" type="submit"><i class="fa fa-save"></i> Save Global Settings</button>
+</form>
+{% endblock %}

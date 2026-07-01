@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Portal{% endblock %} – City School</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/fonts/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/portal.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="portal-body">
+
+<div class="portal-wrapper">
+
+    {# ── Sidebar ── #}
+    <aside class="portal-sidebar">
+        <a href="{{ path('portal_dashboard') }}" class="sidebar-brand">
+            <div class="brand-icon"><i class="fa fa-book"></i></div>
+            <div>
+                <div class="brand-name">City School</div>
+                <div class="brand-sub">Student Portal</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="sidebar-section-label">Main</li>
+            <li>
+                <a href="{{ path('portal_dashboard') }}" class="{{ app.request.attributes.get('_route') == 'portal_dashboard' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-tachometer"></i></span> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_courses') }}" class="{{ app.request.attributes.get('_route') starts with 'portal_course' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-book"></i></span> My Courses
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_assignments') }}" class="{{ app.request.attributes.get('_route') == 'portal_assignments' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-tasks"></i></span> Assignments
+                    {% set pending = 0 %}
+                    {% if pending > 0 %}<span class="badge-count">{{ pending }}</span>{% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_quizzes') }}" class="{{ app.request.attributes.get('_route') == 'portal_quizzes' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-pencil-square-o"></i></span> Quizzes & Tests
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Academic</li>
+            <li>
+                <a href="{{ path('portal_grades') }}" class="{{ app.request.attributes.get('_route') == 'portal_grades' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-star"></i></span> Grades
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_attendance') }}" class="{{ app.request.attributes.get('_route') == 'portal_attendance' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-calendar"></i></span> Attendance
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_progress') }}" class="{{ app.request.attributes.get('_route') == 'portal_progress' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-signal"></i></span> My Progress
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_groups') }}" class="{{ app.request.attributes.get('_route') == 'portal_groups' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-users"></i></span> Group Work
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_notifications') }}" class="{{ app.request.attributes.get('_route') == 'portal_notifications' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-bell-o"></i></span> Notifications
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_ai_learning') }}" class="{{ app.request.attributes.get('_route') == 'portal_ai_learning' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-lightbulb-o"></i></span> AI Learning
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_resources') }}" class="{{ app.request.attributes.get('_route') == 'portal_resources' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-folder-open-o"></i></span> Resources
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_gamification') }}" class="{{ app.request.attributes.get('_route') == 'portal_gamification' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-trophy"></i></span> Gamification
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_personalization') }}" class="{{ app.request.attributes.get('_route') == 'portal_personalization' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-sliders"></i></span> Personalization
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Connect</li>
+            <li>
+                <a href="{{ path('portal_live') }}" class="{{ app.request.attributes.get('_route') == 'portal_live' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-video-camera"></i></span> Live Classes
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_discussions') }}" class="{{ app.request.attributes.get('_route') == 'portal_discussions' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-comments"></i></span> Discussions
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('portal_chat') }}" class="{{ app.request.attributes.get('_route') == 'portal_chat' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-envelope-o"></i></span> Messages
+                    <span class="badge-count">3</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img src="/dummy/student-lg-1.jpg" alt="avatar">
+                <div class="user-info">
+                    <div class="user-name">{{ app.user ? app.user.userIdentifier : 'Student' }}</div>
+                    <div class="user-role">10th Grade</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    {# ── Main ── #}
+    <div class="portal-main">
+
+        {# Topbar #}
+        <header class="portal-topbar">
+            <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+            <div class="topbar-right">
+                <a href="{{ path('portal_live') }}" class="topbar-icon-btn" title="Live Classes">
+                    <i class="fa fa-video-camera"></i>
+                    <span class="dot"></span>
+                </a>
+                <a href="{{ path('portal_chat') }}" class="topbar-icon-btn" title="Messages">
+                    <i class="fa fa-envelope-o"></i>
+                    <span class="dot"></span>
+                </a>
+                <a href="{{ path('portal_notifications') }}" class="topbar-icon-btn" title="Notifications">
+                    <i class="fa fa-bell-o"></i>
+                    <span class="dot"></span>
+                </a>
+                <div class="topbar-user">
+                    <img src="/dummy/student-lg-1.jpg" alt="user">
+                    <div>
+                        <div class="user-name-top">{{ app.user ? app.user.userIdentifier : 'Student' }}</div>
+                    </div>
+                </div>
+                <a href="{{ path('portal_profile') }}" class="topbar-icon-btn" title="Profile">
+                    <i class="fa fa-cog"></i>
+                </a>
+                <a href="{{ path('portal_logout') }}" class="topbar-icon-btn" title="Logout">
+                    <i class="fa fa-sign-out"></i>
+                </a>
+            </div>
+        </header>
+
+        {# Content #}
+        <main class="portal-content">
+            {% for type, messages in app.flashes %}
+                {% for msg in messages %}
+                <div class="alert alert-{{ type == 'success' ? 'success' : 'danger' }}">
+                    <i class="fa fa-{{ type == 'success' ? 'check-circle' : 'exclamation-circle' }}"></i>
+                    {{ msg }}
+                </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="/js/jquery-1.11.1.min.js"></script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

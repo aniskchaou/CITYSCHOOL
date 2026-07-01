@@ -1,0 +1,82 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}User Governance{% endblock %}
+{% block page_title %}Global User Governance{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;">
+    <div class="super-kpi"><div class="kpi-value">{{ total_users }}</div><div class="kpi-label">Users Across All Schools</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ suspended_users }}</div><div class="kpi-label">Suspended Accounts</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ banned_users }}</div><div class="kpi-label">Banned Accounts</div></div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header" style="justify-content:space-between;">
+        <span class="card-title"><i class="fa fa-users" style="margin-right:6px;color:#f97316;"></i>All Users (Multi-School)</span>
+        <form method="post" action="{{ path('super_admin_user_governance') }}" style="display:flex;gap:8px;">
+            <button class="btn-orange" type="submit" name="action" value="import"><i class="fa fa-upload"></i> Bulk Import</button>
+            <button class="btn-orange" type="submit" name="action" value="export"><i class="fa fa-download"></i> Bulk Export</button>
+        </form>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>User</th><th>School</th><th>Role</th><th>Status</th><th>Last Active</th><th>Engagement</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for u in users %}
+        <tr>
+            <td><strong>{{ u.name }}</strong><div style="font-size:11px;color:#94a3b8;">{{ u.username }}</div></td>
+            <td>{{ u.school }}</td>
+            <td><span class="metric-chip">{{ u.role }}</span></td>
+            <td><span class="super-tag {{ u.status == 'active' ? 'active' : (u.status == 'suspended' ? 'suspended' : 'trial') }}">{{ u.status }}</span></td>
+            <td>{{ u.lastActive }}</td>
+            <td>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ u.engagement }}%;background:#f97316;"></div></div>
+                <div style="font-size:11px;color:#7c2d12;margin-top:3px;">{{ u.engagement }}%</div>
+            </td>
+            <td>
+                <form method="post" action="{{ path('super_admin_user_governance') }}" style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                    <button class="btn-orange" style="font-size:11px;padding:5px 10px;" name="action" value="override_permissions" type="submit"><i class="fa fa-key"></i> Override</button>
+                    <button class="btn-orange" style="font-size:11px;padding:5px 10px;" name="action" value="impersonate" type="submit"><i class="fa fa-user-secret"></i> Impersonate</button>
+                    <button class="btn-orange" style="font-size:11px;padding:5px 10px;" name="action" value="suspend" type="submit"><i class="fa fa-pause"></i> Suspend</button>
+                    <button class="btn-orange" style="font-size:11px;padding:5px 10px;background:#b91c1c;" name="action" value="ban" type="submit"><i class="fa fa-ban"></i> Ban</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-exclamation-triangle" style="margin-right:6px;color:#f97316;"></i>Duplicate & Suspicious Accounts</span></div>
+        {% for a in suspicious_accounts %}
+        <div style="padding:12px;border:1px solid #fed7aa;border-radius:8px;margin-bottom:10px;background:#fff7ed;">
+            <div style="font-size:13px;font-weight:800;color:#9a3412;">{{ a.username }}</div>
+            <div style="font-size:12px;color:#7c2d12;margin:4px 0 8px;">{{ a.reason }}</div>
+            <span class="super-tag {{ a.risk == 'high' ? 'suspended' : 'trial' }}">{{ a.risk }} risk</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="justify-content:space-between;">
+            <span class="card-title"><i class="fa fa-sitemap" style="margin-right:6px;color:#f97316;"></i>Role Hierarchy Builder (Premium)</span>
+            <form method="post" action="{{ path('super_admin_user_governance') }}">
+                <button class="btn-orange" name="action" value="save_hierarchy" type="submit"><i class="fa fa-save"></i> Save</button>
+            </form>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Role</th><th>Parent</th><th>Type</th></tr></thead>
+            <tbody>
+            {% for n in role_hierarchy %}
+            <tr>
+                <td><span class="metric-chip">{{ n.role }}</span></td>
+                <td>{{ n.parent }}</td>
+                <td><span class="super-tag {{ n.custom ? 'trial' : 'active' }}">{{ n.custom ? 'custom' : 'default' }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

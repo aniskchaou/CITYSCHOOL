@@ -1,0 +1,106 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications & Alerts{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-bell"></i></div>
+        <div><div class="stat-value">{{ notifications|length }}</div><div class="stat-label">Total Alerts</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-circle"></i></div>
+        <div><div class="stat-value">{{ notifications|filter(n => n.priority == 'high')|length }}</div><div class="stat-label">Important Events</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-envelope"></i></div>
+        <div><div class="stat-value">{{ settings.channels.email ? 'On' : 'Off' }}</div><div class="stat-label">Email Alerts</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-list-alt"></i></div>
+        <div><div class="stat-value">{{ settings.digestMode }}</div><div class="stat-label">Digest Mode</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-stream t-accent" style="margin-right:6px;"></i>Notification Stream</span>
+            <form method="post" action="{{ path('teacher_notifications') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_notifications_refresh') }}">
+                <input type="hidden" name="action" value="refresh_notifications">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for item in notifications %}
+        <div style="padding:10px;border-left:4px solid {{ item.priority == 'high' ? '#ef4444' : '#0891b2' }};background:#f8fafc;border-radius:6px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:800;">{{ item.title }}</div>
+                <span class="badge badge-{{ item.priority == 'high' ? 'danger' : 'primary' }}">{{ item.type|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ item.message }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ item.time }} · Channel: {{ item.channel|upper }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-cog t-accent" style="margin-right:6px;"></i>Customize Notification Settings</span>
+        </div>
+        <form method="post" action="{{ path('teacher_notifications') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_notifications_settings') }}">
+            <input type="hidden" name="action" value="save_notification_settings">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if settings.gradesPosted %}checked{% endif %}> Grades posted</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if settings.attendanceIssues %}checked{% endif %}> Attendance issues</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if settings.newAssignments %}checked{% endif %}> New assignments</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if settings.announcements %}checked{% endif %}> Announcements</label>
+            </div>
+            <button class="btn-teal" type="submit"><i class="fa fa-save"></i> Save Settings</button>
+        </form>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;"><i class="fa fa-diamond t-accent" style="margin-right:4px;"></i>Premium: Smart Notifications</div>
+            <form method="post" action="{{ path('teacher_notifications') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_notifications_smart') }}">
+                <input type="hidden" name="action" value="enable_smart_notifications">
+                <button class="btn btn-outline btn-sm" type="submit">Enable</button>
+            </form>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:14px;">Receive only important events such as grade releases, at-risk attendance, and urgent admin messages.</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;"><i class="fa fa-calendar t-accent" style="margin-right:4px;"></i>Premium: Digest Mode</div>
+            <form method="post" action="{{ path('teacher_notifications') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_notifications_digest') }}">
+                <input type="hidden" name="action" value="set_digest_mode">
+                <button class="btn btn-outline btn-sm" type="submit">Update</button>
+            </form>
+        </div>
+        {% for digest in digests %}
+        <div style="padding:9px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:700;">{{ digest.label }}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">{{ digest.summary }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px;">Delivery: {{ digest.delivery }}</div>
+        </div>
+        {% endfor %}
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;"><i class="fa fa-mobile t-accent" style="margin-right:4px;"></i>Premium: Multi-channel Alerts</div>
+            <form method="post" action="{{ path('teacher_notifications') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_notifications_channels') }}">
+                <input type="hidden" name="action" value="save_multi_channel_alerts">
+                <button class="btn btn-outline btn-sm" type="submit">Save Channels</button>
+            </form>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px;">
+            <label><input type="checkbox" {% if settings.channels.app %}checked{% endif %}> App</label>
+            <label><input type="checkbox" {% if settings.channels.email %}checked{% endif %}> Email</label>
+            <label><input type="checkbox" {% if settings.channels.sms %}checked{% endif %}> SMS</label>
+        </div>
+    </div>
+</div>
+{% endblock %}

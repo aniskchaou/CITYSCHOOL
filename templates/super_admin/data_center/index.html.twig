@@ -1,0 +1,37 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}System Data{% endblock %}
+{% block page_title %}Access All System Data{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-database" style="margin-right:6px;color:#f97316;"></i>Global Data Explorer</span></div>
+    <div class="filter-bar" style="background:#fff7ed;border-color:#fed7aa;">
+        <input type="search" class="form-control" placeholder="Search users, courses, files, records..." style="max-width:320px;">
+        <select class="form-control" style="max-width:200px;"><option>All Campuses</option>{% for s in schools %}<option>{{ s.name }}</option>{% endfor %}</select>
+        <select class="form-control" style="max-width:180px;"><option>All Data Types</option><option>Users</option><option>Courses</option><option>Files</option><option>Payments</option></select>
+        <button class="btn-orange"><i class="fa fa-search"></i> Search</button>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="super-card">
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px;color:#9a3412;"><i class="fa fa-folder-open"></i> Storage Buckets</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+            <div><strong>student-uploads</strong> <span style="float:right;">412 GB</span></div>
+            <div><strong>assignments</strong> <span style="float:right;">288 GB</span></div>
+            <div><strong>media-assets</strong> <span style="float:right;">340 GB</span></div>
+            <div><strong>backups</strong> <span style="float:right;">240 GB</span></div>
+        </div>
+    </div>
+
+    <div class="super-card">
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px;color:#9a3412;"><i class="fa fa-shield"></i> Data Governance</div>
+        <ul style="margin:0;padding-left:18px;color:#475569;line-height:1.8;">
+            <li>Cross-campus access logging enabled</li>
+            <li>Automatic backup every 6 hours</li>
+            <li>Retention policy: 365 days</li>
+            <li>PII export requires Super Admin confirmation</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

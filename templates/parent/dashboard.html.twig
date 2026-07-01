@@ -1,0 +1,117 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Welcome, {{ parent.name|split(' ')|first }}!{% endblock %}
+
+{% block content %}
+{% set pending_pay = payments|filter(p => p.status == 'pending' or p.status == 'overdue') %}
+{% set unread_notif = notifications|filter(n => not n.read) %}
+
+{# ── KPI Row ─────────────────────────────────────────────────────── #}
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-child"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ children|length }}</div><div class="stat-label">Children Enrolled</div></div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-bell"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ unread_notif|length }}</div><div class="stat-label">Unread Alerts</div></div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-calendar-check-o"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">{{ children|map(c => c.attendance)|reduce((acc,v) => acc+v, 0) // children|length }}%</div>
+            <div class="stat-label">Avg Attendance</div>
+        </div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-credit-card"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ pending_pay|length }}</div><div class="stat-label">Payments Due</div></div>
+    </div>
+</div>
+
+{# ── Children Summary ─────────────────────────────────────────────── #}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
+{% for child in children %}
+<div class="card" style="border-top:4px solid #16a34a;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div class="av-init av-parent" style="width:50px;height:50px;font-size:16px;background:#dcfce7;color:#16a34a;">{{ child.avatar }}</div>
+        <div>
+            <div style="font-size:16px;font-weight:800;">{{ child.name }}</div>
+            <div style="font-size:12px;color:#16a34a;font-weight:700;">{{ child.class }}</div>
+            <div style="font-size:12px;color:#64748b;">Teacher: {{ child.teacher }}</div>
+        </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="text-align:center;padding:10px;background:#f0fdf4;border-radius:8px;">
+            <div style="font-size:22px;font-weight:900;color:{% if child.avg >= 80 %}#16a34a{% elseif child.avg >= 65 %}#f59e0b{% else %}#ef4444{% endif %};">{{ child.avg }}%</div>
+            <div style="font-size:11px;color:#64748b;">Avg Score</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:#f0fdf4;border-radius:8px;">
+            <div style="font-size:22px;font-weight:900;color:{% if child.attendance >= 90 %}#16a34a{% elseif child.attendance >= 80 %}#f59e0b{% else %}#ef4444{% endif %};">{{ child.attendance }}%</div>
+            <div style="font-size:11px;color:#64748b;">Attendance</div>
+        </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="{{ path('parent_grades') }}" class="btn-green" style="flex:1;justify-content:center;font-size:12px;padding:7px 0;"><i class="fa fa-star"></i> Grades</a>
+        <a href="{{ path('parent_attendance') }}" class="btn btn-outline btn-sm" style="flex:1;text-align:center;font-size:12px;"><i class="fa fa-calendar"></i> Attendance</a>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+{# ── Bottom 2-col ─────────────────────────────────────────────────── #}
+<div class="grid-2" style="gap:20px;">
+
+    {# ── Recent Notifications ──────────────────────────────────────── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bell p-accent" style="margin-right:6px;"></i>Recent Alerts</span>
+            <a href="{{ path('parent_notifications') }}" style="font-size:12px;color:#16a34a;font-weight:700;">View all</a>
+        </div>
+        {% for n in notifications|slice(0,4) %}
+        <div class="notif-card {{ not n.read ? 'unread' : '' }}" style="margin-bottom:8px;">
+            <div class="notif-icon notif-{{ n.type }}"><i class="fa fa-{{ n.icon }}"></i></div>
+            <div style="flex:1;">
+                <div style="font-size:13px;font-weight:700;margin-bottom:2px;">{{ n.title }}</div>
+                <div style="font-size:12px;color:#64748b;">{{ n.body|slice(0,70) }}{% if n.body|length > 70 %}…{% endif %}</div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:3px;"><i class="fa fa-clock-o"></i> {{ n.time }} · <span style="color:#16a34a;">{{ n.child }}</span></div>
+            </div>
+            {% if not n.read %}<div class="notif-dot"></div>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Announcements ─────────────────────────────────────────────── #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bullhorn p-accent" style="margin-right:6px;"></i>School Announcements</span>
+            <a href="{{ path('parent_announcements') }}" style="font-size:12px;color:#16a34a;font-weight:700;">View all</a>
+        </div>
+        {% for ann in announcements %}
+        <div class="ann-card {{ ann.pinned ? 'pinned' : '' }}">
+            <div style="display:flex;align-items:flex-start;gap:8px;">
+                {% if ann.pinned %}<i class="fa fa-thumb-tack p-accent" style="margin-top:2px;font-size:11px;"></i>{% endif %}
+                <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:800;margin-bottom:3px;">{{ ann.title }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ ann.body|slice(0,80) }}{% if ann.body|length > 80 %}…{% endif %}</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:4px;"><i class="fa fa-calendar"></i> {{ ann.created_at }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ── Quick Actions ─────────────────────────────────────────────────── #}
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-bolt p-accent" style="margin-right:6px;"></i>Quick Actions</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;padding-top:4px;">
+        <a href="{{ path('parent_grades') }}"        class="btn-green"><i class="fa fa-star"></i> View Grades</a>
+        <a href="{{ path('parent_attendance') }}"    class="btn-green"><i class="fa fa-calendar-check-o"></i> Check Attendance</a>
+        <a href="{{ path('parent_payments') }}"      class="btn-green"><i class="fa fa-credit-card"></i> Pay Fees</a>
+        <a href="{{ path('parent_messages') }}"      class="btn-green"><i class="fa fa-comments"></i> Message Teacher</a>
+        <a href="{{ path('parent_reports') }}"       class="btn-green"><i class="fa fa-bar-chart"></i> Progress Report</a>
+        <a href="{{ path('parent_announcements') }}" class="btn-green"><i class="fa fa-bullhorn"></i> Announcements</a>
+    </div>
+</div>
+{% endblock %}

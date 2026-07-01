@@ -1,0 +1,116 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Group Work{% endblock %}
+{% block page_title %}Group Work & Collaboration{% endblock %}
+
+{% block content %}
+
+<div class="grid-2" style="gap:20px;margin-bottom:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-users" style="color:#2563eb;margin-right:6px;"></i>Join Group Projects</span>
+        </div>
+        {% for project in groupProjects %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ project.name }}</div>
+                <span class="badge badge-{{ project.status == 'active' ? 'success' : 'warning' }}">{{ project.status|capitalize }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ project.course }} &middot; Deadline {{ project.deadline }}</div>
+            <div style="font-size:11px;color:#475569;margin-top:5px;">Team: {{ project.team|join(', ') }}</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <form method="post" action="{{ path('portal_groups') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('join_group_'~project.id) }}">
+                    <input type="hidden" name="action" value="join_group_project">
+                    <button class="btn btn-outline btn-sm" type="submit">Join</button>
+                </form>
+                <form method="post" action="{{ path('portal_groups') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('track_group_'~project.id) }}">
+                    <input type="hidden" name="action" value="track_group_progress">
+                    <button class="btn btn-outline btn-sm" type="submit">Track Progress</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-upload" style="color:#0ea5e9;margin-right:6px;"></i>Share Files with Teammates</span>
+        </div>
+        <form method="post" action="{{ path('portal_groups') }}" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="{{ csrf_token('share_group_file') }}">
+            <input type="hidden" name="action" value="share_group_file">
+            <div class="form-group">
+                <label class="form-label">File title</label>
+                <input class="form-control" type="text" name="title" placeholder="Experiment summary notes">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Upload file</label>
+                <input class="form-control" type="file" name="file">
+            </div>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-send"></i> Share File</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-tasks" style="color:#16a34a;margin-right:6px;"></i>Collaborate on Tasks</span>
+            <form method="post" action="{{ path('portal_groups') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('collab_group_task') }}">
+                <input type="hidden" name="action" value="collaborate_group_task">
+                <button class="btn btn-sm btn-outline" type="submit">Update</button>
+            </form>
+        </div>
+        {% for task in groupTasks %}
+        <div style="padding:10px;border-bottom:1px solid #e2e8f0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ task.task }}</div>
+                <span class="badge badge-{{ task.status == 'in progress' ? 'info' : 'secondary' }}">{{ task.status|capitalize }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">Assignee: {{ task.assignee }} &middot; Due {{ task.due }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Group Workspace</span>
+            <form method="post" action="{{ path('portal_groups') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('open_workspace') }}">
+                <input type="hidden" name="action" value="open_shared_workspace">
+                <button class="btn btn-sm btn-outline" type="submit">Open</button>
+            </form>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Shared workspace (documents & notes)</div>
+        {% for item in groupWorkspace %}
+        <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-file-text-o" style="color:#2563eb;margin-right:5px;"></i>{{ item.title }} ({{ item.type }}) &middot; {{ item.updated }}</div>
+        {% endfor %}
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 8px 0;">Task assignment within group</div>
+        <form method="post" action="{{ path('portal_groups') }}" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="hidden" name="_token" value="{{ csrf_token('assign_group_task') }}">
+            <input type="hidden" name="action" value="assign_group_task">
+            <input class="form-control" style="max-width:220px;" type="text" name="task" placeholder="Assign task...">
+            <button class="btn btn-outline btn-sm" type="submit">Assign</button>
+        </form>
+
+        <div style="font-size:13px;font-weight:700;margin:10px 0 8px 0;">Version history tracking</div>
+        {% for version in groupVersions %}
+        <div style="padding:8px;background:#f8fafc;border-radius:6px;margin-bottom:6px;">
+            <div style="font-size:12px;font-weight:700;">{{ version.asset }} ({{ version.version }})</div>
+            <div style="font-size:11px;color:#64748b;">by {{ version.author }} &middot; {{ version.time }}</div>
+        </div>
+        {% endfor %}
+        <form method="post" action="{{ path('portal_groups') }}" style="margin-top:8px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('refresh_versions') }}">
+            <input type="hidden" name="action" value="refresh_version_history">
+            <button class="btn btn-outline btn-sm" type="submit">Refresh Versions</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

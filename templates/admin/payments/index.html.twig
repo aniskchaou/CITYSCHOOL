@@ -1,0 +1,194 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Fees & Financial Management{% endblock %}
+{% block page_title %}Fees & Financial Management{% endblock %}
+
+{% block content %}
+
+{% set paid = payments|filter(p => p.status == 'paid') %}
+{% set pending = payments|filter(p => p.status == 'pending') %}
+{% set overdue = payments|filter(p => p.status == 'overdue') %}
+{% set total_paid = paid|map(p => p.amount)|reduce((c,v) => c+v, 0) %}
+{% set total_pending = pending|map(p => p.amount)|reduce((c,v) => c+v, 0) %}
+{% set total_overdue = overdue|map(p => p.amount)|reduce((c,v) => c+v, 0) %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-money"></i></div><div class="stat-body"><div class="stat-value">${{ (total_paid + total_pending + total_overdue)|number_format(0) }}</div><div class="stat-label">Total Billed</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check-circle"></i></div><div class="stat-body"><div class="stat-value">${{ total_paid|number_format(0) }}</div><div class="stat-label">Collected</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-clock-o"></i></div><div class="stat-body"><div class="stat-value">${{ total_pending|number_format(0) }}</div><div class="stat-label">Pending</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-exclamation-triangle"></i></div><div class="stat-body"><div class="stat-value">${{ total_overdue|number_format(0) }}</div><div class="stat-label">Overdue</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-files-o"></i></div><div class="stat-body"><div class="stat-value">{{ invoices_receipts|length }}</div><div class="stat-label">Invoices & Receipts</div></div></div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-sitemap a-accent" style="margin-right:6px;"></i>Create Fee Structures</span></div>
+        <form method="post" action="{{ path('admin_payments') }}">
+            <input type="hidden" name="action" value="create_fee_structure">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Fee Name</label><input class="form-control" name="name" placeholder="Tuition Fee" required></div>
+                <div class="form-group"><label class="form-label">Amount</label><input class="form-control" type="number" name="amount" min="0" step="10"></div>
+                <div class="form-group"><label class="form-label">Frequency</label><select class="form-control" name="frequency"><option>Per Term</option><option>Monthly</option><option>Annual</option></select></div>
+                <div class="form-group"><label class="form-label">Grade Scope</label><input class="form-control" name="scope" placeholder="Grades 9-10"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Fee Structure</button>
+        </form>
+
+        <table class="portal-table" style="margin-top:12px;">
+            <thead><tr><th>Structure</th><th>Amount</th><th>Frequency</th><th>Scope</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for f in fee_structures %}
+            <tr>
+                <td style="font-weight:700;">{{ f.name }}</td>
+                <td>${{ f.amount }}</td>
+                <td>{{ f.frequency }}</td>
+                <td>{{ f.grade_scope }}</td>
+                <td><span class="role-badge {{ f.status == 'active' ? 'status-active' : 'status-pending' }}">{{ f.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-link a-accent" style="margin-right:6px;"></i>Assign Fees to Students</span></div>
+        <form method="post" action="{{ path('admin_payments') }}" style="margin-bottom:12px;">
+            <input type="hidden" name="action" value="assign_fee">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Student</label><select class="form-control" name="student_id">{% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.class }})</option>{% endfor %}</select></div>
+                <div class="form-group"><label class="form-label">Fee Structure</label><select class="form-control" name="fee_structure">{% for f in fee_structures %}<option>{{ f.name }}</option>{% endfor %}</select></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Assign Fee</button>
+        </form>
+
+        <table class="portal-table">
+            <thead><tr><th>Student</th><th>Class</th><th>Fee</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for af in assigned_fees %}
+            <tr>
+                <td style="font-weight:700;">{{ af.student }}</td>
+                <td>{{ af.class }}</td>
+                <td>{{ af.fee }}</td>
+                <td>${{ af.amount }}</td>
+                <td>{{ af.due_date }}</td>
+                <td><span class="role-badge status-pending">{{ af.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-credit-card a-accent" style="margin-right:6px;"></i>Track Payments</span></div>
+    <table class="portal-table">
+        <thead><tr><th>Student</th><th>Class</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th><th>Method</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for p in payments %}
+        <tr>
+            <td style="font-weight:700;">{{ p.student }}</td>
+            <td>{{ p.class }}</td>
+            <td>{{ p.type }}</td>
+            <td>${{ p.amount|number_format(0) }}</td>
+            <td><span class="role-badge status-{{ p.status }}">{{ p.status }}</span></td>
+            <td>{{ p.date }}</td>
+            <td>{{ p.method }}</td>
+            <td style="display:flex;gap:6px;">
+                <form method="post" action="{{ path('admin_payments') }}" style="display:inline;"><input type="hidden" name="action" value="record_payment"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-check"></i></button></form>
+                <form method="post" action="{{ path('admin_payments') }}" style="display:inline;"><input type="hidden" name="action" value="generate_receipt"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-file-text-o"></i></button></form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-files-o a-accent" style="margin-right:6px;"></i>Generate Invoices & Receipts</span></div>
+        <form method="post" action="{{ path('admin_payments') }}" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="generate_invoice">
+            <button class="btn-purple" type="submit"><i class="fa fa-file-o"></i> Generate Invoice</button>
+            <button class="btn btn-outline btn-sm" type="submit" formaction="{{ path('admin_payments') }}" name="action" value="generate_receipt"><i class="fa fa-file-text-o"></i> Generate Receipt</button>
+        </form>
+        <table class="portal-table">
+            <thead><tr><th>Reference</th><th>Student</th><th>Type</th><th>Amount</th><th>Issued</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for d in invoices_receipts %}
+            <tr>
+                <td style="font-weight:700;">{{ d.ref }}</td>
+                <td>{{ d.student }}</td>
+                <td>{{ d.type }}</td>
+                <td>${{ d.amount }}</td>
+                <td>{{ d.issued_on }}</td>
+                <td><span class="role-badge {{ d.status == 'paid' ? 'status-active' : 'status-pending' }}">{{ d.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-gift a-accent" style="margin-right:6px;"></i>Manage Discounts & Scholarships</span></div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Student</th><th>Program</th><th>Type</th><th>Value</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for s in discounts %}
+            <tr>
+                <td style="font-weight:700;">{{ s.student }}</td>
+                <td>{{ s.program }}</td>
+                <td>{{ s.type }}</td>
+                <td>{{ s.value }}</td>
+                <td><span class="role-badge status-active">{{ s.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_payments') }}">
+            <input type="hidden" name="action" value="save_discount">
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Scholarship Rules</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Finance Features</span></div>
+    <div class="grid-2" style="gap:20px;">
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Online Payments (Stripe Integration)</div>
+            <form method="post" action="{{ path('admin_payments') }}"><input type="hidden" name="action" value="stripe_integration"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-plug"></i> Configure Stripe</button></form>
+        </div>
+
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Payment Reminders Automation</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>Student</th><th>Channel</th><th>Next Send</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for r in reminder_queue %}
+                <tr><td style="font-weight:700;">{{ r.student }}</td><td>{{ r.channel }}</td><td>{{ r.next_send }}</td><td><span class="role-badge status-pending">{{ r.status }}</span></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form method="post" action="{{ path('admin_payments') }}"><input type="hidden" name="action" value="payment_reminder_automation"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-bell"></i> Enable Automation</button></form>
+        </div>
+    </div>
+
+    <div style="margin-top:16px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+        <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Financial Reports & Forecasting</div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Period</th><th>Expected Revenue</th><th>Expected Collection</th><th>Confidence</th></tr></thead>
+            <tbody>
+            {% for f in financial_forecasts %}
+            <tr>
+                <td style="font-weight:700;">{{ f.period }}</td>
+                <td>${{ f.expected_revenue|number_format(0) }}</td>
+                <td>${{ f.expected_collection|number_format(0) }}</td>
+                <td>{{ f.confidence }}%</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_payments') }}"><input type="hidden" name="action" value="financial_forecast"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-line-chart"></i> Generate Forecast</button></form>
+    </div>
+</div>
+
+{% endblock %}

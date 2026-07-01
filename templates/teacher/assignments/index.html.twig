@@ -1,0 +1,252 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Assignments{% endblock %}
+{% block page_title %}Assignments{% endblock %}
+
+{% block content %}
+
+{# ── Summary Stats ── #}
+<div class="stats-grid" style="margin-bottom:24px;">
+    {% set total_sub = assignments|map(a => a.submitted)|reduce((c, v) => c + v, 0) %}
+    {% set total_graded = assignments|map(a => a.graded)|reduce((c, v) => c + v, 0) %}
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-list-alt"></i></div>
+        <div><div class="stat-value">{{ assignments|length }}</div><div class="stat-label">Total Assignments</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check-circle"></i></div>
+        <div><div class="stat-value">{{ assignments|filter(a => a.status=='graded')|length }}</div><div class="stat-label">Fully Graded</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa fa-clock-o"></i></div>
+        <div><div class="stat-value">{{ assignments|filter(a => a.status=='open')|length }}</div><div class="stat-label">Open</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-inbox"></i></div>
+        <div><div class="stat-value">{{ total_sub - total_graded }}</div><div class="stat-label">Awaiting Grade</div></div>
+    </div>
+</div>
+
+<div class="section-header">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <form method="post" action="{{ path('teacher_assignments') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_assignment_submission_status') }}">
+            <input type="hidden" name="action" value="view_submission_status">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-inbox"></i> Submission Status</button>
+        </form>
+        <form method="post" action="{{ path('teacher_assignments') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_assignment_deadlines') }}">
+            <input type="hidden" name="action" value="view_deadlines">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-calendar"></i> Deadlines</button>
+        </form>
+        <form method="post" action="{{ path('teacher_assignments') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('teacher_assignment_feedback') }}">
+            <input type="hidden" name="action" value="view_feedback">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-commenting-o"></i> Teacher Feedback</button>
+        </form>
+    </div>
+    <button class="btn-teal" onclick="openModal('modal-new-assignment')">
+        <i class="fa fa-plus"></i> New Assignment
+    </button>
+</div>
+
+<div class="card">
+    <table class="portal-table">
+        <thead>
+            <tr>
+                <th>Assignment</th>
+                <th>Course</th>
+                <th>Deadline</th>
+                <th>Points</th>
+                <th>Submissions</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for a in assignments %}
+        <tr>
+            <td>
+                <div style="font-weight:700;font-size:13px;">{{ a.title }}</div>
+                <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ a.description|slice(0,55) }}…</div>
+            </td>
+            <td style="font-size:13px;">{{ a.course }}</td>
+            <td style="font-size:13px;{% if a.status=='open' and a.deadline < 'now'|date('Y-m-d') %}color:#ef4444;font-weight:600;{% endif %}">
+                {{ a.deadline }}
+            </td>
+            <td style="font-size:13px;font-weight:700;">{{ a.points }}</td>
+            <td>
+                <div style="font-size:12px;margin-bottom:4px;">
+                    {{ a.submitted }}/{{ a.total }} submitted · {{ a.graded }} graded
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" style="width:{{ (a.submitted/a.total*100)|round }}%;background:#0891b2;height:6px;"></div>
+                </div>
+            </td>
+            <td>
+                <span class="badge badge-{{ a.status=='graded' ? 'success' : 'warning' }}">
+                    {{ a.status|capitalize }}
+                </span>
+            </td>
+            <td>
+                <a href="{{ path('teacher_grading') }}" class="btn btn-outline btn-sm" title="Grade submissions">
+                    <i class="fa fa-check-square-o"></i>
+                </a>
+                <button class="btn btn-outline btn-sm" title="Edit" onclick="alert('Edit assignment form coming soon!')">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                <button class="btn btn-outline btn-sm" style="color:#ef4444;" title="Delete" onclick="if(confirm('Delete this assignment?')){}">
+                    <i class="fa fa-trash-o"></i>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-exclamation-triangle t-accent" style="margin-right:6px;"></i>Premium: Missing/Late Assignment Alerts</span>
+            <form method="post" action="{{ path('teacher_assignments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_assignment_missing_alerts') }}">
+                <input type="hidden" name="action" value="view_missing_alerts">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh Alerts</button>
+            </form>
+        </div>
+        {% for alert in homeworkAlerts %}
+        <div style="padding:10px;border-left:4px solid {{ alert.severity == 'high' ? '#ef4444' : '#f59e0b' }};background:#fff7ed;border-radius:6px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:800;">{{ alert.title }}</div>
+                <span class="badge badge-{{ alert.severity == 'high' ? 'danger' : 'warning' }}">{{ alert.type|upper }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ alert.message }}</div>
+            <div style="font-size:11px;color:#475569;margin-top:3px;">Affected students: {{ alert.count }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-calendar-o t-accent" style="margin-right:6px;"></i>Premium: Weekly Homework Summary</span>
+            <form method="post" action="{{ path('teacher_assignments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_assignment_weekly_summary') }}">
+                <input type="hidden" name="action" value="view_weekly_summary">
+                <button class="btn btn-outline btn-sm" type="submit">Open Summary</button>
+            </form>
+        </div>
+        {% for summary in weeklyHomeworkSummary %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;">{{ summary.week }}</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">
+                <div><div style="font-size:18px;font-weight:900;color:#0891b2;">{{ summary.assigned }}</div><div style="font-size:11px;color:#94a3b8;">Assigned</div></div>
+                <div><div style="font-size:18px;font-weight:900;color:#16a34a;">{{ summary.submitted }}</div><div style="font-size:11px;color:#94a3b8;">Submitted</div></div>
+                <div><div style="font-size:18px;font-weight:900;color:#ef4444;">{{ summary.late }}</div><div style="font-size:11px;color:#94a3b8;">Late</div></div>
+                <div><div style="font-size:18px;font-weight:900;color:#7c3aed;">{{ summary.graded }}</div><div style="font-size:11px;color:#94a3b8;">Graded</div></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-hourglass-half t-accent" style="margin-right:6px;"></i>Premium: Overdue Tasks</span>
+            <form method="post" action="{{ path('teacher_assignments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_assignment_overdue') }}">
+                <input type="hidden" name="action" value="view_overdue_tasks">
+                <button class="btn btn-outline btn-sm" type="submit">Highlight Overdue</button>
+            </form>
+        </div>
+        {% for task in overdueTasks %}
+        <div style="padding:9px;border:1px solid {{ task.priority == 'high' ? '#fecaca' : '#fde68a' }};background:{{ task.priority == 'high' ? '#fff1f2' : '#fffbeb' }};border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ task.task }}</div>
+                <div style="font-size:11px;font-weight:800;color:{{ task.priority == 'high' ? '#991b1b' : '#92400e' }};">{{ task.priority|upper }}</div>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ task.course }} · {{ task.deadline }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-comments-o t-accent" style="margin-right:6px;"></i>View Teacher Feedback</span>
+        </div>
+        {% for feedback in homeworkFeedback %}
+        <div style="padding:9px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">{{ feedback.student }}</div>
+                <div style="font-size:11px;color:#94a3b8;">{{ feedback.teacher }}</div>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">{{ feedback.comment }}</div>
+            <div style="font-size:11px;color:#0891b2;margin-top:3px;">Assignment #{{ feedback.assignment_id }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ── Create Assignment Modal ── #}
+<div class="t-modal-overlay" id="modal-new-assignment">
+    <div class="t-modal">
+        <div class="t-modal-header">
+            <div class="t-modal-title">Create New Assignment</div>
+            <button class="t-modal-close" onclick="closeModal('modal-new-assignment')">&times;</button>
+        </div>
+        <form method="post" action="{{ path('teacher_assignments') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('assignment_create') }}">
+            <input type="hidden" name="action" value="create_assignment">
+            <div class="form-group">
+                <label class="form-label">Title *</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Chapter 5 Problem Set" required>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Course *</label>
+                    <select name="course_id" class="form-control" required>
+                        {% for c in courses %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Points</label>
+                    <input type="number" name="points" class="form-control" value="100" min="1">
+                </div>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Deadline *</label>
+                    <input type="date" name="deadline" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Submission Type</label>
+                    <select name="sub_type" class="form-control">
+                        <option>File Upload (PDF/Doc)</option>
+                        <option>Text Entry</option>
+                        <option>Online Quiz</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description / Instructions</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Provide clear instructions for students..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Grading Rubric (optional)</label>
+                <textarea name="rubric" class="form-control" rows="2" placeholder="e.g. 40% accuracy, 30% method, 30% presentation"></textarea>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <input type="checkbox" name="auto_grade" id="auto_grade" style="width:16px;height:16px;">
+                <label for="auto_grade" style="font-size:13px;font-weight:600;cursor:pointer;">
+                    <i class="fa fa-bolt" style="color:#0891b2;"></i> Enable AI auto-grading suggestions
+                </label>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button type="submit" class="btn-teal"><i class="fa fa-save"></i> Create Assignment</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-new-assignment')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Announcements{% endblock %}
+{% block page_title %}School Announcements{% endblock %}
+
+{% block content %}
+
+{# ── Filter tabs ─────────────────────────────────────────────────── #}
+<div style="display:flex;gap:8px;margin-bottom:16px;">
+    <button class="child-tab active" id="tab-all" onclick="filterAnn('')" style="border-radius:8px;padding:6px 16px;font-size:12px;">All</button>
+    <button class="child-tab" id="tab-pinned" onclick="filterAnn('pinned')" style="border-radius:8px;padding:6px 16px;font-size:12px;"><i class="fa fa-thumb-tack"></i> Pinned</button>
+    <button class="child-tab" id="tab-parents" onclick="filterAnn('parents')" style="border-radius:8px;padding:6px 16px;font-size:12px;">For Parents</button>
+</div>
+
+<div id="ann-list">
+{% for ann in announcements %}
+<div class="ann-card {{ ann.pinned ? 'pinned' : '' }} ann-item" data-target="{{ ann.target }}" data-pinned="{{ ann.pinned ? '1' : '0' }}">
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="width:38px;height:38px;border-radius:10px;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
+            <i class="fa fa-{{ ann.pinned ? 'thumb-tack' : 'bullhorn' }}"></i>
+        </div>
+        <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+                {% if ann.pinned %}
+                <span style="font-size:10px;font-weight:800;background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:10px;"><i class="fa fa-thumb-tack"></i> PINNED</span>
+                {% endif %}
+                <span style="font-size:10px;font-weight:800;background:#ede9fe;color:#7c3aed;padding:2px 8px;border-radius:10px;">{{ ann.target|upper }}</span>
+            </div>
+            <div style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:6px;">{{ ann.title }}</div>
+            <div style="font-size:14px;color:#475569;line-height:1.6;">{{ ann.body }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:8px;display:flex;align-items:center;gap:12px;">
+                <span><i class="fa fa-calendar"></i> {{ ann.created_at }}</span>
+                <span><i class="fa fa-user-o"></i> {{ ann.sent_by }}</span>
+                <span><i class="fa fa-eye"></i> {{ ann.views }} views</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+<script>
+function filterAnn(type) {
+    document.querySelectorAll('.ann-item').forEach(function(el) {
+        var show = true;
+        if (type === 'pinned')  show = el.dataset.pinned === '1';
+        if (type === 'parents') show = el.dataset.target === 'parents' || el.dataset.target === 'all';
+        el.style.display = show ? '' : 'none';
+    });
+    document.querySelectorAll('[id^="tab-"]').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('tab-' + (type || 'all')).classList.add('active');
+}
+</script>
+{% endblock %}

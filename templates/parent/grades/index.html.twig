@@ -1,0 +1,191 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Grades{% endblock %}
+{% block page_title %}Grades &amp; Results{% endblock %}
+
+{% block content %}
+{% set selectedChild = app.request.query.get('child', '1') %}
+{% set allMode = selectedChild == 'all' %}
+
+<div class="child-tabs">
+    {% for child in children %}
+    <a href="?child={{ child.id }}" class="child-tab {{ selectedChild == ('' ~ child.id) ? 'active' : '' }}">
+        <div class="child-av">{{ child.avatar }}</div>
+        {{ child.name }}
+        <span style="background:rgba(255,255,255,.3);padding:2px 8px;border-radius:10px;font-size:11px;">{{ child.class }}</span>
+    </a>
+    {% endfor %}
+    <a href="?child=all" class="child-tab {{ allMode ? 'active' : '' }}">
+        <div class="child-av"><i class="fa fa-users"></i></div> All Children
+    </a>
+</div>
+
+{% for child in children %}
+{% if allMode or selectedChild == ('' ~ child.id) %}
+{% set childGrades = grades|filter(g => g.child == child.id) %}
+{% set childExamRows = examGradebook|filter(r => r.child == child.id) %}
+{% set progressRows = gradeProgress|filter(p => p.child == child.id) %}
+{% set totalScore = childGrades|map(g => g.score)|reduce((c, v) => c + v, 0) %}
+{% set avgScore = childGrades|length > 0 ? (totalScore / childGrades|length)|round : 0 %}
+{% set insight = performanceInsights[child.id] is defined ? performanceInsights[child.id] : null %}
+
+<div style="margin-bottom:24px;">
+    <div class="child-summary">
+        <div class="av-init" style="width:46px;height:46px;font-size:15px;background:#dcfce7;color:#16a34a;">{{ child.avatar }}</div>
+        <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;">{{ child.name }}</div>
+            <div style="font-size:12px;color:#16a34a;">{{ child.class }} &nbsp;·&nbsp; {{ child.teacher }}</div>
+        </div>
+        <div style="text-align:center;padding:0 16px;border-left:1px solid #dcfce7;">
+            <div class="cs-val">{{ avgScore }}%</div>
+            <div class="cs-lbl">Average</div>
+        </div>
+        <div style="text-align:center;padding:0 16px;border-left:1px solid #dcfce7;">
+            <div class="cs-val">{{ childGrades|length }}</div>
+            <div class="cs-lbl">Subjects</div>
+        </div>
+        <div style="text-align:center;padding:0 16px;border-left:1px solid #dcfce7;">
+            <div class="cs-val">{{ child.attendance }}%</div>
+            <div class="cs-lbl">Attendance</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-table p-accent" style="margin-right:6px;"></i>Academic Performance Tracking</span>
+            <div style="display:flex;gap:6px;">
+                <form method="post" action="{{ path('parent_grades', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_grades_view_gradebook') }}">
+                    <input type="hidden" name="action" value="view_gradebook">
+                    <button class="btn btn-outline btn-sm" type="submit">By Subject/Exam/Term</button>
+                </form>
+                <form method="post" action="{{ path('parent_grades', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_grades_feedback') }}">
+                    <input type="hidden" name="action" value="load_feedback">
+                    <button class="btn btn-outline btn-sm" type="submit">Teacher Feedback</button>
+                </form>
+            </div>
+        </div>
+
+        <table class="portal-table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Exam</th>
+                    <th>Term</th>
+                    <th>Score</th>
+                    <th>Class Avg</th>
+                    <th>Teacher Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in childExamRows %}
+                <tr>
+                    <td style="font-weight:700;">{{ row.subject }}</td>
+                    <td>{{ row.exam }}</td>
+                    <td>{{ row.term }}</td>
+                    <td style="font-weight:800;color:#0f766e;">{{ row.score }}%</td>
+                    <td style="font-weight:700;color:#475569;">{{ row.classAvg }}%</td>
+                    <td style="font-size:12px;color:#64748b;">{{ row.teacherComment }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="grid-2" style="gap:16px;margin-top:16px;">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fa fa-line-chart p-accent" style="margin-right:6px;"></i>Track Progress Over Time</span>
+                <form method="post" action="{{ path('parent_grades', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_grades_track_progress') }}">
+                    <input type="hidden" name="action" value="track_progress">
+                    <button class="btn btn-outline btn-sm" type="submit">Refresh</button>
+                </form>
+            </div>
+            {% for point in progressRows %}
+            <div style="display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center;margin-bottom:8px;">
+                <div style="font-size:12px;color:#64748b;">{{ point.period }}</div>
+                <div class="progress-bar-wrap" style="height:10px;">
+                    <div class="progress-bar-fill" style="height:10px;border-radius:6px;background:#16a34a;width:{{ point.avg }}%;"></div>
+                </div>
+                <div style="font-size:12px;font-weight:800;color:#166534;">{{ point.avg }}%</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fa fa-balance-scale p-accent" style="margin-right:6px;"></i>Compare Across Subjects</span>
+                <form method="post" action="{{ path('parent_grades', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_grades_compare_subjects') }}">
+                    <input type="hidden" name="action" value="compare_subjects">
+                    <button class="btn btn-outline btn-sm" type="submit">Compare</button>
+                </form>
+            </div>
+            {% for row in childExamRows %}
+            {% set delta = row.score - row.classAvg %}
+            <div style="padding:9px 0;border-bottom:1px solid #f0fdf4;">
+                <div style="display:flex;justify-content:space-between;gap:8px;">
+                    <div style="font-size:13px;font-weight:700;">{{ row.subject }}</div>
+                    <div style="font-size:12px;font-weight:800;color:{{ delta >= 0 ? '#16a34a' : '#ef4444' }};">{{ delta >= 0 ? '+' : '' }}{{ delta }} vs class</div>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;">{{ row.score }}% student · {{ row.classAvg }}% class average</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond p-accent" style="margin-right:6px;"></i>Premium: Visual Analytics &amp; Performance Insights</span>
+            <div style="display:flex;gap:6px;">
+                <form method="post" action="{{ path('parent_grades', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_grades_visual_analytics') }}">
+                    <input type="hidden" name="action" value="refresh_visual_analytics">
+                    <button class="btn btn-outline btn-sm" type="submit">Visual Analytics</button>
+                </form>
+                <form method="post" action="{{ path('parent_grades', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_grades_generate_insights') }}">
+                    <input type="hidden" name="action" value="generate_performance_insights">
+                    <button class="btn btn-outline btn-sm" type="submit">Generate Insights</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="grid-2" style="gap:14px;">
+            <div style="padding:10px;background:#f8fafc;border-radius:8px;">
+                <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:6px;">Strengths</div>
+                {% if insight %}
+                    {% for item in insight.strengths %}
+                    <div style="font-size:12px;color:#166534;margin-bottom:4px;"><i class="fa fa-check-circle" style="margin-right:4px;"></i>{{ item }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div style="padding:10px;background:#fff7ed;border-radius:8px;">
+                <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:6px;">Weaknesses</div>
+                {% if insight %}
+                    {% for item in insight.weaknesses %}
+                    <div style="font-size:12px;color:#b45309;margin-bottom:4px;"><i class="fa fa-exclamation-circle" style="margin-right:4px;"></i>{{ item }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top:12px;padding:10px;border:1px solid #dcfce7;border-radius:8px;">
+            <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:6px;">Improvement Suggestions</div>
+            {% if insight %}
+                {% for item in insight.suggestions %}
+                <div style="font-size:12px;color:#475569;margin-bottom:4px;"><i class="fa fa-lightbulb-o" style="margin-right:4px;color:#f59e0b;"></i>{{ item }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<div style="padding:14px 16px;background:#fef9c3;border-radius:10px;font-size:13px;color:#b45309;display:flex;align-items:center;gap:10px;margin-top:8px;">
+    <i class="fa fa-exclamation-triangle" style="font-size:16px;"></i>
+    <div><strong>Action Reminder:</strong> If feedback mentions repeated issues, schedule a teacher follow-up in <a href="{{ path('parent_messages') }}" style="color:#16a34a;font-weight:700;">Messages</a>.</div>
+</div>
+{% endblock %}

@@ -1,182 +1,553 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}City School{% endblock %}
+{% block title %}Courses | City School{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ===== COURSES PAGE ===== */
+
+/* --- Section wrappers --- */
+.cp-section      { padding: 56px 0; }
+.cp-section-alt  { padding: 56px 0; background: #f7f9fc; }
+.cp-section-dark { padding: 56px 0; background: linear-gradient(135deg,#1a237e 0%,#283593 100%); }
+.cp-label { display:inline-block; background:#1a237e; color:#fff; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:12px; }
+.cp-title { font-family:'Arvo',serif; font-size:1.9rem; font-weight:700; color:#1a237e; margin:0 0 8px; }
+.cp-sub   { color:#6b7a99; font-size:.97rem; margin:0 0 36px; max-width:580px; }
+
+/* --- Grade filter tabs --- */
+.grade-filter-bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px; align-items:center; }
+.grade-filter-bar .gf-search { flex:1 1 220px; padding:10px 14px; border:1.5px solid #dde3f0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.88rem; color:#333; }
+.grade-filter-bar .gf-search:focus { outline:none; border-color:#3949ab; box-shadow:0 0 0 3px rgba(57,73,171,.1); }
+.grade-tab { padding:8px 18px; border-radius:20px; border:1.5px solid #dde3f0; background:#fff; color:#555; font-size:.8rem; font-weight:600; cursor:pointer; transition:background .18s,color .18s,border-color .18s; }
+.grade-tab:hover  { border-color:#3949ab; color:#3949ab; }
+.grade-tab.active { background:#1a237e; color:#fff; border-color:#1a237e; }
+
+/* --- Grades/Classes grid --- */
+.grades-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+@media(max-width:992px){ .grades-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:540px){ .grades-grid { grid-template-columns:1fr 1fr; } }
+.grade-card { background:#fff; border-radius:14px; padding:24px 20px; box-shadow:0 4px 20px rgba(26,35,126,.08); border-top:4px solid #1a237e; transition:transform .22s,box-shadow .22s; cursor:pointer; }
+.grade-card:hover { transform:translateY(-5px); box-shadow:0 10px 32px rgba(26,35,126,.14); }
+.grade-card.grade-card--2  { border-top-color:#303f9f; }
+.grade-card.grade-card--3  { border-top-color:#3949ab; }
+.grade-card.grade-card--4  { border-top-color:#5c6bc0; }
+.grade-card.grade-card--5  { border-top-color:#7986cb; }
+.grade-card.grade-card--6  { border-top-color:#283593; }
+.grade-card.grade-card--7  { border-top-color:#1565c0; }
+.grade-card.grade-card--8  { border-top-color:#0d47a1; }
+.grade-badge { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:10px; color:#fff; font-weight:800; font-size:1rem; margin-bottom:14px; }
+.grade-card h4  { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 10px; }
+.grade-subjects { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:5px; }
+.grade-subjects li { font-size:.78rem; color:#6b7a99; display:flex; align-items:center; gap:6px; }
+.grade-subjects li::before { content:''; width:6px; height:6px; border-radius:50%; background:#3949ab; flex-shrink:0; }
+.grade-card .gc-count { margin-top:14px; font-size:.72rem; font-weight:700; color:#3949ab; text-transform:uppercase; letter-spacing:.06em; }
+
+/* --- Curriculum Roadmap --- */
+.roadmap-track { display:flex; gap:0; position:relative; overflow-x:auto; padding-bottom:12px; }
+.roadmap-track::before { content:''; position:absolute; top:48px; left:0; right:0; height:4px; background:linear-gradient(90deg,#1a237e,#7986cb,#c5cae9); border-radius:2px; z-index:0; }
+.roadmap-stage { flex:1 1 160px; min-width:150px; display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; }
+.roadmap-dot { width:32px; height:32px; background:#1a237e; border:4px solid #fff; border-radius:50%; box-shadow:0 0 0 4px rgba(26,35,126,.2); margin-bottom:16px; flex-shrink:0; }
+.roadmap-stage:nth-child(2) .roadmap-dot { background:#303f9f; }
+.roadmap-stage:nth-child(3) .roadmap-dot { background:#3949ab; }
+.roadmap-stage:nth-child(4) .roadmap-dot { background:#5c6bc0; }
+.roadmap-stage:nth-child(5) .roadmap-dot { background:#7986cb; }
+.roadmap-card { background:#fff; border-radius:12px; padding:18px 16px; box-shadow:0 4px 18px rgba(26,35,126,.09); text-align:center; width:100%; box-sizing:border-box; }
+.roadmap-card h4 { font-family:'Arvo',serif; font-size:.95rem; color:#1a237e; margin:0 0 6px; }
+.roadmap-card .rc-years { font-size:.72rem; font-weight:700; color:#7986cb; text-transform:uppercase; letter-spacing:.07em; margin:0 0 10px; }
+.roadmap-card ul { list-style:none; padding:0; margin:0; text-align:left; display:flex; flex-direction:column; gap:4px; }
+.roadmap-card ul li { font-size:.76rem; color:#6b7a99; padding-left:14px; position:relative; }
+.roadmap-card ul li::before { content:'›'; position:absolute; left:0; color:#3949ab; font-weight:700; }
+
+/* --- Course catalog --- */
+.courses-layout { display:grid; grid-template-columns:2.2fr 1fr; gap:24px; }
+@media(max-width:990px){ .courses-layout { grid-template-columns:1fr; } }
+.courses-toolbar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; }
+.courses-toolbar input { flex:1 1 220px; padding:10px 14px; border:1.5px solid #dde3f0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.88rem; color:#333; }
+.courses-toolbar input:focus { outline:none; border-color:#3949ab; }
+.courses-toolbar select { padding:10px 14px; border:1.5px solid #dde3f0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.88rem; color:#555; background:#fff; }
+.courses-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+@media(max-width:760px){ .courses-grid { grid-template-columns:1fr; } }
+.course-card { background:#fff; border-radius:14px; padding:22px 20px; box-shadow:0 4px 20px rgba(26,35,126,.08); border-left:4px solid #1a237e; transition:transform .2s,box-shadow .2s; display:none; }
+.course-card.visible { display:block; }
+.course-card:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(26,35,126,.13); }
+.course-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px; }
+.course-card h3 { margin:0; font-size:1.05rem; color:#1a237e; font-family:'Arvo',serif; flex:1; }
+.course-grade-badge { display:inline-block; background:#e8eaf6; color:#1a237e; font-size:.68rem; font-weight:800; padding:3px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+.course-card p { margin:0 0 12px; font-size:.85rem; color:#6b7a99; line-height:1.7; }
+.course-meta-row { display:flex; gap:10px; flex-wrap:wrap; font-size:.75rem; color:#8a97b5; margin-bottom:14px; }
+.course-meta-row span { display:flex; align-items:center; gap:4px; }
+.course-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.btn-enroll   { background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; border:none; padding:8px 18px; border-radius:8px; font-size:.8rem; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:opacity .2s; }
+.btn-enroll:hover { opacity:.85; }
+.btn-syllabus { background:#f0f2fc; color:#1a237e; border:1.5px solid #c5cae9; padding:8px 16px; border-radius:8px; font-size:.8rem; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background .2s; }
+.btn-syllabus:hover { background:#e8eaf6; }
+
+/* --- Sidebar --- */
+.courses-side { border-radius:14px; overflow:hidden; display:flex; flex-direction:column; gap:18px; }
+.cs-widget { background:#fff; border-radius:14px; padding:22px 20px; box-shadow:0 3px 18px rgba(26,35,126,.07); }
+.cs-widget h4 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 14px; border-bottom:2px solid #e8eaf6; padding-bottom:10px; }
+.cs-widget ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.cs-widget ul li { font-size:.85rem; color:#6b7a99; display:flex; align-items:flex-start; gap:8px; }
+.cs-widget ul li::before { content:'\f00c'; font-family:'FontAwesome'; color:#3949ab; font-size:.75rem; margin-top:2px; flex-shrink:0; }
+.cs-intake-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f2fc; font-size:.83rem; }
+.cs-intake-row:last-child { border-bottom:none; }
+.cs-intake-row .ci-badge { background:#e8eaf6; color:#1a237e; font-size:.7rem; font-weight:700; padding:2px 10px; border-radius:20px; }
+.cs-cta { display:block; text-align:center; background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; padding:12px; border-radius:10px; font-weight:700; font-size:.88rem; text-decoration:none; transition:opacity .2s; }
+.cs-cta:hover { opacity:.85; color:#fff; }
+
+/* hidden cards counter */
+.no-results { padding:24px; text-align:center; color:#8a97b5; font-size:.9rem; display:none; grid-column:1/-1; }
+</style>
+{% endblock %}
 
 {% block body %}
 <div id="site-content">
-			<header class="site-header">
-				<div class="primary-header">
-					<div class="container">
-						<a href="index.html" id="branding">
-							<img src="images/logo.png" alt="Lincoln high School">
-							<h1 class="site-title">City School</h1>
-						</a> <!-- #branding -->
+    <header class="site-header">
+        <div class="primary-header">
+            <div class="container">
+                <a href="{{ path('index') }}" id="branding">
+                    <img src="/images/logo.png" alt="City School">
+                    <div>
+                        <h1 class="site-title">City School</h1>
+                        <span class="site-subtitle">Premium Learning Institution</span>
+                    </div>
+                </a>
+                <div class="main-navigation">
+                    <ul class="home-main-menu home-nav-v2">
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('index') }}">Home</a></li>
+                        <li class="home-nav-item current-menu-item"><a class="home-nav-link" href="{{ path('courses') }}">Courses</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('values') }}">Values</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('events') }}">Events</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('admissions') }}">Admissions</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('pricing') }}">Pricing</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('contact') }}">Contact</a></li>
+                        <li class="home-nav-item nav-dropdown">
+                            <a class="home-nav-link" href="#"><i class="fa fa-sign-in home-nav-login-icon"></i> Login <span class="arrow">&#9660;</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ path('portal_login') }}"><span class="dm-icon"><i class="fa fa-book"></i></span> Student Portal</a></li>
+                                <li><a href="{{ path('teacher_login') }}"><span class="dm-icon"><i class="fa fa-sitemap"></i></span> Teacher Portal</a></li>
+                                <li><a href="{{ path('parent_login') }}"><span class="dm-icon"><i class="fa fa-home"></i></span> Parent Portal</a></li>
+                                <li><a href="{{ path('admin_login') }}"><span class="dm-icon"><i class="fa fa-cogs"></i></span> Admin Portal</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a href="{{ path('super_admin_login') }}"><span class="dm-icon"><i class="fa fa-shield"></i></span> Super Admin</a></li>
+                            </ul>
+                        </li>
+                        <li class="home-nav-item nav-lang-switcher">
+                            <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+                            <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+                            <button class="lang-btn" data-lang="es" onclick="switchLang('es')">ES</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="home-slider">
+            <div class="container">
+                <div class="slide-caption">
+                    <h2 class="slide-title">Where Excellence Meets<br>Opportunity</h2>
+                    <p>City School provides a premium learning environment built on personalized instruction, modern labs, career mentoring, and a curriculum designed to unlock every student's potential.</p>
+                    <div class="hero-cta-row">
+                        <a href="{{ path('courses') }}" class="button large hero-btn hero-btn-programs"><i class="fa fa-book"></i>Explore Our Programs</a>
+                        <a href="{{ path('contact') }}" class="button large hero-btn hero-btn-consult"><i class="fa fa-calendar"></i>Book a Consultation</a>
+                    </div>
+                </div>
+                <div class="slider-img">
+                    <img src="/dummy/kid.png" alt="Student at City School">
+                </div>
+            </div>
+        </div>
+    </header>
 
-						<div class="main-navigation">
-							<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
-							<ul class="menu">
-								<li class="menu-item current-menu-item"><a href="{{path('index')}}">Home</a></li>
-                                								<li class="menu-item"><a href="{{path('courses')}}">Courses</a></li>
-                                								<li class="menu-item"><a href="{{path('students')}}">Students</a></li>
-                                								<li class="menu-item"><a href="{{path('events')}}">Events</a></li>
-                                								<li class="menu-item"><a href="{{path('contact')}}">Contact</a></li>
-							</ul> <!-- .menu -->
-						</div> <!-- .main-navigation -->
+    <main>
 
-						<div class="mobile-navigation"></div>
-					</div> <!-- .container -->
-				</div> <!-- .primary-header -->
+        <!-- ===== GRADES & CLASSES ===== -->
+        <section class="cp-section">
+            <div class="container">
+                <span class="cp-label">Academic Structure</span>
+                <h2 class="cp-title">Browse Classes &amp; Grades Offered</h2>
+                <p class="cp-sub">Explore every grade level — each offering a rich set of subjects designed to build foundational skills through to advanced mastery.</p>
+                <div class="grade-filter-bar">
+                    <input type="text" class="gf-search" id="gradeSearch" placeholder="Search subjects or grade…">
+                    <button class="grade-tab active" data-grade="all">All Grades</button>
+                    <button class="grade-tab" data-grade="primary">Primary (1–4)</button>
+                    <button class="grade-tab" data-grade="middle">Middle (5–8)</button>
+                    <button class="grade-tab" data-grade="secondary">Secondary (9–12)</button>
+                </div>
+                <div class="grades-grid" id="gradesGrid">
+                    <div class="grade-card grade-card--1" data-group="primary">
+                        <div class="grade-badge">1</div>
+                        <h4>Grade 1 &mdash; Foundation</h4>
+                        <ul class="grade-subjects">
+                            <li>English Language Arts</li><li>Basic Mathematics</li><li>Environmental Science</li><li>Creative Arts &amp; Craft</li><li>Physical Education</li>
+                        </ul>
+                        <p class="gc-count">5 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--2" data-group="primary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#303f9f,#5c6bc0);">2</div>
+                        <h4>Grade 2 &mdash; Explorers</h4>
+                        <ul class="grade-subjects">
+                            <li>Reading &amp; Writing</li><li>Number Sense</li><li>Social Studies</li><li>Music &amp; Performing Arts</li><li>ICT Fundamentals</li>
+                        </ul>
+                        <p class="gc-count">5 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--3" data-group="primary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#3949ab,#7986cb);">3</div>
+                        <h4>Grade 3 &mdash; Builders</h4>
+                        <ul class="grade-subjects">
+                            <li>Literature &amp; Grammar</li><li>Algebra Basics</li><li>Life Science</li><li>History &amp; Culture</li><li>Digital Literacy</li>
+                        </ul>
+                        <p class="gc-count">5 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--4" data-group="primary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#5c6bc0,#9fa8da);">4</div>
+                        <h4>Grade 4 &mdash; Pioneers</h4>
+                        <ul class="grade-subjects">
+                            <li>Advanced Reading</li><li>Geometry &amp; Fractions</li><li>Earth Science</li><li>Civic Education</li><li>French (Introduction)</li>
+                        </ul>
+                        <p class="gc-count">5 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--5" data-group="middle">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#1565c0,#42a5f5);">5</div>
+                        <h4>Grade 5 &mdash; Scholars</h4>
+                        <ul class="grade-subjects">
+                            <li>English Composition</li><li>Pre-Algebra</li><li>Physical Science</li><li>World Geography</li><li>Computer Science I</li>
+                        </ul>
+                        <p class="gc-count">6 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--6" data-group="middle">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#0d47a1,#1976d2);">6</div>
+                        <h4>Grade 6 &mdash; Innovators</h4>
+                        <ul class="grade-subjects">
+                            <li>Literature Analysis</li><li>Algebra I</li><li>Biology</li><li>World History</li><li>French / Spanish</li><li>Design Thinking</li>
+                        </ul>
+                        <p class="gc-count">6 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--7" data-group="middle">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#283593,#3949ab);">7</div>
+                        <h4>Grade 7 &mdash; Achievers</h4>
+                        <ul class="grade-subjects">
+                            <li>Advanced Writing</li><li>Algebra II</li><li>Chemistry Intro</li><li>Civics &amp; Economics</li><li>Computer Science II</li><li>Arts Elective</li>
+                        </ul>
+                        <p class="gc-count">6 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card grade-card--8" data-group="middle">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#1a237e,#283593);">8</div>
+                        <h4>Grade 8 &mdash; Leaders</h4>
+                        <ul class="grade-subjects">
+                            <li>Research &amp; Rhetoric</li><li>Pre-Calculus</li><li>Physics Intro</li><li>Political Science</li><li>Programming Basics</li><li>STEM Project Lab</li>
+                        </ul>
+                        <p class="gc-count">6 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card" style="border-top-color:#b71c1c;" data-group="secondary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#b71c1c,#e53935);">9</div>
+                        <h4>Grade 9 &mdash; Visionaries</h4>
+                        <ul class="grade-subjects">
+                            <li>Honours English</li><li>Calculus I</li><li>Chemistry</li><li>Economics</li><li>A.I. &amp; Robotics</li><li>Elective Track</li>
+                        </ul>
+                        <p class="gc-count">7 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card" style="border-top-color:#c62828;" data-group="secondary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#c62828,#ef5350);">10</div>
+                        <h4>Grade 10 &mdash; Trailblazers</h4>
+                        <ul class="grade-subjects">
+                            <li>AP English Language</li><li>Calculus II</li><li>Physics</li><li>Business Studies</li><li>Data Science</li><li>Research Project</li>
+                        </ul>
+                        <p class="gc-count">7 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card" style="border-top-color:#d32f2f;" data-group="secondary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#d32f2f,#f44336);">11</div>
+                        <h4>Grade 11 &mdash; Pathfinders</h4>
+                        <ul class="grade-subjects">
+                            <li>AP Literature</li><li>Advanced Mathematics</li><li>Environmental Science</li><li>Psychology</li><li>Entrepreneurship</li><li>Capstone Project I</li>
+                        </ul>
+                        <p class="gc-count">7 Subjects &bull; 1 Year</p>
+                    </div>
+                    <div class="grade-card" style="border-top-color:#e53935;" data-group="secondary">
+                        <div class="grade-badge" style="background:linear-gradient(135deg,#e53935,#ff7043);">12</div>
+                        <h4>Grade 12 &mdash; Champions</h4>
+                        <ul class="grade-subjects">
+                            <li>Senior Thesis</li><li>Statistics &amp; Modelling</li><li>Philosophy of Science</li><li>Leadership Studies</li><li>College Prep Seminar</li><li>Capstone Project II</li>
+                        </ul>
+                        <p class="gc-count">7 Subjects &bull; 1 Year</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-				<div class="page-title">
-					<div class="container">
-						<h2>Join Our Courses</h2>
-					</div>
-				</div>
-			</header>
-		</div>
+        <!-- ===== CURRICULUM ROADMAP ===== -->
+        <section class="cp-section-alt">
+            <div class="container">
+                <span class="cp-label">Learning Pathway</span>
+                <h2 class="cp-title">Visual Curriculum Roadmap</h2>
+                <p class="cp-sub">A structured journey from foundational literacy to university-ready mastery — every step purposefully designed.</p>
+                <div class="roadmap-track">
+                    <div class="roadmap-stage">
+                        <div class="roadmap-dot"></div>
+                        <div class="roadmap-card">
+                            <h4>Foundation</h4><p class="rc-years">Grades 1–2</p>
+                            <ul><li>Core Literacy</li><li>Number Concepts</li><li>Creative Play</li><li>Social Skills</li></ul>
+                        </div>
+                    </div>
+                    <div class="roadmap-stage">
+                        <div class="roadmap-dot"></div>
+                        <div class="roadmap-card">
+                            <h4>Primary Core</h4><p class="rc-years">Grades 3–4</p>
+                            <ul><li>Reading &amp; Writing</li><li>Geometry</li><li>Earth &amp; Life Science</li><li>Digital Literacy</li></ul>
+                        </div>
+                    </div>
+                    <div class="roadmap-stage">
+                        <div class="roadmap-dot"></div>
+                        <div class="roadmap-card">
+                            <h4>Middle School</h4><p class="rc-years">Grades 5–8</p>
+                            <ul><li>Algebra I &amp; II</li><li>Biology / Chemistry</li><li>World History</li><li>Computer Science</li></ul>
+                        </div>
+                    </div>
+                    <div class="roadmap-stage">
+                        <div class="roadmap-dot"></div>
+                        <div class="roadmap-card">
+                            <h4>Secondary</h4><p class="rc-years">Grades 9–10</p>
+                            <ul><li>Honours / AP Courses</li><li>Calculus</li><li>Physics &amp; Chemistry</li><li>AI &amp; Robotics</li></ul>
+                        </div>
+                    </div>
+                    <div class="roadmap-stage">
+                        <div class="roadmap-dot"></div>
+                        <div class="roadmap-card">
+                            <h4>Pre-University</h4><p class="rc-years">Grades 11–12</p>
+                            <ul><li>Advanced Maths</li><li>Capstone Projects</li><li>Entrepreneurship</li><li>College Prep</li></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-		<main class="main-content">
-			<div class="fullwidth-block inner-content">
-				<div class="container">
-					<div class="col-md-7">
-						<div class="content">
-							<article>
-								<header>
-									<h2 class="entry-title">Consequatur aut perferendis doloribus</h2>
-									<div class="entry-meta">
-										<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-										<span class="time"><i class="icon-clock"></i>1:00pm-2:00pm</span>
-										<span class="price"><i class="icon-coins"></i>$55.00</span>
-									</div>
-								</header>
+        <!-- ===== COURSE CATALOG ===== -->
+        <section class="cp-section">
+            <div class="container">
+                <span class="cp-label">Course Catalog</span>
+                <h2 class="cp-title">Subjects &amp; Curriculum</h2>
+                <p class="cp-sub">Browse all available courses, view full subject details, and download a syllabus PDF for any program.</p>
+                <div class="courses-layout">
+                    <div>
+                        <div class="courses-toolbar">
+                            <input type="text" id="courseSearch" placeholder="Search course, topic, or instructor…">
+                            <select id="levelFilter">
+                                <option value="">All Levels</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                            <select id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="stem">STEM</option>
+                                <option value="languages">Languages</option>
+                                <option value="arts">Arts</option>
+                                <option value="humanities">Humanities</option>
+                            </select>
+                        </div>
+                        <div class="courses-grid" id="coursesGrid">
+                            {% for c in courses %}
+                            <article class="course-card visible" data-title="{{ c.title|lower }}" data-teacher="{{ c.teacher|lower }}">
+                                <div class="course-card-top">
+                                    <h3>{{ c.title }}</h3>
+                                    <span class="course-grade-badge">{{ c.schedule }}</span>
+                                </div>
+                                <p>{{ c.description }}</p>
+                                <div class="course-meta-row">
+                                    <span><i class="fa fa-user"></i> {{ c.teacher }}</span>
+                                    <span><i class="fa fa-users"></i> {{ c.seats }}</span>
+                                    <span><i class="fa fa-tag"></i> {{ c.price }}</span>
+                                </div>
+                                <div class="course-actions">
+                                    <a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a>
+                                    <a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a>
+                                </div>
+                            </article>
+                            {% else %}
+                            <article class="course-card visible">
+                                <div class="course-card-top"><h3>Introduction to Mathematics</h3><span class="course-grade-badge">Grade 5–8</span></div>
+                                <p>Covers pre-algebra, geometry, and early calculus concepts with hands-on problem solving and real-world applications.</p>
+                                <div class="course-meta-row"><span><i class="fa fa-user"></i> Mr. J. Kofi</span><span><i class="fa fa-users"></i> 28 seats</span><span><i class="fa fa-tag"></i> $320/term</span></div>
+                                <div class="course-actions"><a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a><a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a></div>
+                            </article>
+                            <article class="course-card visible">
+                                <div class="course-card-top"><h3>English Language &amp; Literature</h3><span class="course-grade-badge">Grade 7–10</span></div>
+                                <p>Develops advanced reading comprehension, essay writing, literary analysis, and oral communication skills.</p>
+                                <div class="course-meta-row"><span><i class="fa fa-user"></i> Ms. L. Asante</span><span><i class="fa fa-users"></i> 24 seats</span><span><i class="fa fa-tag"></i> $290/term</span></div>
+                                <div class="course-actions"><a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a><a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a></div>
+                            </article>
+                            <article class="course-card visible">
+                                <div class="course-card-top"><h3>Biology &amp; Life Sciences</h3><span class="course-grade-badge">Grade 6–9</span></div>
+                                <p>Explores cell biology, ecosystems, genetics, and human physiology with laboratory experiments and field studies.</p>
+                                <div class="course-meta-row"><span><i class="fa fa-user"></i> Dr. M. Osei</span><span><i class="fa fa-users"></i> 20 seats</span><span><i class="fa fa-tag"></i> $340/term</span></div>
+                                <div class="course-actions"><a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a><a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a></div>
+                            </article>
+                            <article class="course-card visible">
+                                <div class="course-card-top"><h3>Computer Science &amp; AI</h3><span class="course-grade-badge">Grade 8–12</span></div>
+                                <p>Covers programming fundamentals, data structures, web development, and introductory artificial intelligence concepts.</p>
+                                <div class="course-meta-row"><span><i class="fa fa-user"></i> Mr. P. Mensah</span><span><i class="fa fa-users"></i> 18 seats</span><span><i class="fa fa-tag"></i> $380/term</span></div>
+                                <div class="course-actions"><a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a><a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a></div>
+                            </article>
+                            <article class="course-card visible">
+                                <div class="course-card-top"><h3>French Language</h3><span class="course-grade-badge">Grade 4–10</span></div>
+                                <p>Progressive French curriculum from basic vocabulary and grammar through to conversational fluency and written expression.</p>
+                                <div class="course-meta-row"><span><i class="fa fa-user"></i> Mme. C. Dupont</span><span><i class="fa fa-users"></i> 22 seats</span><span><i class="fa fa-tag"></i> $260/term</span></div>
+                                <div class="course-actions"><a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a><a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a></div>
+                            </article>
+                            <article class="course-card visible">
+                                <div class="course-card-top"><h3>Physics &amp; Applied Science</h3><span class="course-grade-badge">Grade 9–12</span></div>
+                                <p>Mechanics, thermodynamics, electromagnetism, and modern physics with problem-solving sessions and lab practicals.</p>
+                                <div class="course-meta-row"><span><i class="fa fa-user"></i> Mr. A. Quaye</span><span><i class="fa fa-users"></i> 20 seats</span><span><i class="fa fa-tag"></i> $360/term</span></div>
+                                <div class="course-actions"><a href="#" class="btn-enroll"><i class="fa fa-book"></i> Enroll Now</a><a href="#" class="btn-syllabus"><i class="fa fa-download"></i> Download Syllabus</a></div>
+                            </article>
+                            {% endfor %}
+                            <p class="no-results" id="noResults">No courses match your search. Try different filters.</p>
+                        </div>
+                    </div>
+                    <aside class="courses-side">
+                        <div class="cs-widget">
+                            <h4><i class="fa fa-info-circle"></i> How Enrollment Works</h4>
+                            <ul>
+                                <li>Review the course and download its syllabus.</li>
+                                <li>Choose your preferred schedule block.</li>
+                                <li>Submit enrollment &amp; receive confirmation.</li>
+                                <li>Begin with onboarding resources &amp; first class.</li>
+                            </ul>
+                        </div>
+                        <div class="cs-widget">
+                            <h4><i class="fa fa-calendar"></i> Upcoming Intakes</h4>
+                            <div class="cs-intake-row"><span>Summer Batch</span><span class="ci-badge">Jun 10</span></div>
+                            <div class="cs-intake-row"><span>STEM Fast Track</span><span class="ci-badge">Jun 17</span></div>
+                            <div class="cs-intake-row"><span>Weekend Workshops</span><span class="ci-badge">Jun 22</span></div>
+                            <div class="cs-intake-row"><span>Grade 9–12 Prep</span><span class="ci-badge">Jul 5</span></div>
+                        </div>
+                        <div class="cs-widget">
+                            <h4><i class="fa fa-download"></i> Download Syllabi Pack</h4>
+                            <p style="font-size:.82rem;color:#6b7a99;margin:0 0 14px;">Get all subject syllabi in one convenient PDF bundle.</p>
+                            <a href="#" class="cs-cta"><i class="fa fa-file-pdf-o"></i> Download All Syllabi</a>
+                        </div>
+                        <div class="cs-widget">
+                            <a href="{{ path('contact') }}" class="cs-cta"><i class="fa fa-comments"></i> Talk to Admissions</a>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
 
-								<div class="entry-content">
-									<figure class="featured-image">
-										<img src="dummy/featured-image.jpg" alt="">
-									</figure>
+    </main>
 
-									<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Contact us</h3>
+                        <address>City School <br>745 Jewel Ave Street <br>Fress Meadows, NY 11365</address>
+                        <a href="mailto:info@cityschool.edu">info@cityschool.edu</a> <br>
+                        <a href="tel:+148942652394">(489) 426-52394</a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Social media</h3>
+                        <p>Follow us for news, events, and student achievements.</p>
+                        <div class="social-links circle">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-google-plus"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Featured students</h3>
+                        <ul class="student-list">
+                            <li><a href="#">
+                                <img src="/dummy/student-sm-1.jpg" alt="" class="avatar">
+                                <span class="fn">Sarah Branson</span>
+                                <span class="average">Average: 4.9</span>
+                            </a></li>
+                            <li><a href="#">
+                                <img src="/dummy/student-sm-2.jpg" alt="" class="avatar">
+                                <span class="fn">Dorothy Smith</span>
+                                <span class="average">Average: 4.9</span>
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Newsletter</h3>
+                        <p>Stay updated with school news and events.</p>
+                        <form action="#" class="subscribe">
+                            <input type="email" placeholder="Email Address...">
+                            <input type="submit" class="light" value="Subscribe">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="copy">Copyright &copy; 2024 City School. All rights reserved.
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('privacy');return false;" style="color:inherit;opacity:.7;">Privacy Policy</a>
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('terms');return false;" style="color:inherit;opacity:.7;">Terms of Service</a>
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('cookie-settings');return false;" style="color:inherit;opacity:.7;">Cookie Settings</a>
+            </div>
+        </div>
+    </footer>
+</div>
 
-								</div>
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script src="/js/plugins.js"></script>
+<script src="/js/app.js"></script>
+<script>
+/* ===== GRADE FILTER TABS ===== */
+(function(){
+    var tabs   = document.querySelectorAll('.grade-tab');
+    var cards  = document.querySelectorAll('#gradesGrid .grade-card');
+    var search = document.getElementById('gradeSearch');
+    function apply(){
+        var active = document.querySelector('.grade-tab.active');
+        var group  = active ? active.getAttribute('data-grade') : 'all';
+        var q = search ? search.value.toLowerCase().trim() : '';
+        cards.forEach(function(card){
+            var mg = group === 'all' || card.getAttribute('data-group') === group;
+            var mq = q === '' || card.textContent.toLowerCase().indexOf(q) > -1;
+            card.style.display = (mg && mq) ? '' : 'none';
+        });
+    }
+    tabs.forEach(function(tab){
+        tab.addEventListener('click', function(){
+            tabs.forEach(function(t){ t.classList.remove('active'); });
+            tab.classList.add('active');
+            apply();
+        });
+    });
+    if(search) search.addEventListener('input', apply);
+})();
 
-								<div class="actions">
-									<a href="#" class="button green">Order this course - <strong>$10.00</strong></a>
-									<a href="#" class="button secondary">Ask about details</a>
-								</div>
-							</article>
-						</div>
-					</div>
-					<div class="col-md-4 col-md-offset-1">
-						<aside class="sidebar">
-							<h2 class="section-title"><i class="icon-book"></i> Select a course</h2>
-							<ul class="courses">
-								<li>
-									<h3 class="course-title"><a href="#">Nostrud exercitation ullamco</a></h3>
-									<div class="course-meta">
-										<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-										<span class="time"><i class="icon-clock"></i>1:00pm-2:00pm</span>
-										<span class="price"><i class="icon-coins"></i>$55.00</span>
-									</div>
-								</li>
-								<li class="current">
-									<h3 class="course-title"><a href="#">Nostrud exercitation ullamco</a></h3>
-									<div class="course-meta">
-										<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-										<span class="time"><i class="icon-clock"></i>1:00pm-2:00pm</span>
-										<span class="price"><i class="icon-coins"></i>$55.00</span>
-									</div>
-								</li>
-								<li>
-									<h3 class="course-title"><a href="#">Nostrud exercitation ullamco</a></h3>
-									<div class="course-meta">
-										<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-										<span class="time"><i class="icon-clock"></i>1:00pm-2:00pm</span>
-										<span class="price"><i class="icon-coins"></i>$55.00</span>
-									</div>
-								</li>
-								<li>
-									<h3 class="course-title"><a href="#">Nostrud exercitation ullamco</a></h3>
-									<div class="course-meta">
-										<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-										<span class="time"><i class="icon-clock"></i>1:00pm-2:00pm</span>
-										<span class="price"><i class="icon-coins"></i>$55.00</span>
-									</div>
-								</li>
-								<li>
-									<h3 class="course-title"><a href="#">Nostrud exercitation ullamco</a></h3>
-									<div class="course-meta">
-										<span class="date"><i class="icon-calendar"></i> 6 APR 2014</span>
-										<span class="time"><i class="icon-clock"></i>1:00pm-2:00pm</span>
-										<span class="price"><i class="icon-coins"></i>$55.00</span>
-									</div>
-								</li>
-							</ul>
-						</aside>
-					</div>
-				</div>
-			</div> <!-- .fullwidth-block -->
-		</main>
-
-		<footer class="site-footer">
-			<div class="container">
-				<div class="row">
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Contact us</h3>
-							<address>Lincoln High School <br>745 Jewel Ave Street <br>Fress Meadows, NY 1136</address>
-
-							<a href="mailto:info@lincolnhighschool.com">info@lincolnhighschool.com</a> <br>
-							<a href="tel:48942652394324">(489) 42652394324</a>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Social media</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-							<div class="social-links circle">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-								<a href="#"><i class="fa fa-google-plus"></i></a>
-								<a href="#"><i class="fa fa-twitter"></i></a>
-								<a href="#"><i class="fa fa-pinterest"></i></a>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Featured students</h3>
-							<ul class="student-list">
-								<li><a href="#">
-										<img src="dummy/student-sm-1.jpg" alt="" class="avatar">
-										<span class="fn">Sarah Branson</span>
-										<span class="average">Average: 4,9</span>
-									</a></li>
-								<li><a href="#">
-										<img src="dummy/student-sm-2.jpg" alt="" class="avatar">
-										<span class="fn">Dorothy Smith</span>
-										<span class="average">Average: 4,9</span>
-									</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="widget">
-							<h3 class="widget-title">Newsletter</h3>
-							<p>Aspernatur, rerum. Impedit, deleniti suscipit</p>
-							<form action="#" class="subscribe">
-								<input type="email" placeholder="Email Address...">
-								<input type="submit" class="light" value="Subscribe">
-							</form>
-						</div>
-					</div>
-				</div>
-
-				<div class="copy">Copyright 2014 Lincoln High School. All rights reserved.</div>
-			</div>
-
-		</footer>
-
-		<script src="js/jquery-1.11.1.min.js"></script>
-		<script src="js/plugins.js"></script>
-		<script src="js/app.js"></script>
+/* ===== COURSE CATALOG FILTER ===== */
+(function(){
+    var s  = document.getElementById('courseSearch');
+    var lv = document.getElementById('levelFilter');
+    var ct = document.getElementById('categoryFilter');
+    var cards = document.querySelectorAll('#coursesGrid .course-card');
+    var noR   = document.getElementById('noResults');
+    function filter(){
+        var q   = s  ? s.value.toLowerCase().trim() : '';
+        var lvl = lv ? lv.value.toLowerCase()       : '';
+        var cat = ct ? ct.value.toLowerCase()       : '';
+        var vis = 0;
+        cards.forEach(function(card){
+            var text = card.textContent.toLowerCase();
+            var show = (q===''||text.indexOf(q)>-1) && (lvl===''||text.indexOf(lvl)>-1) && (cat===''||text.indexOf(cat)>-1);
+            card.style.display = show ? '' : 'none';
+            if(show) vis++;
+        });
+        if(noR) noR.style.display = vis===0 ? 'block' : 'none';
+    }
+    if(s)  s.addEventListener('input',  filter);
+    if(lv) lv.addEventListener('change', filter);
+    if(ct) ct.addEventListener('change', filter);
+})();
+</script>
 
 {% endblock %}

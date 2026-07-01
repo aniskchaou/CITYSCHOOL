@@ -1,0 +1,135 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Attendance{% endblock %}
+{% block page_title %}Mark Attendance{% endblock %}
+
+{% block content %}
+
+<form method="post" action="{{ path('teacher_attendance') }}">
+<input type="hidden" name="_token" value="{{ csrf_token('attendance_save') }}">
+
+{# ── Controls Bar ── #}
+<div class="card" style="margin-bottom:20px;padding:16px 20px;">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div class="form-group" style="margin:0;flex:1;min-width:160px;">
+            <label class="form-label" style="font-size:11px;">Course</label>
+            <select name="course_id" class="form-control">
+                {% for c in courses %}<option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label class="form-label" style="font-size:11px;">Date</label>
+            <input type="date" name="date" class="form-control" value="{{ 'now'|date('Y-m-d') }}">
+        </div>
+        <div style="align-self:flex-end;display:flex;gap:8px;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-all-present">
+                <i class="fa fa-check-circle" style="color:#16a34a;"></i> Mark All Present
+            </button>
+            <button type="submit" class="btn-teal"><i class="fa fa-save"></i> Save Attendance</button>
+        </div>
+    </div>
+</div>
+
+{# ── Attendance Grid ── #}
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header" style="margin-bottom:0;">
+        <span class="card-title"><i class="fa fa-calendar-check-o t-accent" style="margin-right:6px;"></i>Student Roster</span>
+        <div style="display:flex;gap:8px;font-size:12px;">
+            <span style="background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:20px;font-weight:600;">P = Present</span>
+            <span style="background:#fee2e2;color:#b91c1c;padding:3px 10px;border-radius:20px;font-weight:600;">A = Absent</span>
+            <span style="background:#fef9c3;color:#a16207;padding:3px 10px;border-radius:20px;font-weight:600;">L = Late</span>
+        </div>
+    </div>
+    <div style="overflow-x:auto;">
+        <div class="att-grid">
+            <div class="att-grid-header">Student</div>
+            <div class="att-grid-header" style="text-align:center;">Present</div>
+            <div class="att-grid-header" style="text-align:center;">Absent</div>
+            <div class="att-grid-header" style="text-align:center;">Late</div>
+
+            {% for s in roster %}
+            <div class="att-row">
+                <div style="border-bottom:1px solid #f1f5f9;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#0891b2;flex-shrink:0;">
+                            {{ s.name|split(' ')|first|slice(0,1) }}{{ s.name|split(' ')|last|slice(0,1) }}
+                        </div>
+                        <div>
+                            <div style="font-size:13px;font-weight:600;">{{ s.name }}</div>
+                            <div style="font-size:11px;color:#64748b;">{{ s.grade }} · Current att: {{ s.attendance }}%</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="justify-content:center;border-bottom:1px solid #f1f5f9;">
+                    <div class="att-radio-group">
+                        <input type="hidden" name="attendance[{{ s.id }}]" value="present">
+                        <button type="button" class="att-radio-btn present selected-present" data-val="present">P</button>
+                        <button type="button" class="att-radio-btn absent" data-val="absent">A</button>
+                        <button type="button" class="att-radio-btn late" data-val="late">L</button>
+                    </div>
+                </div>
+                <div style="justify-content:center;border-bottom:1px solid #f1f5f9;">
+                    {% if s.attendance < 80 %}
+                    <span style="font-size:11px;color:#ef4444;font-weight:600;"><i class="fa fa-exclamation-triangle"></i> Low</span>
+                    {% endif %}
+                </div>
+                <div style="border-bottom:1px solid #f1f5f9;">
+                    <input type="text" name="notes[{{ s.id }}]" class="form-control" style="font-size:11px;padding:4px 8px;min-width:100px;" placeholder="Notes…">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</form>
+
+{# ── Historical Records ── #}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-history t-accent" style="margin-right:6px;"></i>Recent Attendance Records</span>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>Date</th><th>Course</th><th>Present</th><th>Absent</th><th>Late</th><th>Rate</th></tr></thead>
+        <tbody>
+        {% for row in [
+            {date:'2026-04-30',course:'Mathematics',present:26,absent:2,late:0,rate:93},
+            {date:'2026-04-29',course:'Physics',present:23,absent:1,late:1,rate:96},
+            {date:'2026-04-28',course:'Advanced Math',present:17,absent:0,late:1,rate:100},
+            {date:'2026-04-28',course:'Chemistry',present:20,absent:2,late:0,rate:91},
+            {date:'2026-04-27',course:'Mathematics',present:25,absent:3,late:0,rate:89},
+        ] %}
+        <tr>
+            <td style="font-size:13px;">{{ row.date }}</td>
+            <td style="font-size:13px;font-weight:600;">{{ row.course }}</td>
+            <td style="color:#16a34a;font-weight:700;">{{ row.present }}</td>
+            <td style="color:#ef4444;font-weight:700;">{{ row.absent }}</td>
+            <td style="color:#f59e0b;font-weight:700;">{{ row.late }}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="perf-bar"><div class="perf-bar-fill" style="width:{{ row.rate }}%;background:{% if row.rate>=90 %}#22c55e{% elseif row.rate>=75 %}#0891b2{% else %}#f59e0b{% endif %};"></div></div>
+                    <span style="font-size:12px;font-weight:700;">{{ row.rate }}%</span>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% block javascripts %}
+<script>
+document.getElementById('btn-all-present').addEventListener('click', function() {
+    document.querySelectorAll('.att-radio-group').forEach(function(group) {
+        group.querySelectorAll('.att-radio-btn').forEach(function(btn) {
+            btn.classList.remove('selected-present','selected-absent','selected-late');
+        });
+        var presentBtn = group.querySelector('.att-radio-btn.present');
+        if (presentBtn) presentBtn.classList.add('selected-present');
+        var input = group.querySelector('input[type=hidden]');
+        if (input) input.value = 'present';
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+
+{% block content %}
+
+{# ── Compose ── #}
+<div class="announce-form">
+    <div style="font-size:16px;font-weight:800;margin-bottom:16px;">
+        <i class="fa fa-bullhorn t-accent" style="margin-right:7px;"></i>Send New Announcement
+    </div>
+    <form method="post" action="{{ path('teacher_announcements') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('announcement_create') }}">
+        <div class="grid-2" style="gap:12px;">
+            <div class="form-group">
+                <label class="form-label">Title *</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Exam Reminder" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Target Audience</label>
+                <select name="course" class="form-control">
+                    <option value="All Courses">All My Students</option>
+                    {% for c in courses %}
+                    <option value="{{ c.name }}">{{ c.name }} only</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Message *</label>
+            <textarea name="body" class="form-control" rows="4" required
+                      placeholder="Write your announcement here. Be clear and concise for your students…"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <input type="checkbox" name="pinned" id="pin_announce" style="width:15px;height:15px;">
+                <label for="pin_announce" style="font-size:13px;cursor:pointer;">
+                    <i class="fa fa-thumb-tack" style="color:#0891b2;"></i> Pin to top
+                </label>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <input type="checkbox" name="notify_parents" id="notify_parents" style="width:15px;height:15px;">
+                <label for="notify_parents" style="font-size:13px;cursor:pointer;">
+                    <i class="fa fa-envelope-o" style="color:#0891b2;"></i> Also notify parents
+                </label>
+            </div>
+            <div style="margin-left:auto;">
+                <button type="submit" class="btn-teal">
+                    <i class="fa fa-paper-plane"></i> Send Announcement
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{# ── Existing Announcements ── #}
+<div class="section-header">
+    <h2 style="font-size:15px;font-weight:700;">Sent Announcements ({{ announcements|length }})</h2>
+</div>
+
+{% for a in announcements %}
+<div class="announce-item {% if a.pinned %}pinned{% endif %}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">
+                {% if a.pinned %}
+                <i class="fa fa-thumb-tack" style="color:#0891b2;margin-right:5px;font-size:12px;"></i>
+                {% endif %}
+                {{ a.title }}
+            </div>
+            <div style="font-size:13px;color:#475569;margin-bottom:8px;">{{ a.body }}</div>
+            <div style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:12px;">
+                <span><i class="fa fa-calendar"></i> {{ a.date }}</span>
+                <span><i class="fa fa-tag"></i> {{ a.course }}</span>
+                <span><i class="fa fa-eye"></i> {{ a.views }} views</span>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+            {% if a.pinned %}
+            <span class="badge badge-primary" style="background:#0891b2;font-size:10px;">Pinned</span>
+            {% endif %}
+            <div style="display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="alert('Edit announcement')">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                <button class="btn btn-outline btn-sm" style="font-size:11px;color:#ef4444;" onclick="if(confirm('Delete this announcement?')){}">
+                    <i class="fa fa-trash-o"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

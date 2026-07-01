@@ -1,0 +1,198 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Attendance{% endblock %}
+{% block page_title %}Attendance Tracking{% endblock %}
+
+{% block content %}
+{% set selectedChild = app.request.query.get('child', '' ~ children|first.id) %}
+
+<div class="child-tabs">
+    {% for child in children %}
+    <a href="?child={{ child.id }}" class="child-tab {{ selectedChild == ('' ~ child.id) ? 'active' : '' }}">
+        <div class="child-av">{{ child.avatar }}</div>
+        {{ child.name }}
+    </a>
+    {% endfor %}
+</div>
+
+{% for child in children %}
+{% if selectedChild == ('' ~ child.id) %}
+{% set childAtt = attendance|filter(a => a.child == child.id and a.status != 'weekend') %}
+{% set absentDays = childAtt|filter(a => a.status == 'absent') %}
+{% set presentDays = childAtt|filter(a => a.status == 'present') %}
+{% set lateDays = childAtt|filter(a => a.status == 'late') %}
+{% set childAbsenceHistory = absenceHistory|filter(h => h.child == child.id) %}
+{% set childTrend = attendanceTrend|filter(t => t.child == child.id) %}
+{% set childRealtime = realtimeAlerts|filter(r => r.child == child.id) %}
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ child.attendance }}%</div><div class="stat-label">Attendance Rate</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-calendar-check-o"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ presentDays|length }}</div><div class="stat-label">Days Present</div></div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-calendar-times-o"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ absentDays|length }}</div><div class="stat-label">Absences</div></div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-clock-o"></i></div>
+        <div class="stat-body"><div class="stat-value">{{ lateDays|length }}</div><div class="stat-label">Late Arrivals</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-list p-accent" style="margin-right:6px;"></i>Daily Attendance &amp; Absence History</span>
+            <div style="display:flex;gap:6px;">
+                <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_daily') }}">
+                    <input type="hidden" name="action" value="view_daily_attendance">
+                    <button class="btn btn-outline btn-sm" type="submit">Daily View</button>
+                </form>
+                <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_history') }}">
+                    <input type="hidden" name="action" value="view_absence_history">
+                    <button class="btn btn-outline btn-sm" type="submit">History</button>
+                </form>
+            </div>
+        </div>
+
+        <table class="portal-table">
+            <thead>
+                <tr><th>Date</th><th>Status</th><th>Class Note</th></tr>
+            </thead>
+            <tbody>
+                {% for a in attendance|filter(a => a.child == child.id) %}
+                <tr>
+                    <td style="font-weight:700;font-size:13px;">{{ a.date }} <span style="color:#94a3b8;font-weight:500;">({{ a.day }})</span></td>
+                    <td>
+                        <span class="role-badge att-{{ a.status }}" style="font-size:11px;">
+                            <i class="fa fa-{{ a.status == 'present' ? 'check' : (a.status == 'absent' ? 'times' : (a.status == 'late' ? 'clock-o' : 'minus')) }}"></i>
+                            {{ a.status|capitalize }}
+                        </span>
+                    </td>
+                    <td style="font-size:12px;color:#64748b;">{{ a.subject }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="margin-top:14px;">
+            <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:6px;">Absence History</div>
+            {% for h in childAbsenceHistory %}
+            <div style="padding:8px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:7px;">
+                <div style="display:flex;justify-content:space-between;gap:8px;">
+                    <div style="font-size:12px;font-weight:700;">{{ h.date }}</div>
+                    <span class="role-badge {{ h.status == 'excused' ? 'p-status-active' : 'p-status-pending' }}" style="font-size:10px;">{{ h.status|replace({'-':' '})|upper }}</span>
+                </div>
+                <div style="font-size:12px;color:#475569;margin-top:3px;">{{ h.reason }}</div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Submitted by: {{ h.submittedBy }}</div>
+            </div>
+            {% else %}
+            <div style="font-size:12px;color:#64748b;">No absence history found.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-bell p-accent" style="margin-right:6px;"></i>Notifications &amp; Explanations</span>
+            <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_notify') }}">
+                <input type="hidden" name="action" value="enable_absence_notifications">
+                <button class="btn btn-outline btn-sm" type="submit">Enable Alerts</button>
+            </form>
+        </div>
+
+        <div style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:6px;">Get Notified of Absences</div>
+            <div style="font-size:12px;color:#64748b;">Instant email/SMS updates when attendance is marked absent or late.</div>
+        </div>
+
+        <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_explain') }}">
+            <input type="hidden" name="action" value="submit_absence_explanation">
+            <div style="font-size:12px;font-weight:800;color:#1f2937;margin-bottom:6px;">Submit Absence Explanation</div>
+            <div class="form-group"><label class="form-label">Absence Date</label><input type="text" class="form-control" name="absence_date" value="{{ 'now'|date('M d, Y') }}"></div>
+            <div class="form-group"><label class="form-label">Reason</label><textarea class="form-control" name="absence_reason" rows="3" placeholder="Explain the absence (medical/family/transport)"></textarea></div>
+            <button class="btn-green" type="submit"><i class="fa fa-paper-plane"></i> Submit Explanation</button>
+        </form>
+
+        <hr style="margin:14px 0;border:none;border-top:1px solid #dcfce7;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:12px;font-weight:800;color:#1f2937;"><i class="fa fa-diamond p-accent" style="margin-right:4px;"></i>Premium: Real-time Absence Alerts</div>
+            <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_realtime') }}">
+                <input type="hidden" name="action" value="enable_realtime_absence_alerts">
+                <button class="btn btn-outline btn-sm" type="submit">Enable Real-time</button>
+            </form>
+        </div>
+        {% for r in childRealtime %}
+        <div style="padding:8px;border-left:4px solid {{ r.priority == 'high' ? '#ef4444' : '#f59e0b' }};background:#fff7ed;border-radius:6px;margin-bottom:7px;">
+            <div style="font-size:12px;font-weight:700;">{{ r.time }}</div>
+            <div style="font-size:12px;color:#475569;">{{ r.message }}</div>
+        </div>
+        {% else %}
+        <div style="font-size:12px;color:#64748b;">No real-time alerts for this child today.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-area-chart p-accent" style="margin-right:6px;"></i>Premium: Attendance Trends (Monthly/Term)</span>
+            <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_trends') }}">
+                <input type="hidden" name="action" value="view_attendance_trends">
+                <button class="btn btn-outline btn-sm" type="submit">Refresh Trends</button>
+            </form>
+        </div>
+        {% for t in childTrend %}
+        <div style="display:grid;grid-template-columns:48px 1fr 50px;gap:8px;align-items:center;margin-bottom:8px;">
+            <div style="font-size:12px;color:#64748b;">{{ t.month }}</div>
+            <div class="progress-bar-wrap" style="height:10px;">
+                <div class="progress-bar-fill" style="height:10px;border-radius:6px;background:#0891b2;width:{{ t.rate }}%;"></div>
+            </div>
+            <div style="font-size:12px;font-weight:800;color:#0f766e;">{{ t.rate }}%</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-exclamation-triangle" style="margin-right:6px;color:#ef4444;"></i>Premium: Warning Alerts</span>
+            <form method="post" action="{{ path('parent_attendance', { child: selectedChild }) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('parent_attendance_warnings') }}">
+                <input type="hidden" name="action" value="view_warning_alerts">
+                <button class="btn btn-outline btn-sm" type="submit">Check Risk</button>
+            </form>
+        </div>
+
+        {% for warning in warningAlerts %}
+        {% if warning.child == child.name %}
+        <div style="padding:10px;border:1px solid {{ warning.risk == 'high' ? '#fecaca' : '#bbf7d0' }};background:{{ warning.risk == 'high' ? '#fff1f2' : '#f0fdf4' }};border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:12px;font-weight:800;color:{{ warning.risk == 'high' ? '#991b1b' : '#166534' }};">{{ warning.risk|upper }} RISK</div>
+            <div style="font-size:12px;color:#334155;margin-top:3px;">{{ warning.message }}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px;">Next action: {{ warning.nextAction }}</div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% if absentDays|length > 0 %}
+<div style="margin-top:14px;padding:14px 16px;background:#fee2e2;border-radius:10px;font-size:13px;color:#ef4444;display:flex;align-items:center;gap:10px;">
+    <i class="fa fa-exclamation-triangle" style="font-size:16px;"></i>
+    <div><strong>{{ absentDays|length }} absence(s) recorded</strong> this term. Submit explanations promptly to avoid unresolved records.</div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endfor %}
+{% endblock %}

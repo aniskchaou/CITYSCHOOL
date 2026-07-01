@@ -1,0 +1,5 @@
+security:
+    providers:
+        portal_users:
+            memory:
+                users: {}

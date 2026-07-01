@@ -1,0 +1,96 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Schools & Campuses{% endblock %}
+{% block page_title %}Manage Schools & Campuses{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header" style="justify-content:space-between;">
+        <span class="card-title"><i class="fa fa-sitemap" style="margin-right:6px;color:#f97316;"></i>Campus Directory</span>
+        <button class="btn-orange" onclick="document.getElementById('add-campus').style.display='block'"><i class="fa fa-plus"></i> Register School</button>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>Campus Profile</th><th>Admin</th><th>Branding / Domain</th><th>Regional Config</th><th>Plan</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for s in schools %}
+        <tr>
+            <td>
+                <strong>{{ s.name }}</strong>
+                <div style="font-size:11px;color:#94a3b8;">Code: {{ s.code }} · {{ s.students }} students · {{ s.teachers }} teachers</div>
+                <div style="margin-top:6px;">
+                    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ s.utilization }}%;background:#f97316;"></div></div>
+                    <div style="font-size:11px;color:#7c2d12;margin-top:3px;">Performance / Usage: {{ s.utilization }}%</div>
+                </div>
+            </td>
+            <td>
+                <span class="metric-chip"><i class="fa fa-user"></i> {{ s.admin }}</span>
+                <div style="margin-top:6px;">
+                    <button class="btn-orange" style="font-size:11px;padding:5px 10px;"><i class="fa fa-user-plus"></i> Assign Admin</button>
+                </div>
+            </td>
+            <td>
+                <div><strong>Logo:</strong> {{ s.logo }}</div>
+                <div><strong>Color:</strong> <span class="metric-chip" style="border-color:{{ s.brandColor }};color:{{ s.brandColor }};">{{ s.brandColor }}</span></div>
+                <div><strong>Domain:</strong> {{ s.domain }}</div>
+                <div><strong>White-label:</strong> <span class="super-tag {{ s.whiteLabel ? 'active' : 'trial' }}">{{ s.whiteLabel ? 'Enabled' : 'Disabled' }}</span></div>
+            </td>
+            <td>
+                <div><strong>Language:</strong> {{ s.language }}</div>
+                <div><strong>Timezone:</strong> {{ s.timezone }}</div>
+                <div><strong>Grading:</strong> {{ s.gradingSystem }}</div>
+            </td>
+            <td><span class="role-badge plan-{{ s.plan|lower }}">{{ s.plan }}</span></td>
+            <td><span class="super-tag {{ s.status }}">{{ s.status }}</span></td>
+            <td>
+                <form method="post" action="{{ path('super_admin_schools') }}" style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <input type="hidden" name="school_id" value="{{ s.id }}">
+                    <button type="submit" name="action" value="suspend" class="btn-orange" style="font-size:11px;padding:5px 10px;"><i class="fa fa-pause"></i> Suspend</button>
+                    <button type="submit" name="action" value="archive" class="btn-orange" style="font-size:11px;padding:5px 10px;"><i class="fa fa-archive"></i> Archive</button>
+                    <button type="submit" name="action" value="delete" class="btn-orange" style="font-size:11px;padding:5px 10px;background:#dc2626;"><i class="fa fa-trash"></i> Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card" id="add-campus" style="display:none;">
+    <div class="card-header"><span class="card-title">Register New School</span></div>
+    <form method="post" action="{{ path('super_admin_schools') }}">
+        <input type="hidden" name="action" value="register">
+        <div class="grid-2" style="gap:14px;">
+            <div class="form-group"><label class="form-label">School Name</label><input class="form-control" name="campus_name" required></div>
+            <div class="form-group"><label class="form-label">School Code</label><input class="form-control" name="campus_code" required></div>
+            <div class="form-group"><label class="form-label">School Admin</label><input class="form-control" name="school_admin" placeholder="Admin full name" required></div>
+            <div class="form-group"><label class="form-label">Admin Email</label><input type="email" class="form-control" name="admin_email" required></div>
+            <div class="form-group"><label class="form-label">Plan</label><select class="form-control" name="plan"><option>Starter</option><option>Pro</option><option>Enterprise</option></select></div>
+            <div class="form-group"><label class="form-label">Status</label><select class="form-control" name="status"><option>active</option><option>trial</option><option>suspended</option></select></div>
+            <div class="form-group"><label class="form-label">Custom Domain</label><input class="form-control" name="custom_domain" placeholder="schoolname.edu"></div>
+            <div class="form-group"><label class="form-label">Brand Color</label><input class="form-control" name="brand_color" placeholder="#f97316"></div>
+            <div class="form-group"><label class="form-label">Language</label><select class="form-control" name="language"><option>English</option><option>French</option><option>Arabic</option></select></div>
+            <div class="form-group"><label class="form-label">Timezone</label><select class="form-control" name="timezone"><option>UTC</option><option>America/New_York</option><option>Europe/Paris</option><option>Asia/Dubai</option></select></div>
+            <div class="form-group"><label class="form-label">Grading System</label><select class="form-control" name="grading"><option>A-F</option><option>Percentage</option><option>Points</option></select></div>
+            <div class="form-group"><label class="form-label">White-label Mode</label><select class="form-control" name="white_label"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+        </div>
+        <button class="btn-orange" type="submit"><i class="fa fa-save"></i> Register School</button>
+    </form>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-toggle-on" style="margin-right:6px;color:#f97316;"></i>Feature Toggles Per School</span></div>
+    <table class="portal-table">
+        <thead><tr><th>School</th><th>Advanced Reports</th><th>Parent Live Chat</th><th>AI Assistant</th><th>Custom Domain</th></tr></thead>
+        <tbody>
+        {% for s in schools %}
+            <tr>
+                <td>{{ s.name }}</td>
+                <td><span class="super-tag {{ s.featureFlags.advanced_reports ? 'active' : 'trial' }}">{{ s.featureFlags.advanced_reports ? 'ON' : 'OFF' }}</span></td>
+                <td><span class="super-tag {{ s.featureFlags.parent_live_chat ? 'active' : 'trial' }}">{{ s.featureFlags.parent_live_chat ? 'ON' : 'OFF' }}</span></td>
+                <td><span class="super-tag {{ s.featureFlags.ai_assistant ? 'active' : 'trial' }}">{{ s.featureFlags.ai_assistant ? 'ON' : 'OFF' }}</span></td>
+                <td><span class="super-tag {{ s.featureFlags.custom_domain ? 'active' : 'trial' }}">{{ s.featureFlags.custom_domain ? 'ON' : 'OFF' }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

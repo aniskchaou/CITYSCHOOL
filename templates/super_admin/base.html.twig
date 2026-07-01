@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}Super Admin{% endblock %} — City School</title>
+    <link rel="stylesheet" href="/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <link rel="stylesheet" href="/css/super-admin-portal.css">
+</head>
+<body class="portal-body super-admin-portal-body">
+<div class="portal-layout">
+    {% set r = app.request.attributes.get('_route') %}
+    <aside class="portal-sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="fa fa-globe"></i></div>
+            <div>
+                <div class="brand-name">City School</div>
+                <div class="brand-sub">Super Admin</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Overview</div>
+            <a href="{{ path('super_admin_dashboard') }}" class="{{ r == 'super_admin_dashboard' ? 'active' : '' }}"><i class="fa fa-tachometer"></i> Dashboard</a>
+
+            <div class="sidebar-section-label">Global Control</div>
+            <a href="{{ path('super_admin_schools') }}" class="{{ r == 'super_admin_schools' ? 'active' : '' }}"><i class="fa fa-sitemap"></i> Schools & Campuses</a>
+            <a href="{{ path('super_admin_global_settings') }}" class="{{ r == 'super_admin_global_settings' ? 'active' : '' }}"><i class="fa fa-cogs"></i> Global Settings</a>
+            <a href="{{ path('super_admin_subscriptions') }}" class="{{ r == 'super_admin_subscriptions' ? 'active' : '' }}"><i class="fa fa-credit-card"></i> Subscriptions</a>
+            <a href="{{ path('super_admin_data_center') }}" class="{{ r == 'super_admin_data_center' ? 'active' : '' }}"><i class="fa fa-database"></i> System Data</a>
+            <a href="{{ path('super_admin_performance') }}" class="{{ r == 'super_admin_performance' ? 'active' : '' }}"><i class="fa fa-line-chart"></i> Performance</a>
+            <a href="{{ path('super_admin_user_governance') }}" class="{{ r == 'super_admin_user_governance' ? 'active' : '' }}"><i class="fa fa-shield"></i> User Governance</a>
+            <a href="{{ path('super_admin_analytics') }}" class="{{ r == 'super_admin_analytics' ? 'active' : '' }}"><i class="fa fa-area-chart"></i> Advanced Analytics</a>
+            <a href="{{ path('super_admin_security_compliance') }}" class="{{ r == 'super_admin_security_compliance' ? 'active' : '' }}"><i class="fa fa-lock"></i> Security & Compliance</a>
+            <a href="{{ path('super_admin_integrations_api') }}" class="{{ r == 'super_admin_integrations_api' ? 'active' : '' }}"><i class="fa fa-plug"></i> Integrations & API</a>
+            <a href="{{ path('super_admin_communications') }}" class="{{ r == 'super_admin_communications' ? 'active' : '' }}"><i class="fa fa-bullhorn"></i> Communications</a>
+            <a href="{{ path('super_admin_platform_customization') }}" class="{{ r == 'super_admin_platform_customization' ? 'active' : '' }}"><i class="fa fa-paint-brush"></i> Platform Customization</a>
+
+            <div class="sidebar-section-label">Shared System</div>
+            <a href="{{ path('super_admin_shared_actions') }}" class="{{ r == 'super_admin_shared_actions' ? 'active' : '' }}"><i class="fa fa-random"></i> Shared Actions</a>
+
+            <div class="sidebar-section-label">Account</div>
+            <a href="{{ path('super_admin_profile') }}" class="{{ r == 'super_admin_profile' ? 'active' : '' }}"><i class="fa fa-user-circle"></i> My Profile</a>
+            <a href="{{ path('super_admin_logout') }}"><i class="fa fa-sign-out"></i> Sign Out</a>
+        </nav>
+    </aside>
+
+    <div class="portal-main">
+        <header class="portal-topbar">
+            <div class="topbar-left"><div class="page-title">{% block page_title %}Super Admin{% endblock %}</div></div>
+            <div class="topbar-right">
+                <a href="{{ path('super_admin_shared_actions') }}" class="topbar-icon" title="Shared Actions"><i class="fa fa-random"></i></a>
+                <a href="{{ path('super_admin_performance') }}" class="topbar-icon" title="Performance"><i class="fa fa-line-chart"></i></a>
+                <a href="{{ path('super_admin_user_governance') }}" class="topbar-icon" title="User Governance"><i class="fa fa-shield"></i></a>
+                <a href="{{ path('super_admin_security_compliance') }}" class="topbar-icon" title="Security & Compliance"><i class="fa fa-lock"></i></a>
+                <a href="{{ path('super_admin_integrations_api') }}" class="topbar-icon" title="Integrations & API"><i class="fa fa-plug"></i></a>
+                <a href="{{ path('super_admin_communications') }}" class="topbar-icon" title="Communications"><i class="fa fa-bullhorn"></i></a>
+                <a href="{{ path('super_admin_platform_customization') }}" class="topbar-icon" title="Platform Customization"><i class="fa fa-paint-brush"></i></a>
+                <div class="topbar-user">
+                    <div class="user-avatar" style="background:#ffedd5;color:#c2410c;">{{ super_admin.avatar }}</div>
+                    <div>
+                        <div class="user-name">{{ super_admin.name }}</div>
+                        <div class="user-role">{{ super_admin.role }}</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="portal-content">
+            {% for msg in app.flashes('success') %}
+                <div class="alert alert-success" style="background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                    <i class="fa fa-check-circle"></i> {{ msg }}
+                </div>
+            {% endfor %}
+            {% for msg in app.flashes('error') %}
+                <div class="alert alert-error" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                    <i class="fa fa-exclamation-circle"></i> {{ msg }}
+                </div>
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+</body>
+</html>

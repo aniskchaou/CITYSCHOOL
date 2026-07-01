@@ -2,36 +2,39 @@
     "type": "project",
     "license": "proprietary",
     "require": {
-        "php": ">=7.0.8",
+        "php": "^8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "laminas/laminas-code": "^3.1",
-        "laminas/laminas-eventmanager": "^3.2",
-        "sensio/framework-extra-bundle": "^5.1",
-        "symfony/asset": "3.4.*",
-        "symfony/console": "3.4.*",
-        "symfony/dotenv": "3.4.*",
-        "symfony/expression-language": "3.4.*",
-        "symfony/form": "3.4.*",
-        "symfony/framework-bundle": "3.4.*",
-        "symfony/monolog-bundle": "3.2",
-        "symfony/orm-pack": "*",
-        "symfony/process": "3.4.*",
-        "symfony/security-bundle": "3.4.*",
-        "symfony/serializer-pack": "*",
-        "symfony/swiftmailer-bundle": "^3.1",
-        "symfony/translation": "3.4.*",
-        "symfony/twig-bundle": "3.4.*",
-        "symfony/validator": "3.4.*",
-        "symfony/web-link": "3.4.*",
-        "symfony/yaml": "3.4.*"
+        "doctrine/annotations": "^2.0",
+        "doctrine/dbal": "^4.3",
+        "doctrine/doctrine-bundle": "^2.10",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/orm": "^3.5",
+        "laminas/laminas-code": "^4.0",
+        "laminas/laminas-eventmanager": "^3.5",
+        "sensio/framework-extra-bundle": "^6.0",
+        "stripe/stripe-php": "^20.1",
+        "symfony/asset": "^6.0",
+        "symfony/console": "^6.0",
+        "symfony/dotenv": "^6.0",
+        "symfony/expression-language": "^6.0",
+        "symfony/form": "^6.0",
+        "symfony/framework-bundle": "^6.0",
+        "symfony/mailer": "^7.4",
+        "symfony/monolog-bundle": "^3.8",
+        "symfony/process": "^6.0",
+        "symfony/security-bundle": "^6.0",
+        "symfony/serializer-pack": "^1.0",
+        "symfony/translation": "^6.0",
+        "symfony/twig-bundle": "^6.0",
+        "symfony/validator": "^6.0",
+        "symfony/web-link": "^6.0",
+        "symfony/yaml": "^6.0"
     },
     "require-dev": {
-        "symfony/debug-pack": "*",
-        "symfony/maker-bundle": "^1.0",
-        "symfony/profiler-pack": "*",
-        "symfony/test-pack": "*",
-        "symfony/web-server-bundle": "3.4.*"
+    "symfony/maker-bundle": "^1.64",
+    "symfony/profiler-pack": "^1.0",
+    "symfony/test-pack": "^1.0"
     },
     "config": {
         "preferred-install": {
@@ -66,7 +69,10 @@
         ],
         "post-update-cmd": [
            
-        ]
+        ],
+        "serve": "php -S 127.0.0.1:8000 -t public",
+        "cache-clear": "php bin/console cache:clear",
+        "migrate": "php bin/console doctrine:migrations:migrate"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -74,7 +80,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "3.4.*"
+            "require": "6.0.*"
         }
     }
 }

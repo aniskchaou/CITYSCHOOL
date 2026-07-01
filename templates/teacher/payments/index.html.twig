@@ -1,0 +1,156 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Fees & Payments{% endblock %}
+{% block page_title %}Fees & Payments{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-money"></i></div>
+        <div><div class="stat-value">{{ feeStructure|length }}</div><div class="stat-label">Fee Items</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-check-circle"></i></div>
+        <div><div class="stat-value">{{ paymentHistory|filter(p => p.status == 'paid')|length }}</div><div class="stat-label">Payments Completed</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-clock-o"></i></div>
+        <div><div class="stat-value">{{ paymentHistory|filter(p => p.status == 'pending')|length }}</div><div class="stat-label">Pending Payments</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-credit-card"></i></div>
+        <div><div class="stat-value">{{ installmentPlans|length }}</div><div class="stat-label">Installment Options</div></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-list-alt t-accent" style="margin-right:6px;"></i>Fee Structure</span>
+        </div>
+        <table class="portal-table">
+            <thead>
+                <tr>
+                    <th>Fee Item</th>
+                    <th>Amount</th>
+                    <th>Frequency</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fee in feeStructure %}
+                <tr>
+                    <td style="font-weight:700;">{{ fee.item }}</td>
+                    <td>${{ fee.amount }}</td>
+                    <td>{{ fee.frequency }}</td>
+                    <td><span class="badge badge-{{ fee.status == 'active' ? 'success' : 'warning' }}">{{ fee.status|capitalize }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-credit-card t-accent" style="margin-right:6px;"></i>Actions</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <form method="post" action="{{ path('teacher_payments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_payments_pay_online') }}">
+                <input type="hidden" name="action" value="pay_fees_online">
+                <button class="btn-teal" type="submit"><i class="fa fa-lock"></i> Pay Fees Online</button>
+            </form>
+            <form method="post" action="{{ path('teacher_payments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_payments_receipt') }}">
+                <input type="hidden" name="action" value="download_receipt">
+                <button class="btn btn-outline" type="submit"><i class="fa fa-download"></i> Download Receipt</button>
+            </form>
+        </div>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;"><i class="fa fa-diamond t-accent" style="margin-right:4px;"></i>Premium: Auto-payment Setup</div>
+            <form method="post" action="{{ path('teacher_payments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_payments_autopay') }}">
+                <input type="hidden" name="action" value="setup_autopay">
+                <button class="btn btn-outline btn-sm" type="submit">Configure</button>
+            </form>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:12px;">Automatically pay recurring teacher platform and certification fees when due.</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;"><i class="fa fa-bell t-accent" style="margin-right:4px;"></i>Premium: Payment Reminders</div>
+            <form method="post" action="{{ path('teacher_payments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_payments_reminders') }}">
+                <input type="hidden" name="action" value="set_payment_reminders">
+                <button class="btn btn-outline btn-sm" type="submit">Enable</button>
+            </form>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:12px;">Receive alerts before pending charges and annual renewals become overdue.</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;"><i class="fa fa-plug t-accent" style="margin-right:4px;"></i>Premium: Stripe Integration</div>
+            <form method="post" action="{{ path('teacher_payments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_payments_stripe') }}">
+                <input type="hidden" name="action" value="connect_stripe">
+                <button class="btn btn-outline btn-sm" type="submit">Connect Stripe</button>
+            </form>
+        </div>
+        <div style="font-size:12px;color:#64748b;">Connect external payment platforms for recurring charges and card processing.</div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:18px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-history t-accent" style="margin-right:6px;"></i>Payment History</span>
+        </div>
+        <table class="portal-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Receipt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in paymentHistory %}
+                <tr>
+                    <td>
+                        <div style="font-weight:700;">{{ payment.description }}</div>
+                        <div style="font-size:12px;color:#64748b;">${{ payment.amount }}</div>
+                    </td>
+                    <td>{{ payment.date }}</td>
+                    <td>{{ payment.method }}</td>
+                    <td><span class="badge badge-{{ payment.status == 'paid' ? 'success' : 'warning' }}">{{ payment.status|capitalize }}</span></td>
+                    <td style="font-size:12px;color:#0891b2;">{{ payment.receipt }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-columns t-accent" style="margin-right:6px;"></i>Premium: Installment Plans</span>
+            <form method="post" action="{{ path('teacher_payments') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('teacher_payments_installments') }}">
+                <input type="hidden" name="action" value="configure_installment_plan">
+                <button class="btn btn-outline btn-sm" type="submit">Configure Plan</button>
+            </form>
+        </div>
+        {% for plan in installmentPlans %}
+        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ plan.name }}</div>
+                <span class="badge badge-{{ plan.status == 'active' ? 'success' : 'primary' }}">{{ plan.status|capitalize }}</span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ plan.installments }} installments · Next due {{ plan.nextDue }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px;">Installment amount: ${{ plan.amount }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

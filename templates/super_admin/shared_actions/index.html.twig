@@ -1,0 +1,50 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Shared Actions{% endblock %}
+{% block page_title %}Shared System Actions{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ path('super_admin_shared_actions') }}">
+    <div class="card" style="margin-bottom:18px;">
+        <div class="card-header"><span class="card-title"><i class="fa fa-random" style="margin-right:6px;color:#f97316;"></i>Platform-Wide Shared Features</span></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;">
+            <div class="super-card">
+                <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:6px;"><i class="fa fa-bell"></i> Notifications</div>
+                <div style="font-size:13px;color:#475569;line-height:1.6;">Real-time in-app notifications and email delivery across all user roles.</div>
+                <div style="margin-top:10px;"><span class="metric-chip">Emails today: {{ performance.emailSentToday }}</span></div>
+            </div>
+            <div class="super-card">
+                <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:6px;"><i class="fa fa-search"></i> Global Search</div>
+                <div style="font-size:13px;color:#475569;line-height:1.6;">Unified search for courses, users, and files with campus scoping.</div>
+                <input class="form-control" style="margin-top:10px;" placeholder="Try search: 'math course'">
+            </div>
+            <div class="super-card">
+                <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:6px;"><i class="fa fa-calendar"></i> Calendar Integration</div>
+                <div style="font-size:13px;color:#475569;line-height:1.6;">Sync terms, classes, meetings, exams, and reminders to connected calendars.</div>
+                <div style="margin-top:10px;"><span class="metric-chip">Sync jobs running</span></div>
+            </div>
+            <div class="super-card">
+                <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:6px;"><i class="fa fa-folder-open"></i> File Storage</div>
+                <div style="font-size:13px;color:#475569;line-height:1.6;">Centralized storage for assignments, media, and reports with retention control.</div>
+                <div style="margin-top:10px;"><span class="metric-chip">Used: {{ performance.storageUsedGb }} GB</span></div>
+            </div>
+            <div class="super-card">
+                <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:6px;"><i class="fa fa-comments"></i> Messaging / Chat</div>
+                <div style="font-size:13px;color:#475569;line-height:1.6;">Direct and group messaging for teachers, parents, and students.</div>
+                <div style="margin-top:10px;"><span class="metric-chip">Messages today: {{ performance.chatMessagesToday }}</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-sliders" style="margin-right:6px;color:#f97316;"></i>Shared Action Controls</span></div>
+        <div class="grid-2" style="gap:14px;">
+            <div class="form-group"><label class="form-label">Notification mode</label><select class="form-control" name="notification_mode"><option>Real-time + Email</option><option>Real-time only</option><option>Email only</option></select></div>
+            <div class="form-group"><label class="form-label">Search scope default</label><select class="form-control" name="search_scope"><option>All campuses</option><option>Current campus only</option></select></div>
+            <div class="form-group"><label class="form-label">Calendar provider</label><select class="form-control" name="calendar_provider"><option>Internal Calendar</option><option>Google Calendar</option><option>Microsoft 365</option></select></div>
+            <div class="form-group"><label class="form-label">File retention policy</label><select class="form-control" name="retention"><option>365 days</option><option>730 days</option><option>Unlimited</option></select></div>
+            <div class="form-group"><label class="form-label">Chat moderation level</label><select class="form-control" name="moderation"><option>Standard</option><option>Strict</option><option>Off</option></select></div>
+        </div>
+        <button class="btn-orange" type="submit"><i class="fa fa-save"></i> Save Shared Action Settings</button>
+    </div>
+</form>
+{% endblock %}

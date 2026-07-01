@@ -1,0 +1,89 @@
+{% extends 'subscribe/layout.html.twig' %}
+{% block title %}Step 2 – Choose Your Plan{% endblock %}
+
+{% block content %}
+<h2 class="sub-title">Choose a plan</h2>
+<p class="sub-subtitle">Select the plan that best fits your school size. All plans include a 14-day free trial.</p>
+
+{% if errors.plan is defined %}
+    <div class="alert alert-error">{{ errors.plan }}</div>
+{% endif %}
+
+<form method="post" action="{{ path('subscribe_step2') }}" novalidate>
+    <input type="hidden" name="mode" value="{{ mode }}">
+
+    <div style="margin-bottom:16px">
+        <div style="display:inline-flex;border:1.5px solid #c8dff0;border-radius:999px;overflow:hidden;background:#f4f8fc">
+            <button type="button" id="toggleMonthly" onclick="setBillingToggle('monthly')"
+                style="border:0;padding:8px 16px;font-size:12px;font-weight:800;text-transform:uppercase;cursor:pointer;background:#1a7aa3;color:#fff;letter-spacing:.04em">Monthly</button>
+            <button type="button" id="toggleYearly" onclick="setBillingToggle('yearly')"
+                style="border:0;padding:8px 16px;font-size:12px;font-weight:800;text-transform:uppercase;cursor:pointer;background:transparent;color:#5a8ca8;letter-spacing:.04em">Yearly</button>
+        </div>
+        <span style="margin-left:10px;font-size:12px;color:#1a7a4f;font-weight:700">Save up to 20% with yearly</span>
+        <input type="hidden" id="billing_cycle" name="billing_cycle" value="{{ preCycle }}">
+    </div>
+
+    <div style="display:grid;gap:12px">
+        {% for planName, amounts in plans %}
+        {% set isRec = planName == 'Pro' %}
+        <label style="cursor:pointer;display:block">
+            <input type="radio" name="plan" value="{{ planName }}" style="display:none"
+                   {% if preselect == planName %}checked{% endif %}
+                   onchange="updatePlanSelection()">
+            <div class="plan-option {% if preselect == planName %}selected{% endif %}"
+                 id="opt_{{ planName }}"
+                 style="border:2px solid {% if preselect == planName %}#1a7aa3{% else %}#d2e6f4{% endif %};
+                        border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;
+                        background:{% if preselect == planName %}#f0f8ff{% else %}#fff{% endif %};
+                        transition:all .15s">
+                <div style="flex:1">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="font-size:16px;font-weight:800;color:#0f3a60">{{ planName }}</span>
+                        {% if isRec %}<span style="font-size:10px;font-weight:800;background:#1a7aa3;color:#fff;padding:2px 8px;border-radius:999px;text-transform:uppercase">Recommended</span>{% endif %}
+                    </div>
+                    <div style="font-size:12px;color:#6a94b2;margin-top:2px">
+                        {% if planName == 'Basic' %}Up to 300 students{% elseif planName == 'Pro' %}Up to 1,200 students{% else %}Unlimited students{% endif %}
+                    </div>
+                </div>
+                <div style="text-align:right;min-width:80px">
+                    <div class="price-monthly-{{ planName }}" style="font-size:22px;font-weight:900;color:#1a7aa3;{% if preCycle == 'yearly' %}display:none{% endif %}">${{ amounts.monthly }}<span style="font-size:12px;font-weight:600;color:#6a94b2">/mo</span></div>
+                    <div class="price-yearly-{{ planName }}" style="font-size:22px;font-weight:900;color:#1a7aa3;{% if preCycle != 'yearly' %}display:none{% endif %}">${{ (amounts.yearly / 12)|round }}<span style="font-size:12px;font-weight:600;color:#6a94b2">/mo</span><div style="font-size:10px;color:#1a7a4f;font-weight:700">billed ${{ amounts.yearly }}/yr</div></div>
+                </div>
+            </div>
+        </label>
+        {% endfor %}
+    </div>
+
+    <div style="margin-top:22px;display:flex;gap:10px">
+        <a href="{{ path('subscribe_step1') }}" class="sub-btn outline">← Back</a>
+        <button type="submit" class="sub-btn">Continue →</button>
+    </div>
+</form>
+
+<script>
+function setBillingToggle(mode) {
+    document.getElementById('billing_cycle').value = mode;
+    document.getElementById('toggleMonthly').style.background = mode === 'monthly' ? '#1a7aa3' : 'transparent';
+    document.getElementById('toggleMonthly').style.color = mode === 'monthly' ? '#fff' : '#5a8ca8';
+    document.getElementById('toggleYearly').style.background = mode === 'yearly' ? '#1a7aa3' : 'transparent';
+    document.getElementById('toggleYearly').style.color = mode === 'yearly' ? '#fff' : '#5a8ca8';
+    ['Basic','Pro','Enterprise'].forEach(function(p){
+        var mEl = document.querySelector('.price-monthly-' + p);
+        var yEl = document.querySelector('.price-yearly-' + p);
+        if (mEl) mEl.style.display = mode === 'monthly' ? '' : 'none';
+        if (yEl) yEl.style.display = mode === 'yearly'  ? '' : 'none';
+    });
+}
+function updatePlanSelection() {
+    ['Basic','Pro','Enterprise'].forEach(function(p){
+        var radio = document.querySelector('input[name="plan"][value="' + p + '"]');
+        var opt   = document.getElementById('opt_' + p);
+        if (!radio || !opt) return;
+        opt.style.border       = radio.checked ? '2px solid #1a7aa3' : '2px solid #d2e6f4';
+        opt.style.background   = radio.checked ? '#f0f8ff' : '#fff';
+    });
+}
+// Init
+(function(){ setBillingToggle('{{ preCycle }}'); })();
+</script>
+{% endblock %}

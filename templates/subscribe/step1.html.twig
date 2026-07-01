@@ -1,0 +1,50 @@
+{% extends 'subscribe/layout.html.twig' %}
+{% block title %}Step 1 – Create School Account{% endblock %}
+
+{% block content %}
+<h2 class="sub-title">Create your school account</h2>
+<p class="sub-subtitle">Set up your administrator credentials. You'll use these to access the school dashboard after subscribing.</p>
+
+<form method="post" action="{{ path('subscribe_step1') }}" novalidate>
+    <div class="form-group {% if errors.school_name is defined %}has-error{% endif %}">
+        <label for="school_name">School Name</label>
+        <input type="text" id="school_name" name="school_name" class="form-control"
+               value="{{ data.school_name ?? '' }}" placeholder="e.g. Bright Future Academy" required autofocus>
+        {% if errors.school_name is defined %}
+            <div class="form-error">{{ errors.school_name }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group {% if errors.email is defined %}has-error{% endif %}">
+        <label for="email">Admin Email</label>
+        <input type="email" id="email" name="email" class="form-control"
+               value="{{ data.email ?? '' }}" placeholder="admin@yourschool.edu" required>
+        {% if errors.email is defined %}
+            <div class="form-error">{{ errors.email }}</div>
+        {% endif %}
+        <div class="form-hint">This will be your login email and receive the confirmation receipt.</div>
+    </div>
+
+    <div class="form-group {% if errors.password is defined %}has-error{% endif %}">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control"
+               placeholder="Min. 8 characters" required>
+        {% if errors.password is defined %}
+            <div class="form-error">{{ errors.password }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group {% if errors.password_confirm is defined %}has-error{% endif %}">
+        <label for="password_confirm">Confirm Password</label>
+        <input type="password" id="password_confirm" name="password_confirm" class="form-control"
+               placeholder="Repeat password" required>
+        {% if errors.password_confirm is defined %}
+            <div class="form-error">{{ errors.password_confirm }}</div>
+        {% endif %}
+    </div>
+
+    <div style="margin-top:22px">
+        <button type="submit" class="sub-btn">Continue to Plan →</button>
+    </div>
+</form>
+{% endblock %}

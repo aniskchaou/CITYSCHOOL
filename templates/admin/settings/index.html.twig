@@ -1,0 +1,124 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}System Settings{% endblock %}
+{% block page_title %}System Settings{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ path('admin_settings') }}">
+<input type="hidden" name="_token" value="{{ csrf_token('admin_settings_save') }}">
+
+<div class="grid-2" style="gap:20px;">
+
+{# ── General ─────────────────────────────────────────────────── #}
+<div>
+<div class="settings-section">
+    <div class="settings-section-title"><i class="fa fa-cog a-accent"></i> General</div>
+    <div class="settings-row"><label>School Name</label><input type="text" class="form-control" value="City School" style="width:200px;"></div>
+    <div class="settings-row"><label>Admin Email</label><input type="email" class="form-control" value="admin@cityschool.edu" style="width:220px;"></div>
+    <div class="settings-row"><label>School Timezone</label><select class="form-control" style="width:200px;"><option>UTC-5 (Eastern)</option><option>UTC-6 (Central)</option><option>UTC-8 (Pacific)</option></select></div>
+    <div class="settings-row"><label>Academic Year</label><input type="text" class="form-control" value="2025–2026" style="width:140px;"></div>
+    <div class="settings-row"><label>Default Language</label><select class="form-control" style="width:160px;"><option>English</option><option>French</option><option>Spanish</option></select></div>
+</div>
+
+<div class="settings-section">
+    <div class="settings-section-title"><i class="fa fa-lock a-accent"></i> Security</div>
+    <div class="settings-row">
+        <label>Two-Factor Auth</label>
+        <label class="toggle"><input type="checkbox" name="2fa" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>Force HTTPS</label>
+        <label class="toggle"><input type="checkbox" name="force_https" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>Session Timeout (minutes)</label>
+        <input type="number" class="form-control" value="60" style="width:80px;">
+    </div>
+    <div class="settings-row">
+        <label>Max Login Attempts</label>
+        <input type="number" class="form-control" value="5" style="width:80px;">
+    </div>
+    <div class="settings-row">
+        <label>Password Min Length</label>
+        <input type="number" class="form-control" value="8" style="width:80px;">
+    </div>
+    <div class="settings-row">
+        <label>Audit Logging</label>
+        <label class="toggle"><input type="checkbox" name="audit_log" checked><span class="toggle-slider"></span></label>
+    </div>
+</div>
+
+<div class="settings-section">
+    <div class="settings-section-title"><i class="fa fa-bell a-accent"></i> Notifications</div>
+    <div class="settings-row">
+        <label>Email Notifications</label>
+        <label class="toggle"><input type="checkbox" name="email_notif" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>SMS Notifications</label>
+        <label class="toggle"><input type="checkbox" name="sms_notif"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>Parent Alerts</label>
+        <label class="toggle"><input type="checkbox" name="parent_alerts" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>SMTP Server</label>
+        <input type="text" class="form-control" value="smtp.cityschool.edu" style="width:200px;">
+    </div>
+</div>
+</div>
+
+{# ── Right Column ─────────────────────────────────────────────── #}
+<div>
+<div class="settings-section">
+    <div class="settings-section-title"><i class="fa fa-upload a-accent"></i> File & Storage</div>
+    <div class="settings-row"><label>Max Upload Size</label><select class="form-control" style="width:120px;"><option>10 MB</option><option selected>50 MB</option><option>100 MB</option></select></div>
+    <div class="settings-row"><label>Allowed Types</label><input type="text" class="form-control" value="pdf,docx,pptx,mp4" style="width:180px;"></div>
+    <div class="settings-row">
+        <label>Cloud Storage</label>
+        <label class="toggle"><input type="checkbox" name="cloud_storage"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row"><label>Storage Used</label><span style="font-weight:700;color:#7c3aed;">12.4 GB / 50 GB</span></div>
+    <div style="padding:8px 0;">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:25%;background:#7c3aed;"></div></div>
+    </div>
+</div>
+
+<div class="settings-section">
+    <div class="settings-section-title"><i class="fa fa-book a-accent"></i> Academic</div>
+    <div class="settings-row"><label>Grading Scale</label><select class="form-control" style="width:160px;"><option>A-F (100pt)</option><option>1-10 Scale</option><option>Pass/Fail</option></select></div>
+    <div class="settings-row"><label>Passing Score (%)</label><input type="number" class="form-control" value="60" style="width:80px;"></div>
+    <div class="settings-row">
+        <label>AI Auto-Grading</label>
+        <label class="toggle"><input type="checkbox" name="ai_grading" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>Late Submission Penalty</label>
+        <label class="toggle"><input type="checkbox" name="late_penalty" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row"><label>Penalty Rate (%/day)</label><input type="number" class="form-control" value="5" style="width:80px;"></div>
+</div>
+
+<div class="settings-section">
+    <div class="settings-section-title"><i class="fa fa-video-camera a-accent"></i> Live Classes</div>
+    <div class="settings-row"><label>Provider</label><select class="form-control" style="width:160px;"><option>Built-in</option><option>Zoom API</option><option>Google Meet</option></select></div>
+    <div class="settings-row">
+        <label>Record Sessions</label>
+        <label class="toggle"><input type="checkbox" name="record_sessions" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row">
+        <label>Allow Student Mics</label>
+        <label class="toggle"><input type="checkbox" name="student_mic" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="settings-row"><label>Max Participants</label><input type="number" class="form-control" value="100" style="width:80px;"></div>
+</div>
+</div>
+
+</div>{# end grid-2 #}
+
+<div style="margin-top:16px;display:flex;gap:10px;">
+    <button type="submit" class="btn-purple"><i class="fa fa-save"></i> Save All Settings</button>
+    <button type="button" class="btn btn-outline" onclick="confirm('Reset all settings to defaults?')"><i class="fa fa-undo"></i> Reset Defaults</button>
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Communication & Announcements{% endblock %}
+{% block page_title %}Communication & Announcements{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-bullhorn"></i></div><div class="stat-body"><div class="stat-value">{{ announcements|length }}</div><div class="stat-label">Announcements Sent</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-clock-o"></i></div><div class="stat-body"><div class="stat-value">{{ message_schedules|length }}</div><div class="stat-label">Scheduled Messages</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-gavel"></i></div><div class="stat-body"><div class="stat-value">{{ messaging_policies|length }}</div><div class="stat-label">Messaging Policies</div></div></div>
+    <div class="stat-card red"><div class="stat-icon" style="background:#fee2e2;color:#ef4444;"><i class="fa fa-warning"></i></div><div class="stat-body"><div class="stat-value">1</div><div class="stat-label">Emergency Channel</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-envelope"></i></div><div class="stat-body"><div class="stat-value">{{ notification_tracking|length }}</div><div class="stat-label">Tracked Campaigns</div></div></div>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-paper-plane a-accent" style="margin-right:6px;"></i>Send Announcements</span></div>
+        <form method="post" action="{{ path('admin_announcements') }}">
+            <input type="hidden" name="action" value="send_announcement">
+            <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control" name="title" placeholder="Announcement title" required></div>
+            <div class="form-group"><label class="form-label">Target Audience</label>
+                <select class="form-control" name="target">
+                    <option value="all">Students, Parents, Staff</option>
+                    <option value="students">Students</option>
+                    <option value="parents">Parents</option>
+                    <option value="staff">Staff</option>
+                </select>
+            </div>
+            <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" name="body" rows="4" placeholder="Write message..." required></textarea></div>
+            <button class="btn-purple" type="submit"><i class="fa fa-send"></i> Send Now</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-clock-o a-accent" style="margin-right:6px;"></i>Schedule Messages</span></div>
+        <form method="post" action="{{ path('admin_announcements') }}" style="margin-bottom:12px;">
+            <input type="hidden" name="action" value="schedule_message">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Message Title</label><input class="form-control" name="title" placeholder="Upcoming notice"></div>
+                <div class="form-group"><label class="form-label">Send At</label><input class="form-control" type="datetime-local" name="send_at"></div>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-calendar-plus-o"></i> Save Schedule</button>
+        </form>
+
+        <table class="portal-table">
+            <thead><tr><th>Message</th><th>Target</th><th>Channel</th><th>Send At</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for m in message_schedules %}
+            <tr>
+                <td style="font-weight:700;">{{ m.title }}</td>
+                <td>{{ m.target }}</td>
+                <td>{{ m.channel }}</td>
+                <td>{{ m.send_at }}</td>
+                <td><span class="role-badge {{ m.status == 'scheduled' ? 'status-active' : 'status-pending' }}">{{ m.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-top:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-shield a-accent" style="margin-right:6px;"></i>Manage Messaging Policies</span></div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Policy</th><th>Rule</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for p in messaging_policies %}
+            <tr>
+                <td style="font-weight:700;">{{ p.name }}</td>
+                <td>{{ p.rule }}</td>
+                <td><span class="role-badge {{ p.status == 'active' ? 'status-active' : 'status-inactive' }}">{{ p.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_announcements') }}">
+            <input type="hidden" name="action" value="save_policy">
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Policies</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-warning a-accent" style="margin-right:6px;"></i>Broadcast Emergency Alerts</span></div>
+        <form method="post" action="{{ path('admin_announcements') }}">
+            <input type="hidden" name="action" value="broadcast_emergency">
+            <div class="form-group"><label class="form-label">Emergency Message</label><textarea class="form-control" name="emergency_body" rows="4" placeholder="Type emergency alert..." required></textarea></div>
+            <button class="btn-danger-sm" type="submit"><i class="fa fa-bolt"></i> Broadcast Emergency Alert</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-star a-accent" style="margin-right:6px;"></i>Premium Communication Controls</span></div>
+
+    <div class="grid-2" style="gap:20px;">
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Targeted Messaging (Class / Grade / Group)</div>
+            <form method="post" action="{{ path('admin_announcements') }}">
+                <input type="hidden" name="action" value="send_targeted">
+                <div class="grid-2" style="gap:10px;">
+                    <div class="form-group"><label class="form-label">Target Type</label><select class="form-control" name="target_type"><option>Class</option><option>Grade</option><option>Group</option></select></div>
+                    <div class="form-group"><label class="form-label">Target Value</label><select class="form-control" name="target_value"><option>Grade 10-A</option><option>Grade 10-B</option><option>Grade 11-A</option><option>Parents Group A</option></select></div>
+                </div>
+                <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" rows="3" name="targeted_body"></textarea></div>
+                <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-location-arrow"></i> Send Targeted Message</button>
+            </form>
+        </div>
+
+        <div style="border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Notification Tracking (Who Read What)</div>
+            <table class="portal-table" style="margin-bottom:10px;">
+                <thead><tr><th>Message</th><th>Target</th><th>Delivered</th><th>Read</th></tr></thead>
+                <tbody>
+                {% for n in notification_tracking %}
+                <tr>
+                    <td style="font-weight:700;">{{ n.message }}</td>
+                    <td>{{ n.target }}</td>
+                    <td>{{ n.delivered }}</td>
+                    <td>{{ n.read }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form method="post" action="{{ path('admin_announcements') }}"><input type="hidden" name="action" value="refresh_tracking"><button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-refresh"></i> Refresh Tracking</button></form>
+        </div>
+    </div>
+
+    <div style="margin-top:16px;border:1px solid #ede9fe;border-radius:8px;background:#faf5ff;padding:12px;">
+        <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:8px;">Multi-Channel Delivery (Email, SMS, App)</div>
+        <form method="post" action="{{ path('admin_announcements') }}" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+            <input type="hidden" name="action" value="save_multichannel">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" checked> Email</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" checked> SMS</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" checked> Mobile App</label>
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-save"></i> Save Channel Settings</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

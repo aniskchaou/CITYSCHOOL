@@ -1,0 +1,101 @@
+{% extends 'super_admin/base.html.twig' %}
+{% block title %}Security & Compliance{% endblock %}
+{% block page_title %}Security & Compliance{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+    <div class="super-kpi"><div class="kpi-value">{{ login_activity|length }}</div><div class="kpi-label">Recent Login Events</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ login_activity|filter(l => l.risk == 'high')|length }}</div><div class="kpi-label">High Risk Events</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ compliance_reports|filter(r => r.status == 'ready')|length }}</div><div class="kpi-label">Ready Compliance Reports</div></div>
+    <div class="super-kpi"><div class="kpi-value">{{ security_policies.minPasswordLength }}</div><div class="kpi-label">Min Password Length</div></div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header" style="justify-content:space-between;">
+        <span class="card-title"><i class="fa fa-sign-in" style="margin-right:6px;color:#f97316;"></i>Login Activity Monitoring</span>
+        <form method="post" action="{{ path('super_admin_security_compliance') }}">
+            <button class="btn-orange" type="submit" name="action" value="threat_scan"><i class="fa fa-radar"></i> Run Threat Scan</button>
+        </form>
+    </div>
+    <table class="portal-table">
+        <thead><tr><th>User</th><th>School</th><th>IP</th><th>Device</th><th>Location</th><th>Timestamp</th><th>Risk</th></tr></thead>
+        <tbody>
+        {% for l in login_activity %}
+        <tr>
+            <td><strong>{{ l.user }}</strong></td>
+            <td>{{ l.school }}</td>
+            <td>{{ l.ip }}</td>
+            <td>{{ l.device }}</td>
+            <td>{{ l.location }}</td>
+            <td>{{ l.time }}</td>
+            <td><span class="super-tag {{ l.risk == 'high' ? 'suspended' : (l.risk == 'medium' ? 'trial' : 'active') }}">{{ l.risk }}</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid-2" style="gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-lock" style="margin-right:6px;color:#f97316;"></i>Password, 2FA & Privacy Policies</span></div>
+        <form method="post" action="{{ path('super_admin_security_compliance') }}">
+            <input type="hidden" name="action" value="update_policy">
+            <div class="settings-row"><label>Minimum Password Length</label><input class="form-control" style="max-width:120px;" name="min_password" value="{{ security_policies.minPasswordLength }}"></div>
+            <div class="settings-row"><label>Require Symbols</label><span class="super-tag {{ security_policies.requireSymbols ? 'active' : 'trial' }}">{{ security_policies.requireSymbols ? 'Enabled' : 'Disabled' }}</span></div>
+            <div class="settings-row"><label>Password Rotation (days)</label><input class="form-control" style="max-width:120px;" name="rotation_days" value="{{ security_policies.passwordRotationDays }}"></div>
+            <div class="settings-row"><label>Force 2FA for Admins</label><span class="super-tag {{ security_policies.force2faAdmins ? 'active' : 'trial' }}">{{ security_policies.force2faAdmins ? 'Enabled' : 'Disabled' }}</span></div>
+            <div class="settings-row"><label>Force 2FA for Teachers</label><span class="super-tag {{ security_policies.force2faTeachers ? 'active' : 'trial' }}">{{ security_policies.force2faTeachers ? 'Enabled' : 'Disabled' }}</span></div>
+            <div class="settings-row"><label>GDPR Data Request Portal</label><span class="super-tag {{ security_policies.gdprDsrPortal ? 'active' : 'trial' }}">{{ security_policies.gdprDsrPortal ? 'Enabled' : 'Disabled' }}</span></div>
+            <button class="btn-orange" type="submit"><i class="fa fa-save"></i> Save Policies</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-history" style="margin-right:6px;color:#f97316;"></i>Global Audit Logs</span></div>
+        <table class="portal-table">
+            <thead><tr><th>Actor</th><th>Action</th><th>Target</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for a in audit_logs %}
+            <tr>
+                <td>{{ a.actor }}</td>
+                <td>{{ a.action }}</td>
+                <td>{{ a.target }}</td>
+                <td>{{ a.time }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-shield" style="margin-right:6px;color:#f97316;"></i>Premium Security Controls</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div class="super-card">
+            <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:8px;">Emergency Operations</div>
+            <form method="post" action="{{ path('super_admin_security_compliance') }}" style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-orange" type="submit" name="action" value="force_logout"><i class="fa fa-sign-out"></i> System-Wide Logout</button>
+                <button class="btn-orange" type="submit" name="action" value="backup"><i class="fa fa-download"></i> Backup</button>
+                <button class="btn-orange" type="submit" name="action" value="restore"><i class="fa fa-upload"></i> Restore</button>
+            </form>
+        </div>
+        <div class="super-card">
+            <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:8px;">Data Encryption Controls</div>
+            <div style="font-size:13px;color:#7c2d12;line-height:1.6;">At-rest and in-transit encryption controls are centrally managed for all tenants.</div>
+            <div style="margin-top:8px;"><span class="metric-chip">At Rest: {{ security_policies.encryptionAtRest ? 'ON' : 'OFF' }}</span> <span class="metric-chip">In Transit: {{ security_policies.encryptionInTransit ? 'ON' : 'OFF' }}</span></div>
+            <form method="post" action="{{ path('super_admin_security_compliance') }}" style="margin-top:10px;">
+                <button class="btn-orange" type="submit" name="action" value="update_encryption"><i class="fa fa-key"></i> Update Encryption</button>
+            </form>
+        </div>
+        <div class="super-card">
+            <div style="font-size:14px;font-weight:800;color:#9a3412;margin-bottom:8px;">Compliance Reports</div>
+            {% for r in compliance_reports %}
+                <div style="font-size:12px;color:#7c2d12;margin-bottom:6px;">{{ r.name }} · {{ r.period }} <span class="super-tag {{ r.status == 'ready' ? 'active' : 'trial' }}">{{ r.status }}</span></div>
+            {% endfor %}
+            <form method="post" action="{{ path('super_admin_security_compliance') }}" style="margin-top:8px;">
+                <button class="btn-orange" type="submit" name="action" value="generate_compliance"><i class="fa fa-file-text-o"></i> Generate Report</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

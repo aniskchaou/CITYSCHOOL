@@ -1,0 +1,116 @@
+{% extends 'parent/base.html.twig' %}
+{% block title %}Fees &amp; Payments{% endblock %}
+{% block page_title %}Fees &amp; Online Payments{% endblock %}
+
+{% block content %}
+{% set pending = payments|filter(p => p.status == 'pending') %}
+{% set overdue = payments|filter(p => p.status == 'overdue') %}
+{% set paid    = payments|filter(p => p.status == 'paid') %}
+{% set total_due = (pending|map(p => p.amount)|reduce((c,v) => c+v, 0)) + (overdue|map(p => p.amount)|reduce((c,v) => c+v, 0)) %}
+
+{# ── Summary Cards ───────────────────────────────────────────────── #}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+    <div class="pay-card" style="border-top:3px solid #ef4444;">
+        <div class="pay-amount" style="color:#ef4444;">${{ total_due|number_format(0) }}</div>
+        <div class="pay-label">Total Amount Due</div>
+        {% if total_due > 0 %}
+        <button class="btn-green" style="width:100%;margin-top:10px;justify-content:center;" onclick="openModal('modal-pay-all')"><i class="fa fa-credit-card"></i> Pay All Now</button>
+        {% endif %}
+    </div>
+    <div class="pay-card" style="border-top:3px solid #f59e0b;">
+        <div class="pay-amount" style="color:#f59e0b;">{{ pending|length }}</div>
+        <div class="pay-label">Pending Payments</div>
+    </div>
+    <div class="pay-card" style="border-top:3px solid #16a34a;">
+        <div class="pay-amount" style="color:#16a34a;">${{ paid|map(p => p.amount)|reduce((c,v) => c+v, 0)|number_format(0) }}</div>
+        <div class="pay-label">Total Paid This Year</div>
+    </div>
+</div>
+
+{% if overdue|length > 0 %}
+<div style="padding:14px 16px;background:#fee2e2;border-radius:10px;font-size:13px;color:#ef4444;display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+    <i class="fa fa-exclamation-circle" style="font-size:16px;"></i>
+    <div><strong>{{ overdue|length }} overdue payment(s).</strong> Please settle to avoid late fees and service interruptions.</div>
+</div>
+{% endif %}
+
+{# ── Payments Table ──────────────────────────────────────────────── #}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-credit-card p-accent" style="margin-right:6px;"></i>Payment History</span>
+    </div>
+    <table class="portal-table">
+        <thead>
+            <tr><th>Description</th><th>Child</th><th>Amount</th><th>Status</th><th>Due Date</th><th>Method</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+        {% for p in payments %}
+        <tr>
+            <td style="font-weight:700;font-size:13px;">{{ p.description }}</td>
+            <td>
+                <div class="av-init av-parent" style="width:28px;height:28px;font-size:10px;background:#dcfce7;color:#16a34a;">{{ p.child|split(' ')|first|slice(0,1) }}{{ p.child|split(' ')|last|slice(0,1) }}</div>
+            </td>
+            <td style="font-size:15px;font-weight:900;color:#1e293b;">${{ p.amount|number_format(0) }}</td>
+            <td><span class="role-badge p-status-{{ p.status }}">{{ p.status }}</span></td>
+            <td style="font-size:12px;color:#64748b;">{{ p.due }}</td>
+            <td style="font-size:12px;color:#94a3b8;">{{ p.method }}</td>
+            <td>
+                {% if p.status != 'paid' %}
+                <button class="btn-green" style="font-size:12px;padding:5px 14px;" onclick="openModal('modal-pay-single')">
+                    <i class="fa fa-credit-card"></i> Pay ${{ p.amount|number_format(0) }}
+                </button>
+                {% else %}
+                <span style="font-size:12px;color:#16a34a;font-weight:700;"><i class="fa fa-check-circle"></i> Paid</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Pay Single Modal ─────────────────────────────────────────────── #}
+<div class="p-modal-overlay" id="modal-pay-single">
+    <div class="p-modal">
+        <div class="p-modal-header">
+            <span class="p-modal-title"><i class="fa fa-credit-card p-accent" style="margin-right:6px;"></i>Make a Payment</span>
+            <button class="p-modal-close" onclick="closeModal('modal-pay-single')">×</button>
+        </div>
+        <form method="post" action="{{ path('parent_payments') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_payment') }}">
+            <div class="form-group"><label class="form-label">Card Number</label><input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19"></div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Expiry</label><input type="text" class="form-control" name="expiry" placeholder="MM/YY"></div>
+                <div class="form-group"><label class="form-label">CVV</label><input type="text" class="form-control" name="cvv" placeholder="123" maxlength="4"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Cardholder Name</label><input type="text" class="form-control" name="card_name" placeholder="Name on card"></div>
+            <div style="padding:12px;background:#f0fdf4;border-radius:8px;margin-bottom:16px;font-size:13px;color:#16a34a;font-weight:700;"><i class="fa fa-lock"></i> Secure payment — 256-bit SSL encrypted</div>
+            <button type="submit" class="btn-green" style="width:100%;justify-content:center;"><i class="fa fa-credit-card"></i> Confirm Payment</button>
+        </form>
+    </div>
+</div>
+
+{# ── Pay All Modal ─────────────────────────────────────────────────── #}
+<div class="p-modal-overlay" id="modal-pay-all">
+    <div class="p-modal">
+        <div class="p-modal-header">
+            <span class="p-modal-title"><i class="fa fa-credit-card p-accent" style="margin-right:6px;"></i>Pay All Outstanding Fees</span>
+            <button class="p-modal-close" onclick="closeModal('modal-pay-all')">×</button>
+        </div>
+        <div style="padding:14px;background:#f0fdf4;border-radius:8px;margin-bottom:16px;">
+            <div style="font-size:22px;font-weight:900;color:#16a34a;text-align:center;">${{ total_due|number_format(0) }}</div>
+            <div style="font-size:12px;color:#64748b;text-align:center;">Total amount due</div>
+        </div>
+        <form method="post" action="{{ path('parent_payments') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('parent_payment_all') }}">
+            <input type="hidden" name="pay_all" value="1">
+            <div class="form-group"><label class="form-label">Card Number</label><input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456"></div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Expiry</label><input type="text" class="form-control" name="expiry" placeholder="MM/YY"></div>
+                <div class="form-group"><label class="form-label">CVV</label><input type="text" class="form-control" name="cvv" placeholder="123"></div>
+            </div>
+            <button type="submit" class="btn-green" style="width:100%;justify-content:center;margin-top:8px;"><i class="fa fa-credit-card"></i> Pay ${{ total_due|number_format(0) }} Now</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

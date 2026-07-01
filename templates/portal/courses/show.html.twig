@@ -1,0 +1,205 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}{{ course.name }}{% endblock %}
+{% block page_title %}{{ course.name }}{% endblock %}
+
+{% block content %}
+
+{# ── Course Header ── #}
+<div class="card" style="margin-bottom:24px;border-top:4px solid {{ course.color }};">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <div class="course-icon" style="background:{{ course.color }};width:60px;height:60px;font-size:24px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+            <i class="fa fa-{{ course.icon }}"></i>
+        </div>
+        <div style="flex:1;">
+            <h2 style="font-size:22px;font-weight:800;margin-bottom:4px;">{{ course.name }}</h2>
+            <div style="color:#64748b;font-size:14px;"><i class="fa fa-user" style="margin-right:4px;"></i>{{ course.teacher }}</div>
+            <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+                <span><i class="fa fa-file-text-o" style="color:#4361ee;margin-right:4px;"></i>{{ materials|length }} materials</span>
+                <span><i class="fa fa-tasks" style="color:#f59e0b;margin-right:4px;"></i>{{ assignments|length }} assignments</span>
+                <span><i class="fa fa-signal" style="color:#22c55e;margin-right:4px;"></i>Progress: {{ course.progress }}%</span>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:32px;font-weight:800;color:{{ course.color }};">{{ course.grade }}</div>
+            <div style="font-size:14px;color:#64748b;">{{ course.score }}% overall</div>
+        </div>
+    </div>
+    <div class="progress-bar-wrap" style="margin-top:18px;">
+        <div class="progress-bar-fill" style="width:{{ course.progress }}%;background:{{ course.color }};height:10px;"></div>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:24px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-book" style="color:#4361ee;margin-right:6px;"></i>Lessons & Completion</span>
+            <form method="post" action="{{ path('portal_course_show', {id: course.id}) }}">
+                <input type="hidden" name="action" value="refresh_completion">
+                <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+            </form>
+        </div>
+        {% for lesson in lessons %}
+        <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div style="font-size:13px;font-weight:700;">{{ lesson.title }}</div>
+                <span class="badge badge-{{ lesson.bookmarked ? 'primary' : 'secondary' }}">{{ lesson.type|upper }}</span>
+            </div>
+            <div class="progress-bar-wrap" style="margin:8px 0 4px 0;">
+                <div class="progress-bar-fill" style="width:{{ lesson.completion }}%;background:{{ course.color }};"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="font-size:11px;color:#64748b;">Completion: {{ lesson.completion }}%</div>
+                <form method="post" action="{{ path('portal_course_show', {id: course.id}) }}">
+                    <input type="hidden" name="action" value="bookmark_resource">
+                    <button class="btn btn-sm btn-outline" type="submit"><i class="fa fa-bookmark"></i> {{ lesson.bookmarked ? 'Bookmarked' : 'Bookmark' }}</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div style="font-size:12px;color:#64748b;">No lessons available yet.</div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Learning Guidance</span>
+        </div>
+        <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">Structured learning path</div>
+                <form method="post" action="{{ path('portal_course_show', {id: course.id}) }}">
+                    <input type="hidden" name="action" value="open_learning_path">
+                    <button class="btn btn-sm btn-outline" type="submit">Open Path</button>
+                </form>
+            </div>
+            {% for step in learningPath %}
+            <div style="padding:8px;border-left:4px solid {{ step.status == 'done' ? '#16a34a' : (step.status == 'current' ? '#0891b2' : '#cbd5e1') }};background:#f8fafc;border-radius:6px;margin-bottom:7px;">
+                <div style="font-size:12px;font-weight:700;">{{ step.step }}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:3px;">{{ step.status|capitalize }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="padding-top:10px;border-top:1px solid #e2e8f0;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">Resume where you left off</div>
+                <form method="post" action="{{ path('portal_course_show', {id: course.id}) }}">
+                    <input type="hidden" name="action" value="resume_learning">
+                    <button class="btn btn-sm btn-outline" type="submit">Resume</button>
+                </form>
+            </div>
+            <div style="padding:10px;background:#eff6ff;border-radius:8px;">
+                <div style="font-size:12px;font-weight:700;color:#1d4ed8;">{{ resumeState.item }}</div>
+                <div style="font-size:11px;color:#475569;margin-top:4px;">{{ resumeState.detail }}</div>
+            </div>
+        </div>
+
+        <div style="padding-top:10px;border-top:1px solid #e2e8f0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+                <div style="font-size:13px;font-weight:700;">Smart recommendations</div>
+                <form method="post" action="{{ path('portal_course_show', {id: course.id}) }}">
+                    <input type="hidden" name="action" value="refresh_recommendations">
+                    <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+                </form>
+            </div>
+            {% for item in recommendations %}
+            <div style="font-size:12px;color:#475569;margin-bottom:6px;"><i class="fa fa-lightbulb-o" style="color:#f59e0b;margin-right:5px;"></i>{{ item }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="grid-2">
+
+    {# Materials #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-folder-open" style="color:#4361ee;margin-right:6px;"></i>Course Materials</span>
+        </div>
+        <table class="portal-table">
+            <thead><tr><th>Title</th><th>Type</th><th>Size</th><th>Date</th><th></th></tr></thead>
+            <tbody>
+                {% for m in materials %}
+                <tr>
+                    <td>
+                        {% if m.type == 'pdf' %}
+                        <i class="fa fa-file-pdf-o" style="color:#ef4444;margin-right:6px;"></i>
+                        {% elseif m.type == 'video' %}
+                        <i class="fa fa-play-circle" style="color:#8b5cf6;margin-right:6px;"></i>
+                        {% else %}
+                        <i class="fa fa-link" style="color:#22c55e;margin-right:6px;"></i>
+                        {% endif %}
+                        <span style="font-size:13px;font-weight:600;">{{ m.title }}</span>
+                    </td>
+                    <td><span class="badge badge-secondary">{{ m.type|upper }}</span></td>
+                    <td style="font-size:12px;color:#64748b;">{{ m.size ?? '–' }}</td>
+                    <td style="font-size:12px;color:#64748b;">{{ m.date }}</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-outline" onclick="return false;"><i class="fa fa-download"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px;">Upload Study Material</div>
+            <form method="post" action="{{ path('portal_course_show', {id: course.id}) }}" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="upload_material">
+                <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;">
+                    <div>
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="My revision notes">
+                    </div>
+                    <div>
+                        <label class="form-label">File</label>
+                        <input type="file" name="material" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" type="submit"><i class="fa fa-upload"></i> Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Assignments #}
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-tasks" style="color:#f59e0b;margin-right:6px;"></i>Assignments</span>
+            <a href="{{ path('portal_assignments') }}" class="btn btn-sm btn-outline">All</a>
+        </div>
+        {% if assignments is empty %}
+        <p class="text-muted" style="font-size:14px;padding:10px 0;">No assignments for this course yet.</p>
+        {% else %}
+        {% for a in assignments %}
+        <div style="padding:12px 0;border-bottom:1px solid #e2e8f0;{% if loop.last %}border-bottom:none;{% endif %}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                <div>
+                    <div style="font-size:14px;font-weight:600;">{{ a.title }}</div>
+                    <div style="font-size:12px;color:#64748b;margin-top:2px;">Due: {{ a.due }} &middot; {{ a.points }} pts</div>
+                    {% if a.feedback %}
+                    <div style="font-size:12px;color:#0369a1;margin-top:4px;"><i class="fa fa-comment-o"></i> {{ a.feedback }}</div>
+                    {% endif %}
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                    {% if a.status == 'graded' %}
+                    <span class="badge badge-success">{{ a.score }}/{{ a.points }}</span>
+                    {% elseif a.status == 'submitted' %}
+                    <span class="badge badge-info">Submitted</span>
+                    {% elseif a.status == 'overdue' %}
+                    <span class="badge badge-danger">Overdue</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+</div>
+
+<div style="margin-top:16px;">
+    <a href="{{ path('portal_courses') }}" class="btn btn-outline"><i class="fa fa-arrow-left"></i> Back to Courses</a>
+</div>
+{% endblock %}

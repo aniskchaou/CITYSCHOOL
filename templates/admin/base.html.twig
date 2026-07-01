@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}Admin{% endblock %} — City School Admin</title>
+    <link rel="stylesheet" href="/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <link rel="stylesheet" href="/css/admin-portal.css">
+</head>
+<body class="portal-body admin-portal-body">
+
+<div class="portal-layout">
+
+    {# ── Sidebar ─────────────────────────────────────────────── #}
+    {% set r = app.request.attributes.get('_route') %}
+    <aside class="portal-sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="fa fa-shield"></i></div>
+            <div>
+                <div class="brand-name">City School</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Overview</div>
+            <a href="{{ path('admin_dashboard') }}" class="{{ r == 'admin_dashboard' ? 'active' : '' }}">
+                <i class="fa fa-tachometer"></i> Dashboard
+            </a>
+
+            <div class="sidebar-section-label">Management</div>
+            <a href="{{ path('admin_users') }}" class="{{ r == 'admin_users' ? 'active' : '' }}">
+                <i class="fa fa-users"></i> Users
+            </a>
+            <a href="{{ path('admin_staff') }}" class="{{ r == 'admin_staff' ? 'active' : '' }}">
+                <i class="fa fa-id-badge"></i> Staff Management
+            </a>
+            <a href="{{ path('admin_classes') }}" class="{{ r == 'admin_classes' ? 'active' : '' }}">
+                <i class="fa fa-th-large"></i> Classes
+            </a>
+            <a href="{{ path('admin_subjects') }}" class="{{ r == 'admin_subjects' ? 'active' : '' }}">
+                <i class="fa fa-book"></i> Subjects
+            </a>
+
+            <div class="sidebar-section-label">Academic</div>
+            <a href="{{ path('admin_academic') }}" class="{{ r == 'admin_academic' ? 'active' : '' }}">
+                <i class="fa fa-book"></i> Academic Structure Setup
+            </a>
+            <a href="{{ path('admin_schedules') }}" class="{{ r == 'admin_schedules' ? 'active' : '' }}">
+                <i class="fa fa-calendar"></i> Timetable & Scheduling
+            </a>
+            <a href="{{ path('admin_attendance') }}" class="{{ r == 'admin_attendance' ? 'active' : '' }}">
+                <i class="fa fa-check-square-o"></i> Attendance Management
+            </a>
+            <a href="{{ path('admin_grades') }}" class="{{ r == 'admin_grades' ? 'active' : '' }}">
+                <i class="fa fa-line-chart"></i> Grades, Exams & Reports
+            </a>
+            <a href="{{ path('admin_courses') }}" class="{{ r == 'admin_courses' ? 'active' : '' }}">
+                <i class="fa fa-folder-open"></i> Course & Content Oversight
+            </a>
+            <a href="{{ path('admin_reports') }}" class="{{ r == 'admin_reports' ? 'active' : '' }}">
+                <i class="fa fa-bar-chart"></i> Analytics & Reporting
+            </a>
+
+            <div class="sidebar-section-label">Finance</div>
+            <a href="{{ path('admin_payments') }}" class="{{ r == 'admin_payments' ? 'active' : '' }}">
+                <i class="fa fa-credit-card"></i> Payments & Fees
+            </a>
+            <a href="{{ path('admin_billing') }}" class="{{ r == 'admin_billing' ? 'active' : '' }}">
+                <i class="fa fa-refresh"></i> Billing & Subscription
+            </a>
+
+            <div class="sidebar-section-label">Communication</div>
+            <a href="{{ path('admin_announcements') }}" class="{{ r == 'admin_announcements' ? 'active' : '' }}">
+                <i class="fa fa-bullhorn"></i> Communication & Announcements
+            </a>
+
+            <div class="sidebar-section-label">Operations</div>
+            <a href="{{ path('admin_integrations') }}" class="{{ r == 'admin_integrations' ? 'active' : '' }}">
+                <i class="fa fa-plug"></i> Integrations & Tools
+            </a>
+            <a href="{{ path('admin_issues') }}" class="{{ r == 'admin_issues' ? 'active' : '' }}">
+                <i class="fa fa-life-ring"></i> Issue Handling & Moderation
+            </a>
+
+            <div class="sidebar-section-label">System</div>
+            <a href="{{ path('admin_permissions') }}" class="{{ r == 'admin_permissions' ? 'active' : '' }}">
+                <i class="fa fa-key"></i> Permissions & Access
+            </a>
+            <a href="{{ path('admin_branding') }}" class="{{ r == 'admin_branding' ? 'active' : '' }}">
+                <i class="fa fa-paint-brush"></i> Branding & Customization
+            </a>
+            <a href="{{ path('admin_settings') }}" class="{{ r == 'admin_settings' ? 'active' : '' }}">
+                <i class="fa fa-cog"></i> Settings
+            </a>
+            <a href="{{ path('admin_audit') }}" class="{{ r == 'admin_audit' ? 'active' : '' }}">
+                <i class="fa fa-history"></i> Audit Logs
+            </a>
+        </nav>
+    </aside>
+
+    {# ── Main ────────────────────────────────────────────────── #}
+    <div class="portal-main">
+        <header class="portal-topbar">
+            <div class="topbar-left">
+                <div class="page-title">{% block page_title %}Admin{% endblock %}</div>
+            </div>
+            <div class="topbar-right">
+                <a href="{{ path('admin_announcements') }}" class="topbar-icon" title="Announcements"><i class="fa fa-bullhorn"></i></a>
+                <a href="{{ path('admin_audit') }}" class="topbar-icon" title="Audit Log"><i class="fa fa-history"></i></a>
+                <div class="topbar-user">
+                    <div class="user-avatar" style="background:#ede9fe;color:#7c3aed;">A</div>
+                    <div>
+                        <div class="user-name">{{ admin.name }}</div>
+                        <div class="user-role">{{ admin.role }}</div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-left:6px;">
+                        <a href="{{ path('admin_profile') }}" class="topbar-icon" title="Profile"><i class="fa fa-user-circle"></i></a>
+                        <a href="{{ path('admin_logout') }}" class="topbar-icon" title="Logout"><i class="fa fa-sign-out"></i></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="portal-content">
+            {% for msg in app.flashes('success') %}
+            <div class="alert alert-success" style="background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                <i class="fa fa-check-circle"></i> {{ msg }}
+            </div>
+            {% endfor %}
+            {% for msg in app.flashes('error') %}
+            <div class="alert alert-error" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                <i class="fa fa-exclamation-circle"></i> {{ msg }}
+            </div>
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+{# ── Modal helpers ────────────────────────────────────────────── #}
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('a-modal-overlay')) {
+        e.target.classList.remove('open');
+    }
+});
+
+// Bulk-select
+document.addEventListener('DOMContentLoaded', function() {
+    var selectAll = document.getElementById('select-all');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('.row-check').forEach(function(cb) {
+                cb.checked = selectAll.checked;
+            });
+            updateBulkBar();
+        });
+        document.querySelectorAll('.row-check').forEach(function(cb) {
+            cb.addEventListener('change', updateBulkBar);
+        });
+    }
+});
+function updateBulkBar() {
+    var count = document.querySelectorAll('.row-check:checked').length;
+    var bar = document.getElementById('bulk-bar');
+    if (bar) {
+        if (count > 0) {
+            bar.classList.add('visible');
+            var span = document.getElementById('bulk-count');
+            if (span) span.textContent = count + ' selected';
+        } else {
+            bar.classList.remove('visible');
+        }
+    }
+}
+</script>
+</body>
+</html>

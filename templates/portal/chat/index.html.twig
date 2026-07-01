@@ -1,0 +1,129 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-comments-o" style="color:#2563eb;margin-right:6px;"></i>Communication Access</span>
+    </div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+        <span class="badge badge-success">Teachers: {{ messagingPolicy.canMessageTeachers ? 'Allowed' : 'Disabled' }}</span>
+        <span class="badge badge-{{ messagingPolicy.canMessageClassmates ? 'info' : 'secondary' }}">Classmates: {{ messagingPolicy.canMessageClassmates ? 'Allowed' : 'Disabled' }}</span>
+        <span style="font-size:12px;color:#64748b;">{{ messagingPolicy.classmateRule }}</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        <form method="post" action="{{ path('portal_chat') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('start_teacher_chat') }}">
+            <input type="hidden" name="action" value="start_teacher_chat">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-user"></i> Chat Teacher</button>
+        </form>
+        {% if messagingPolicy.canMessageClassmates %}
+        <form method="post" action="{{ path('portal_chat') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('message_classmate') }}">
+            <input type="hidden" name="action" value="message_classmate">
+            <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-users"></i> Message Classmate</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="chat-wrapper">
+
+    {# Contact List #}
+    <div class="chat-contacts">
+        <div class="chat-contacts-header">
+            <i class="fa fa-envelope-o" style="color:#4361ee;margin-right:6px;"></i>Messages
+        </div>
+        {% for contact in contacts %}
+        <div class="contact-item {% if loop.first %}active{% endif %}">
+            <div class="contact-avatar">
+                <img src="{{ contact.avatar }}" alt="{{ contact.name }}">
+                {% if contact.online %}<span class="online-dot"></span>{% endif %}
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div class="contact-name">{{ contact.name }}</div>
+                <div class="contact-role">{{ contact.role }}</div>
+                <div class="contact-last-msg">{{ contact.last_msg }}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+                <div class="contact-time">{{ contact.time }}</div>
+                {% if contact.unread > 0 %}
+                <div class="unread-badge" style="margin-top:4px;margin-left:auto;">{{ contact.unread }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# Chat Window #}
+    <div class="chat-main">
+        <div class="chat-header">
+            <div class="contact-avatar" style="position:relative;">
+                <img src="{{ active_contact.avatar }}" alt="{{ active_contact.name }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                {% if active_contact.online %}<span class="online-dot"></span>{% endif %}
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:15px;font-weight:700;">{{ active_contact.name }}</div>
+                <div style="font-size:12px;color:#64748b;">
+                    {{ active_contact.role }}
+                    {% if active_contact.online %}
+                    &nbsp;<span style="color:#16a34a;"><i class="fa fa-circle" style="font-size:8px;"></i> Online</span>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="#" class="btn btn-sm btn-outline"><i class="fa fa-video-camera"></i> Video Call</a>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            {% for msg in messages %}
+            <div class="msg-bubble {% if msg.from == 'me' %}me{% endif %}">
+                <img src="{% if msg.from == 'me' %}/dummy/student-lg-1.jpg{% else %}{{ active_contact.avatar }}{% endif %}"
+                     alt="{{ msg.from }}">
+                <div>
+                    <div class="msg-text">{{ msg.text }}</div>
+                    <div class="msg-time">{{ msg.time }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-input-area">
+            <form method="post" action="{{ path('portal_chat') }}" style="display:flex;gap:8px;width:100%;">
+                <input type="hidden" name="_token" value="{{ csrf_token('send_chat_message') }}">
+                <input type="hidden" name="action" value="send_message">
+                <input type="text" class="chat-input" id="chat-input" name="message" placeholder="Type a message...">
+                <button class="btn btn-primary" id="send-btn" type="submit"><i class="fa fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Scroll to bottom of chat
+var chatMessages = document.getElementById('chat-messages');
+if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+
+// Demo send message
+document.getElementById('send-btn').addEventListener('click', function() {
+    var input = document.getElementById('chat-input');
+    var text = input.value.trim();
+    if (!text) return;
+    var now = new Date();
+    var time = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    var bubble = '<div class="msg-bubble me">' +
+        '<img src="/dummy/student-lg-1.jpg" alt="me">' +
+        '<div><div class="msg-text">' + text + '</div><div class="msg-time">' + time + '</div></div></div>';
+    chatMessages.insertAdjacentHTML('beforeend', bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    input.value = '';
+});
+document.getElementById('chat-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('send-btn').click();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Teacher Portal{% endblock %} – City School</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/fonts/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/portal.css">
+    <link rel="stylesheet" href="/css/teacher-portal.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="portal-body teacher-portal-body">
+
+<div class="portal-wrapper">
+
+    {# ── Sidebar ── #}
+    <aside class="portal-sidebar">
+        <a href="{{ path('teacher_dashboard') }}" class="sidebar-brand">
+            <div class="brand-icon"><i class="fa fa-chalkboard"></i></div>
+            <div>
+                <div class="brand-name">City School</div>
+                <div class="brand-sub">Teacher Portal</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            {% set r = app.request.attributes.get('_route') %}
+
+            <li class="sidebar-section-label">Overview</li>
+            <li>
+                <a href="{{ path('teacher_dashboard') }}" class="{{ r == 'teacher_dashboard' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-tachometer"></i></span> Dashboard
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Teaching</li>
+            <li>
+                <a href="{{ path('teacher_courses') }}" class="{{ r starts with 'teacher_course' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-book"></i></span> My Courses
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_assignments') }}" class="{{ r == 'teacher_assignments' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-tasks"></i></span> Assignments
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_grading') }}" class="{{ r == 'teacher_grading' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-check-square-o"></i></span> Grading
+                    <span class="badge-count">4</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_quizzes') }}" class="{{ r == 'teacher_quizzes' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-pencil-square-o"></i></span> Quizzes & Tests
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Insights</li>
+            <li>
+                <a href="{{ path('teacher_analytics') }}" class="{{ r == 'teacher_analytics' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-bar-chart"></i></span> Analytics
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_attendance') }}" class="{{ r == 'teacher_attendance' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-calendar-check-o"></i></span> Attendance
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_behavior') }}" class="{{ r == 'teacher_behavior' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-shield"></i></span> Behavior
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_notifications') }}" class="{{ r == 'teacher_notifications' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-bell"></i></span> Notifications
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_reports') }}" class="{{ r == 'teacher_reports' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-file-text-o"></i></span> Reports
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_resources') }}" class="{{ r == 'teacher_resources' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-sitemap"></i></span> School Resources
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Communicate</li>
+            <li>
+                <a href="{{ path('teacher_announcements') }}" class="{{ r == 'teacher_announcements' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-bullhorn"></i></span> Announcements
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_messages') }}" class="{{ r == 'teacher_messages' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-envelope-o"></i></span> Messages
+                    <span class="badge-count">3</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_live') }}" class="{{ r == 'teacher_live' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-video-camera"></i></span> Live Classes
+                    <span class="dot" style="width:8px;height:8px;background:#22c55e;border-radius:50%;margin-left:auto;flex-shrink:0;animation:blink 1.2s infinite;"></span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_meetings') }}" class="{{ r == 'teacher_meetings' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-calendar-plus-o"></i></span> Meetings
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Billing</li>
+            <li>
+                <a href="{{ path('teacher_payments') }}" class="{{ r == 'teacher_payments' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-credit-card"></i></span> Fees &amp; Payments
+                </a>
+            </li>
+
+            <li class="sidebar-section-label">Account</li>
+            <li>
+                <a href="{{ path('teacher_profile') }}" class="{{ r == 'teacher_profile' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-user-circle-o"></i></span> Profile
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('teacher_preferences') }}" class="{{ r == 'teacher_preferences' ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa fa-sliders"></i></span> Preferences
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img src="/dummy/student-lg-2.jpg" alt="avatar">
+                <div class="user-info">
+                    <div class="user-name">{{ app.user ? app.user.userIdentifier : 'Teacher' }}</div>
+                    <div class="user-role">Math &amp; Sciences</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    {# ── Main ── #}
+    <div class="portal-main">
+
+        <header class="portal-topbar">
+            <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+            <div class="topbar-right">
+                <a href="{{ path('teacher_live') }}" class="topbar-icon-btn" title="Live Classes">
+                    <i class="fa fa-video-camera"></i>
+                    <span class="dot"></span>
+                </a>
+                <a href="{{ path('teacher_messages') }}" class="topbar-icon-btn" title="Messages">
+                    <i class="fa fa-envelope-o"></i>
+                    <span class="dot"></span>
+                </a>
+                <div class="topbar-user">
+                    <img src="/dummy/student-lg-2.jpg" alt="user">
+                    <div>
+                        <div class="user-name-top">{{ app.user ? app.user.userIdentifier : 'Teacher' }}</div>
+                    </div>
+                </div>
+                <a href="{{ path('teacher_preferences') }}" class="topbar-icon-btn" title="Preferences">
+                    <i class="fa fa-cog"></i>
+                </a>
+                <a href="{{ path('teacher_logout') }}" class="topbar-icon-btn" title="Logout">
+                    <i class="fa fa-sign-out"></i>
+                </a>
+            </div>
+        </header>
+
+        <main class="portal-content">
+            {% for type, messages in app.flashes %}
+                {% for msg in messages %}
+                <div class="alert alert-{{ type == 'success' ? 'success' : 'danger' }}">
+                    <i class="fa fa-{{ type == 'success' ? 'check-circle' : 'exclamation-circle' }}"></i>
+                    {{ msg }}
+                </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script>
+// Modal helpers
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('t-modal-overlay')) {
+        e.target.classList.remove('open');
+    }
+});
+// Attendance radio buttons
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('att-radio-btn')) {
+        var group = e.target.closest('.att-radio-group');
+        group.querySelectorAll('.att-radio-btn').forEach(function(btn) {
+            btn.classList.remove('selected-present','selected-absent','selected-late');
+        });
+        var cls = e.target.classList.contains('present') ? 'selected-present'
+                : e.target.classList.contains('absent')  ? 'selected-absent'
+                : 'selected-late';
+        e.target.classList.add(cls);
+        var input = group.querySelector('input[type=hidden]');
+        if (input) input.value = e.target.dataset.val;
+    }
+});
+</script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

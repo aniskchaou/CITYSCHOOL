@@ -1,0 +1,83 @@
+{% extends 'portal/base.html.twig' %}
+
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications & Alerts{% endblock %}
+
+{% block content %}
+
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-bell" style="color:#2563eb;margin-right:6px;"></i>Recent Alerts</span>
+        <form method="post" action="{{ path('portal_notifications') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('refresh_alerts') }}">
+            <input type="hidden" name="action" value="refresh_alerts">
+            <button class="btn btn-sm btn-outline" type="submit">Refresh</button>
+        </form>
+    </div>
+    {% for item in alerts %}
+    <div style="padding:10px;border-left:4px solid {{ item.important ? '#ef4444' : '#94a3b8' }};background:#f8fafc;border-radius:6px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="font-size:13px;font-weight:700;">{{ item.title }}</div>
+            <span class="badge badge-{{ item.important ? 'danger' : 'secondary' }}">{{ item.important ? 'Important' : 'General' }}</span>
+        </div>
+        <div style="font-size:12px;color:#475569;margin-top:3px;">{{ item.message }}</div>
+        <div style="font-size:11px;color:#64748b;margin-top:3px;">{{ item.category|capitalize }} &middot; {{ item.time }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="grid-2" style="gap:20px;margin-bottom:20px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-cog" style="color:#0ea5e9;margin-right:6px;"></i>Manage Notification Preferences</span>
+        </div>
+        <form method="post" action="{{ path('portal_notifications') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_notification_preferences') }}">
+            <input type="hidden" name="action" value="save_notification_preferences">
+            <div style="display:grid;gap:8px;margin-bottom:12px;">
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.assignments %}checked{% endif %}> New assignments</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.grades %}checked{% endif %}> Grades posted</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.messages %}checked{% endif %}> Messages</label>
+                <label style="font-size:13px;"><input type="checkbox" {% if notificationPreferences.announcements %}checked{% endif %}> Announcements</label>
+            </div>
+            <button class="btn btn-outline" type="submit"><i class="fa fa-save"></i> Save Preferences</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fa fa-diamond" style="color:#7c3aed;margin-right:6px;"></i>Premium Notification Controls</span>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Smart filtering</div>
+        <form method="post" action="{{ path('portal_notifications') }}" style="margin-bottom:12px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('apply_smart_filter') }}">
+            <input type="hidden" name="action" value="apply_smart_filter">
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="radio" name="filter" checked> Important first</label>
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="radio" name="filter"> Hide non-important during study window</label>
+            <button class="btn btn-outline btn-sm" type="submit">Apply Filter</button>
+        </form>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Daily/Weekly digest</div>
+        <form method="post" action="{{ path('portal_notifications') }}" style="margin-bottom:12px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_digest_options') }}">
+            <input type="hidden" name="action" value="save_digest_options">
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="checkbox" {% if digestSettings.dailyDigest %}checked{% endif %}> Daily digest</label>
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="checkbox" {% if digestSettings.weeklyDigest %}checked{% endif %}> Weekly digest</label>
+            <div style="font-size:12px;color:#64748b;margin-bottom:8px;">Digest time: {{ digestSettings.digestTime }}</div>
+            <button class="btn btn-outline btn-sm" type="submit">Save Digest</button>
+        </form>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Multi-channel alerts</div>
+        <form method="post" action="{{ path('portal_notifications') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_channels') }}">
+            <input type="hidden" name="action" value="save_channels">
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="checkbox" {% if channels.app %}checked{% endif %}> App alerts</label>
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="checkbox" {% if channels.email %}checked{% endif %}> Email alerts</label>
+            <label style="font-size:13px;display:block;margin-bottom:6px;"><input type="checkbox" {% if channels.sms %}checked{% endif %}> SMS alerts</label>
+            <button class="btn btn-outline btn-sm" type="submit">Save Channels</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

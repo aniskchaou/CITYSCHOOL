@@ -1,0 +1,663 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admissions &amp; Enrollment | City School{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ===== ENROLLMENT / ADMISSIONS PAGE ===== */
+
+/* --- Section wrappers --- */
+.enr-section      { padding: 60px 0; }
+.enr-section-alt  { padding: 60px 0; background: #f7f9fc; }
+.enr-section-dark { padding: 60px 0; background: linear-gradient(135deg,#1a237e 0%,#283593 100%); color:#fff; }
+.enr-label { display:inline-block; background:#1a237e; color:#fff; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:12px; }
+.enr-label-light { background:rgba(255,255,255,.2); }
+.enr-title { font-family:'Arvo',serif; font-size:1.9rem; font-weight:700; color:#1a237e; margin:0 0 8px; }
+.enr-title-light { color:#fff; }
+.enr-sub { color:#6b7a99; font-size:.97rem; margin:0 0 36px; max-width:600px; }
+.enr-sub-light { color:rgba(255,255,255,.78); }
+
+/* ===== QUICK ACTIONS BAR ===== */
+.enr-actions-bar { background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#3949ab 100%); padding:44px 0 36px; }
+.enr-actions-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+@media(max-width:900px){ .enr-actions-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:540px){ .enr-actions-grid { grid-template-columns:1fr; } }
+.enr-action-card { background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.18); border-radius:14px; padding:26px 22px; text-align:center; color:#fff; text-decoration:none; transition:background .2s,transform .2s; display:block; cursor:pointer; }
+.enr-action-card:hover { background:rgba(255,255,255,.18); transform:translateY(-4px); color:#fff; text-decoration:none; }
+.enr-action-icon { width:52px; height:52px; background:rgba(255,255,255,.15); border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.4rem; }
+.enr-action-card h4 { font-family:'Arvo',serif; font-size:1rem; margin:0 0 6px; }
+.enr-action-card p { font-size:.78rem; opacity:.82; margin:0; line-height:1.5; }
+
+/* ===== WIZARD ===== */
+.wizard-outer { background:#fff; border-radius:18px; box-shadow:0 6px 36px rgba(26,35,126,.11); overflow:hidden; }
+.wizard-steps-bar { display:flex; background:#f7f9fc; border-bottom:2px solid #e8eaf6; padding:0; margin:0; list-style:none; }
+.wizard-step-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; padding:18px 10px; border:none; background:none; cursor:pointer; font-family:'Montserrat',sans-serif; font-size:.75rem; font-weight:600; color:#8a97b5; position:relative; transition:color .2s; }
+.wizard-step-btn::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:3px; background:#1a237e; border-radius:2px; transform:scaleX(0); transition:transform .2s; }
+.wizard-step-btn.active { color:#1a237e; }
+.wizard-step-btn.active::after { transform:scaleX(1); }
+.wizard-step-btn.done { color:#43a047; }
+.wizard-step-btn .ws-num { width:28px; height:28px; border-radius:50%; background:#e8eaf6; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:800; transition:background .2s,color .2s; }
+.wizard-step-btn.active .ws-num { background:#1a237e; color:#fff; }
+.wizard-step-btn.done   .ws-num { background:#43a047; color:#fff; }
+.wizard-body { padding:36px 40px; }
+@media(max-width:600px){ .wizard-body { padding:24px 16px; } }
+.wizard-panel { display:none; }
+.wizard-panel.active { display:block; }
+.wizard-panel h3 { font-family:'Arvo',serif; font-size:1.25rem; color:#1a237e; margin:0 0 20px; }
+.wiz-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:580px){ .wiz-form-grid { grid-template-columns:1fr; } }
+.wiz-field { display:flex; flex-direction:column; gap:6px; }
+.wiz-field.full { grid-column:1/-1; }
+.wiz-field label { font-size:.8rem; font-weight:700; color:#455a8a; text-transform:uppercase; letter-spacing:.06em; }
+.wiz-field input, .wiz-field select, .wiz-field textarea {
+    padding:10px 14px; border:1.5px solid #dde3f0; border-radius:8px;
+    font-family:'Montserrat',sans-serif; font-size:.9rem; color:#333;
+    background:#fafbff; transition:border-color .2s,box-shadow .2s; width:100%; box-sizing:border-box;
+}
+.wiz-field input:focus, .wiz-field select:focus, .wiz-field textarea:focus {
+    outline:none; border-color:#3949ab; box-shadow:0 0 0 3px rgba(57,73,171,.1);
+}
+.wiz-field textarea { resize:vertical; min-height:90px; }
+.wiz-nav { display:flex; justify-content:space-between; align-items:center; margin-top:30px; padding-top:20px; border-top:1.5px solid #e8eaf6; }
+.wiz-btn-back { background:#f0f2fc; color:#1a237e; border:1.5px solid #c5cae9; padding:10px 22px; border-radius:8px; font-weight:700; font-size:.88rem; cursor:pointer; transition:background .2s; font-family:'Montserrat',sans-serif; }
+.wiz-btn-back:hover { background:#e8eaf6; }
+.wiz-btn-next { background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; border:none; padding:10px 26px; border-radius:8px; font-weight:700; font-size:.88rem; cursor:pointer; transition:opacity .2s; font-family:'Montserrat',sans-serif; display:inline-flex; align-items:center; gap:8px; }
+.wiz-btn-next:hover { opacity:.85; }
+.wiz-progress-text { font-size:.78rem; color:#8a97b5; font-weight:600; }
+.save-bar { background:#e8f5e9; border:1.5px solid #a5d6a7; border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px; margin-bottom:22px; font-size:.83rem; color:#2e7d32; }
+.save-bar i { font-size:1rem; }
+
+/* doc upload */
+.doc-upload-area { border:2px dashed #c5cae9; border-radius:12px; padding:32px 24px; text-align:center; background:#fafbff; cursor:pointer; transition:border-color .2s,background .2s; margin-bottom:16px; }
+.doc-upload-area:hover { border-color:#3949ab; background:#f0f2fc; }
+.doc-upload-area i { font-size:2.2rem; color:#7986cb; margin-bottom:10px; }
+.doc-upload-area p { margin:0; font-size:.88rem; color:#8a97b5; }
+.doc-upload-area .upload-label { font-size:.8rem; font-weight:700; color:#1a237e; text-transform:uppercase; letter-spacing:.07em; display:block; margin-bottom:6px; }
+.doc-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.doc-list li { background:#f0f2fc; border-radius:8px; padding:9px 14px; display:flex; align-items:center; gap:10px; font-size:.83rem; color:#455a8a; }
+.doc-list li i { color:#3949ab; }
+.doc-list .doc-status { margin-left:auto; font-size:.72rem; font-weight:700; background:#e8f5e9; color:#2e7d32; padding:2px 10px; border-radius:20px; }
+.doc-list .doc-status.pending { background:#fff9c4; color:#f57f17; }
+
+/* tracker */
+.tracker-steps { display:flex; flex-direction:column; gap:0; position:relative; }
+.tracker-steps::before { content:''; position:absolute; left:23px; top:0; bottom:0; width:3px; background:linear-gradient(to bottom,#1a237e,#c5cae9); }
+.tracker-step { display:flex; gap:18px; align-items:flex-start; padding:0 0 28px; position:relative; }
+.tracker-step:last-child { padding-bottom:0; }
+.tracker-icon { width:46px; height:46px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1rem; z-index:1; position:relative; }
+.tracker-icon.done    { background:#1a237e; color:#fff; }
+.tracker-icon.current { background:#ffa000; color:#fff; box-shadow:0 0 0 5px rgba(255,160,0,.18); }
+.tracker-icon.pending { background:#e8eaf6; color:#9fa8da; }
+.tracker-info h4 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 4px; }
+.tracker-info p  { font-size:.83rem; color:#6b7a99; margin:0; }
+.tracker-badge { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 10px; border-radius:20px; margin-top:6px; }
+.tracker-badge.done    { background:#e8f5e9; color:#2e7d32; }
+.tracker-badge.current { background:#fff9c4; color:#f57f17; }
+.tracker-badge.pending { background:#e8eaf6; color:#8a97b5; }
+
+/* requirements */
+.req-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media(max-width:900px){ .req-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:540px){ .req-grid { grid-template-columns:1fr; } }
+.req-card { background:#fff; border-radius:14px; padding:26px 22px; box-shadow:0 3px 18px rgba(26,35,126,.08); border-left:4px solid #1a237e; }
+.req-card.middle  { border-left-color:#303f9f; }
+.req-card.senior  { border-left-color:#283593; }
+.req-card h4 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 14px; }
+.req-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.req-list li { font-size:.83rem; color:#555; display:flex; align-items:flex-start; gap:8px; }
+.req-list li i { color:#3949ab; font-size:.8rem; margin-top:2px; flex-shrink:0; }
+
+/* confirmation panel */
+.confirm-box { background:#e8f5e9; border:2px solid #a5d6a7; border-radius:14px; padding:32px 36px; text-align:center; }
+.confirm-box i.big { font-size:3rem; color:#2e7d32; margin-bottom:16px; }
+.confirm-box h3 { font-family:'Arvo',serif; font-size:1.4rem; color:#1a237e; margin:0 0 8px; }
+.confirm-box p { color:#555; font-size:.93rem; line-height:1.7; margin:0 0 20px; }
+.confirm-box .ref-badge { display:inline-block; background:#1a237e; color:#fff; font-size:.9rem; font-weight:800; padding:6px 22px; border-radius:20px; letter-spacing:.08em; }
+
+/* layout split */
+.enr-split { display:grid; grid-template-columns:2fr 1fr; gap:28px; }
+@media(max-width:900px){ .enr-split { grid-template-columns:1fr; } }
+.enr-sidebar { display:flex; flex-direction:column; gap:18px; }
+.enr-widget { background:#fff; border-radius:14px; padding:22px 20px; box-shadow:0 3px 18px rgba(26,35,126,.07); }
+.enr-widget h4 { font-family:'Arvo',serif; font-size:1rem; color:#1a237e; margin:0 0 14px; border-bottom:2px solid #e8eaf6; padding-bottom:10px; }
+.enr-widget ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.enr-widget ul li { font-size:.83rem; color:#555; display:flex; align-items:flex-start; gap:8px; }
+.enr-widget ul li i { color:#3949ab; margin-top:2px; flex-shrink:0; }
+.enr-cta-btn { display:block; text-align:center; background:linear-gradient(135deg,#1a237e,#3949ab); color:#fff; padding:12px; border-radius:10px; font-weight:700; font-size:.88rem; text-decoration:none; transition:opacity .2s; }
+.enr-cta-btn:hover { opacity:.85; color:#fff; }
+.deadline-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f2fc; font-size:.82rem; }
+.deadline-row:last-child { border-bottom:none; }
+.dl-badge { background:#e8eaf6; color:#1a237e; font-size:.7rem; font-weight:700; padding:2px 10px; border-radius:20px; }
+.dl-badge.urgent { background:#ffebee; color:#c62828; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div id="site-content">
+    <header class="site-header">
+        <div class="primary-header">
+            <div class="container">
+                <a href="{{ path('index') }}" id="branding">
+                    <img src="/images/logo.png" alt="City School">
+                    <div>
+                        <h1 class="site-title">City School</h1>
+                        <span class="site-subtitle">Premium Learning Institution</span>
+                    </div>
+                </a>
+                <div class="main-navigation">
+                    <ul class="home-main-menu home-nav-v2">
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('index') }}">Home</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('courses') }}">Courses</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('values') }}">Values</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('events') }}">Events</a></li>
+                        <li class="home-nav-item current-menu-item"><a class="home-nav-link" href="{{ path('admissions') }}">Admissions</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('pricing') }}">Pricing</a></li>
+                        <li class="home-nav-item"><a class="home-nav-link" href="{{ path('contact') }}">Contact</a></li>
+                        <li class="home-nav-item nav-dropdown">
+                            <a class="home-nav-link" href="#"><i class="fa fa-sign-in home-nav-login-icon"></i> Login <span class="arrow">&#9660;</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ path('portal_login') }}"><span class="dm-icon"><i class="fa fa-book"></i></span> Student Portal</a></li>
+                                <li><a href="{{ path('teacher_login') }}"><span class="dm-icon"><i class="fa fa-sitemap"></i></span> Teacher Portal</a></li>
+                                <li><a href="{{ path('parent_login') }}"><span class="dm-icon"><i class="fa fa-home"></i></span> Parent Portal</a></li>
+                                <li><a href="{{ path('admin_login') }}"><span class="dm-icon"><i class="fa fa-cogs"></i></span> Admin Portal</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a href="{{ path('super_admin_login') }}"><span class="dm-icon"><i class="fa fa-shield"></i></span> Super Admin</a></li>
+                            </ul>
+                        </li>
+                        <li class="home-nav-item nav-lang-switcher">
+                            <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+                            <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+                            <button class="lang-btn" data-lang="es" onclick="switchLang('es')">ES</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="home-slider">
+            <div class="container">
+                <div class="slide-caption">
+                    <h2 class="slide-title">Your Journey Starts Here.<br>Apply Today.</h2>
+                    <p>Join a community of learners who are building the future. Our streamlined admissions process makes it easy to get started, track your application, and become part of City School.</p>
+                    <div class="hero-cta-row">
+                        <a href="#apply-wizard" class="button large hero-btn hero-btn-programs"><i class="fa fa-pencil-square-o"></i>Apply Online</a>
+                        <a href="#requirements" class="button large hero-btn hero-btn-consult"><i class="fa fa-list-alt"></i>View Requirements</a>
+                    </div>
+                </div>
+                <div class="slider-img">
+                    <img src="/dummy/kid.png" alt="Student at City School">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- ===== QUICK ACTION CARDS ===== -->
+        <div class="enr-actions-bar">
+            <div class="container">
+                <div class="enr-actions-grid">
+                    <a href="#apply-wizard" class="enr-action-card">
+                        <div class="enr-action-icon"><i class="fa fa-pencil-square-o"></i></div>
+                        <h4>Apply Online</h4>
+                        <p>Complete the step-by-step application wizard in minutes.</p>
+                    </a>
+                    <a href="#upload-docs" class="enr-action-card">
+                        <div class="enr-action-icon"><i class="fa fa-upload"></i></div>
+                        <h4>Upload Documents</h4>
+                        <p>Submit your required documents securely through our portal.</p>
+                    </a>
+                    <a href="#track-status" class="enr-action-card">
+                        <div class="enr-action-icon"><i class="fa fa-search"></i></div>
+                        <h4>Track Application</h4>
+                        <p>Check your real-time application status at any stage.</p>
+                    </a>
+                    <a href="#requirements" class="enr-action-card">
+                        <div class="enr-action-icon"><i class="fa fa-list-alt"></i></div>
+                        <h4>Admission Requirements</h4>
+                        <p>Review grade-level requirements and what to prepare.</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== APPLICATION WIZARD ===== -->
+        <section class="enr-section" id="apply-wizard">
+            <div class="container">
+                <span class="enr-label">Step-by-Step Application</span>
+                <h2 class="enr-title">Apply Online &mdash; Wizard</h2>
+                <p class="enr-sub">Fill out each section at your own pace. Your progress is saved automatically so you can continue later from any device.</p>
+
+                <div class="enr-split">
+                    <div>
+                        <div class="wizard-outer">
+                            <ul class="wizard-steps-bar" role="tablist">
+                                <li><button class="wizard-step-btn active" data-step="1" type="button"><span class="ws-num">1</span>Personal</button></li>
+                                <li><button class="wizard-step-btn" data-step="2" type="button"><span class="ws-num">2</span>Academic</button></li>
+                                <li><button class="wizard-step-btn" data-step="3" type="button"><span class="ws-num">3</span>Documents</button></li>
+                                <li><button class="wizard-step-btn" data-step="4" type="button"><span class="ws-num">4</span>Review</button></li>
+                            </ul>
+                            <div class="wizard-body">
+
+                                <!-- STEP 1 — Personal Info -->
+                                <div class="wizard-panel active" id="step-1">
+                                    <div class="save-bar"><i class="fa fa-floppy-o"></i> Progress saved — you can continue later from any device.</div>
+                                    <h3>Personal Information</h3>
+                                    <div class="wiz-form-grid">
+                                        <div class="wiz-field">
+                                            <label>First Name *</label>
+                                            <input type="text" placeholder="e.g. Sarah" id="wiz-fname">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Last Name *</label>
+                                            <input type="text" placeholder="e.g. Mensah" id="wiz-lname">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Date of Birth *</label>
+                                            <input type="date" id="wiz-dob">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Gender *</label>
+                                            <select id="wiz-gender">
+                                                <option value="">Select…</option>
+                                                <option>Female</option>
+                                                <option>Male</option>
+                                                <option>Prefer not to say</option>
+                                            </select>
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Guardian Full Name *</label>
+                                            <input type="text" placeholder="e.g. John Mensah" id="wiz-guardian">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Relationship to Student</label>
+                                            <select id="wiz-rel">
+                                                <option value="">Select…</option>
+                                                <option>Parent</option>
+                                                <option>Legal Guardian</option>
+                                                <option>Grandparent</option>
+                                                <option>Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Contact Phone *</label>
+                                            <input type="tel" placeholder="+1 (555) 000-0000" id="wiz-phone">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Email Address *</label>
+                                            <input type="email" placeholder="you@example.com" id="wiz-email">
+                                        </div>
+                                        <div class="wiz-field full">
+                                            <label>Home Address</label>
+                                            <input type="text" placeholder="Street address, city, state / region" id="wiz-address">
+                                        </div>
+                                    </div>
+                                    <div class="wiz-nav">
+                                        <span class="wiz-progress-text">Step 1 of 4</span>
+                                        <button class="wiz-btn-next" onclick="wizGo(2)">Next: Academic Info <i class="fa fa-arrow-right"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 2 — Academic Info -->
+                                <div class="wizard-panel" id="step-2">
+                                    <div class="save-bar"><i class="fa fa-floppy-o"></i> Progress saved automatically.</div>
+                                    <h3>Academic Background</h3>
+                                    <div class="wiz-form-grid">
+                                        <div class="wiz-field">
+                                            <label>Applying for Grade *</label>
+                                            <select id="wiz-grade">
+                                                <option value="">Select grade…</option>
+                                                <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option><option>Grade 4</option>
+                                                <option>Grade 5</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option>
+                                                <option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option>
+                                            </select>
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Academic Year</label>
+                                            <select id="wiz-year">
+                                                <option>2025 – 2026</option>
+                                                <option selected>2026 – 2027</option>
+                                                <option>2027 – 2028</option>
+                                            </select>
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Previous School Name</label>
+                                            <input type="text" placeholder="e.g. Greenfield Academy" id="wiz-prevschool">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Last Grade Completed</label>
+                                            <input type="text" placeholder="e.g. Grade 4" id="wiz-lastgrade">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Last GPA / Avg. Score</label>
+                                            <input type="text" placeholder="e.g. 3.8 / 92%" id="wiz-gpa">
+                                        </div>
+                                        <div class="wiz-field">
+                                            <label>Preferred Start Term</label>
+                                            <select id="wiz-term">
+                                                <option>September 2026</option>
+                                                <option>January 2027</option>
+                                                <option>June 2027 (Summer)</option>
+                                            </select>
+                                        </div>
+                                        <div class="wiz-field full">
+                                            <label>Extracurricular Interests</label>
+                                            <textarea placeholder="Sports, arts, clubs, volunteering…" id="wiz-extra"></textarea>
+                                        </div>
+                                        <div class="wiz-field full">
+                                            <label>Special Learning Needs / Accommodations (optional)</label>
+                                            <textarea placeholder="Describe any support requirements…" id="wiz-needs"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="wiz-nav">
+                                        <button class="wiz-btn-back" onclick="wizGo(1)"><i class="fa fa-arrow-left"></i> Back</button>
+                                        <span class="wiz-progress-text">Step 2 of 4</span>
+                                        <button class="wiz-btn-next" onclick="wizGo(3)">Next: Upload Docs <i class="fa fa-arrow-right"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 3 — Documents -->
+                                <div class="wizard-panel" id="step-3">
+                                    <div class="save-bar"><i class="fa fa-floppy-o"></i> Progress saved automatically.</div>
+                                    <h3>Upload Required Documents</h3>
+                                    <label class="doc-upload-area" for="docInput">
+                                        <i class="fa fa-cloud-upload"></i>
+                                        <span class="upload-label">Drag &amp; Drop or Click to Upload</span>
+                                        <p>Accepted: PDF, JPG, PNG — max 5 MB per file</p>
+                                        <input type="file" id="docInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload(this)">
+                                    </label>
+                                    <ul class="doc-list" id="docList">
+                                        <li><i class="fa fa-file-text-o"></i> Birth Certificate <span class="doc-status pending">Pending</span></li>
+                                        <li><i class="fa fa-file-image-o"></i> Passport Photo <span class="doc-status pending">Pending</span></li>
+                                        <li><i class="fa fa-file-text-o"></i> Previous Report Cards <span class="doc-status pending">Pending</span></li>
+                                    </ul>
+                                    <div class="wiz-nav">
+                                        <button class="wiz-btn-back" onclick="wizGo(2)"><i class="fa fa-arrow-left"></i> Back</button>
+                                        <span class="wiz-progress-text">Step 3 of 4</span>
+                                        <button class="wiz-btn-next" onclick="wizGo(4)">Review &amp; Submit <i class="fa fa-arrow-right"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 4 — Review & Confirm -->
+                                <div class="wizard-panel" id="step-4">
+                                    <h3>Review &amp; Submit</h3>
+                                    <div class="confirm-box" id="confirm-box-preview">
+                                        <i class="fa fa-check-circle big" style="color:#1a237e;"></i>
+                                        <h3>Ready to Submit?</h3>
+                                        <p>Please review all sections before submitting. Once submitted you'll receive an instant confirmation and email updates at every stage of your application.</p>
+                                        <button class="wiz-btn-next" style="display:inline-flex;margin:0 auto;" onclick="submitApp()"><i class="fa fa-paper-plane"></i> Submit Application</button>
+                                    </div>
+                                    <div class="confirm-box" id="confirm-box-done" style="display:none;background:#e8f5e9;border-color:#a5d6a7;">
+                                        <i class="fa fa-check-circle big" style="color:#2e7d32;"></i>
+                                        <h3>Application Submitted!</h3>
+                                        <p>Your application has been received. An email confirmation has been sent. Track your status below using your reference number.</p>
+                                        <span class="ref-badge" id="refNumber">REF–202600001</span>
+                                    </div>
+                                    <div class="wiz-nav">
+                                        <button class="wiz-btn-back" onclick="wizGo(3)"><i class="fa fa-arrow-left"></i> Back</button>
+                                        <span class="wiz-progress-text">Step 4 of 4</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SIDEBAR -->
+                    <aside class="enr-sidebar">
+                        <div class="enr-widget">
+                            <h4><i class="fa fa-calendar"></i> Application Deadlines</h4>
+                            <div class="deadline-row"><span>September Intake</span><span class="dl-badge urgent">Jul 15</span></div>
+                            <div class="deadline-row"><span>January Intake</span><span class="dl-badge">Nov 1</span></div>
+                            <div class="deadline-row"><span>Summer Fast-Track</span><span class="dl-badge">Apr 30</span></div>
+                        </div>
+                        <div class="enr-widget">
+                            <h4><i class="fa fa-info-circle"></i> What Happens Next?</h4>
+                            <ul>
+                                <li><i class="fa fa-check"></i> Application reviewed within 3–5 business days</li>
+                                <li><i class="fa fa-check"></i> Placement assessment scheduled if required</li>
+                                <li><i class="fa fa-check"></i> Offer letter sent via email &amp; portal</li>
+                                <li><i class="fa fa-check"></i> Acceptance &amp; fee payment to confirm seat</li>
+                            </ul>
+                        </div>
+                        <div class="enr-widget">
+                            <a href="{{ path('contact') }}" class="enr-cta-btn"><i class="fa fa-comments"></i> Talk to Admissions</a>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TRACK APPLICATION STATUS ===== -->
+        <section class="enr-section-alt" id="track-status">
+            <div class="container">
+                <span class="enr-label">Real-Time Updates</span>
+                <h2 class="enr-title">Track Your Application Status</h2>
+                <p class="enr-sub">Enter your reference number or email address to see exactly where your application stands.</p>
+                <div class="enr-split">
+                    <div>
+                        <div style="display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;">
+                            <input type="text" id="trackInput" placeholder="Reference number (e.g. REF–202600001)" style="flex:1 1 260px;padding:10px 16px;border:1.5px solid #dde3f0;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.9rem;color:#333;">
+                            <button onclick="trackApp()" style="background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:'Montserrat',sans-serif;">Track <i class="fa fa-search"></i></button>
+                        </div>
+                        <div class="tracker-steps" id="trackerSteps">
+                            <div class="tracker-step">
+                                <div class="tracker-icon done"><i class="fa fa-check"></i></div>
+                                <div class="tracker-info">
+                                    <h4>Application Submitted</h4>
+                                    <p>Your application was received on Apr 28, 2026.</p>
+                                    <span class="tracker-badge done">Completed</span>
+                                </div>
+                            </div>
+                            <div class="tracker-step">
+                                <div class="tracker-icon done"><i class="fa fa-check"></i></div>
+                                <div class="tracker-info">
+                                    <h4>Documents Verified</h4>
+                                    <p>All uploaded documents have been reviewed and accepted.</p>
+                                    <span class="tracker-badge done">Completed</span>
+                                </div>
+                            </div>
+                            <div class="tracker-step">
+                                <div class="tracker-icon current"><i class="fa fa-spinner"></i></div>
+                                <div class="tracker-info">
+                                    <h4>Academic Review</h4>
+                                    <p>Your academic records are currently being evaluated by the admissions team.</p>
+                                    <span class="tracker-badge current">In Progress</span>
+                                </div>
+                            </div>
+                            <div class="tracker-step">
+                                <div class="tracker-icon pending"><i class="fa fa-envelope-o"></i></div>
+                                <div class="tracker-info">
+                                    <h4>Decision &amp; Offer Letter</h4>
+                                    <p>Awaiting academic review completion.</p>
+                                    <span class="tracker-badge pending">Pending</span>
+                                </div>
+                            </div>
+                            <div class="tracker-step">
+                                <div class="tracker-icon pending"><i class="fa fa-flag-o"></i></div>
+                                <div class="tracker-info">
+                                    <h4>Enrollment Confirmed</h4>
+                                    <p>Seat confirmation upon acceptance &amp; fee payment.</p>
+                                    <span class="tracker-badge pending">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="enr-sidebar">
+                        <div class="enr-widget">
+                            <h4><i class="fa fa-bell"></i> Email Notifications</h4>
+                            <ul>
+                                <li><i class="fa fa-check"></i> Instant confirmation on submit</li>
+                                <li><i class="fa fa-check"></i> Update when documents are verified</li>
+                                <li><i class="fa fa-check"></i> Alert when decision is made</li>
+                                <li><i class="fa fa-check"></i> Reminder for payment &amp; seat confirmation</li>
+                            </ul>
+                        </div>
+                        <div class="enr-widget">
+                            <h4><i class="fa fa-phone"></i> Need Help?</h4>
+                            <p style="font-size:.83rem;color:#6b7a99;margin:0 0 12px;">Our admissions team is available Mon–Fri 8am–5pm.</p>
+                            <a href="tel:+148942652394" class="enr-cta-btn"><i class="fa fa-phone"></i> (489) 426-52394</a>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ADMISSION REQUIREMENTS ===== -->
+        <section class="enr-section" id="requirements">
+            <div class="container">
+                <span class="enr-label">What You Need</span>
+                <h2 class="enr-title">Admission Requirements</h2>
+                <p class="enr-sub">Requirements vary by grade level. Review the checklist for the level your child is applying to.</p>
+                <div class="req-grid">
+                    <div class="req-card">
+                        <h4><i class="fa fa-star" style="color:#ffa000;margin-right:6px;"></i> Primary School (Grades 1–4)</h4>
+                        <ul class="req-list">
+                            <li><i class="fa fa-check-circle"></i> Birth certificate (original + copy)</li>
+                            <li><i class="fa fa-check-circle"></i> Passport-size photograph (x2)</li>
+                            <li><i class="fa fa-check-circle"></i> Immunisation / health records</li>
+                            <li><i class="fa fa-check-circle"></i> Previous school report (if any)</li>
+                            <li><i class="fa fa-check-circle"></i> Parent / Guardian ID copy</li>
+                        </ul>
+                    </div>
+                    <div class="req-card middle">
+                        <h4><i class="fa fa-star" style="color:#1a237e;margin-right:6px;"></i> Middle School (Grades 5–8)</h4>
+                        <ul class="req-list">
+                            <li><i class="fa fa-check-circle"></i> Birth certificate</li>
+                            <li><i class="fa fa-check-circle"></i> Last 2 years' academic report cards</li>
+                            <li><i class="fa fa-check-circle"></i> Teacher recommendation letter</li>
+                            <li><i class="fa fa-check-circle"></i> Placement assessment (Math &amp; English)</li>
+                            <li><i class="fa fa-check-circle"></i> Parent / Guardian ID copy</li>
+                            <li><i class="fa fa-check-circle"></i> Immunisation records</li>
+                        </ul>
+                    </div>
+                    <div class="req-card senior">
+                        <h4><i class="fa fa-star" style="color:#283593;margin-right:6px;"></i> Secondary School (Grades 9–12)</h4>
+                        <ul class="req-list">
+                            <li><i class="fa fa-check-circle"></i> Certified transcripts (last 3 years)</li>
+                            <li><i class="fa fa-check-circle"></i> Two teacher recommendations</li>
+                            <li><i class="fa fa-check-circle"></i> Personal statement (500 words)</li>
+                            <li><i class="fa fa-check-circle"></i> Standardised test results (if any)</li>
+                            <li><i class="fa fa-check-circle"></i> Placement assessment</li>
+                            <li><i class="fa fa-check-circle"></i> Parent / Guardian ID copy</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CTA STRIP ===== -->
+        <section class="enr-section-dark">
+            <div class="container" style="text-align:center;">
+                <span class="enr-label enr-label-light">Limited Seats Available</span>
+                <h2 class="enr-title enr-title-light" style="margin-bottom:14px;">Ready to Join City School?</h2>
+                <p class="enr-sub enr-sub-light" style="margin:0 auto 28px;">Applications for the 2026–2027 academic year are now open. Secure your child's place before the deadline.</p>
+                <a href="#apply-wizard" class="button large hero-btn hero-btn-programs" style="display:inline-flex;"><i class="fa fa-pencil-square-o"></i>Start Your Application</a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Contact us</h3>
+                        <address>City School <br>745 Jewel Ave Street <br>Fress Meadows, NY 11365</address>
+                        <a href="mailto:info@cityschool.edu">info@cityschool.edu</a> <br>
+                        <a href="tel:+148942652394">(489) 426-52394</a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Social media</h3>
+                        <p>Follow us for news, events, and student achievements.</p>
+                        <div class="social-links circle">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-google-plus"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Featured students</h3>
+                        <ul class="student-list">
+                            <li><a href="#">
+                                <img src="/dummy/student-sm-1.jpg" alt="" class="avatar">
+                                <span class="fn">Sarah Branson</span>
+                                <span class="average">Average: 4.9</span>
+                            </a></li>
+                            <li><a href="#">
+                                <img src="/dummy/student-sm-2.jpg" alt="" class="avatar">
+                                <span class="fn">Dorothy Smith</span>
+                                <span class="average">Average: 4.9</span>
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget">
+                        <h3 class="widget-title">Newsletter</h3>
+                        <p>Stay updated with school news and events.</p>
+                        <form action="#" class="subscribe">
+                            <input type="email" placeholder="Email Address...">
+                            <input type="submit" class="light" value="Subscribe">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="copy">Copyright &copy; 2024 City School. All rights reserved.
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('privacy');return false;" style="color:inherit;opacity:.7;">Privacy Policy</a>
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('terms');return false;" style="color:inherit;opacity:.7;">Terms of Service</a>
+                &nbsp;&middot;&nbsp; <a href="#" onclick="showModal('cookie-settings');return false;" style="color:inherit;opacity:.7;">Cookie Settings</a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script src="/js/plugins.js"></script>
+<script src="/js/app.js"></script>
+<script>
+/* ===== WIZARD NAVIGATION ===== */
+function wizGo(step) {
+    document.querySelectorAll('.wizard-panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.wizard-step-btn').forEach(function(b, i){
+        b.classList.remove('active','done');
+        if(i + 1 < step)  b.classList.add('done');
+        if(i + 1 === step) b.classList.add('active');
+    });
+    var panel = document.getElementById('step-' + step);
+    if(panel) { panel.classList.add('active'); panel.closest('.wizard-outer').scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+
+/* ===== SUBMIT APPLICATION ===== */
+function submitApp() {
+    var ref = 'REF–' + new Date().getFullYear() + String(Math.floor(Math.random()*90000)+10000);
+    document.getElementById('refNumber').textContent = ref;
+    document.getElementById('confirm-box-preview').style.display = 'none';
+    document.getElementById('confirm-box-done').style.display = 'block';
+    /* mark all steps done */
+    document.querySelectorAll('.wizard-step-btn').forEach(function(b){ b.classList.remove('active'); b.classList.add('done'); });
+}
+
+/* ===== DOCUMENT UPLOAD ===== */
+function handleDocUpload(input) {
+    var list = document.getElementById('docList');
+    Array.from(input.files).forEach(function(file){
+        var li = document.createElement('li');
+        li.innerHTML = '<i class="fa fa-file-text-o"></i> ' + file.name + ' <span class="doc-status">Uploaded</span>';
+        list.appendChild(li);
+    });
+}
+
+/* ===== TRACK APPLICATION ===== */
+function trackApp() {
+    var val = document.getElementById('trackInput').value.trim();
+    if(!val) return;
+    document.getElementById('trackerSteps').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+{% endblock %}

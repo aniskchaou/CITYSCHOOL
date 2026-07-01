@@ -1,0 +1,120 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Subjects{% endblock %}
+{% block page_title %}Subject Management{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="filter-bar" style="flex:1;margin-bottom:0;">
+        <i class="fa fa-search" style="color:#94a3b8;"></i>
+        <input type="search" id="subj-search" placeholder="Search subject or teacher…" oninput="filterSubjects()">
+    </div>
+    <button class="btn-purple" style="margin-left:12px;" onclick="openModal('modal-create-subject')"><i class="fa fa-plus"></i> New Subject</button>
+</div>
+
+<div class="card">
+    <table class="portal-table" id="subj-table">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Code</th>
+                <th>Teacher</th>
+                <th>Classes</th>
+                <th>Students</th>
+                <th>Credits</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for s in subjects %}
+        <tr class="subj-row" data-name="{{ s.name|lower }} {{ s.teacher|lower }}">
+            <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:10px;height:34px;border-radius:3px;background:{{ s.color }};flex-shrink:0;"></div>
+                    <span style="font-weight:700;font-size:13px;">{{ s.name }}</span>
+                </div>
+            </td>
+            <td><code style="background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:12px;">{{ s.code }}</code></td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="av-init av-teacher" style="width:28px;height:28px;font-size:10px;">
+                        {{ s.teacher|split(' ')|first|slice(0,1) }}{{ s.teacher|split(' ')|last|slice(0,1) }}
+                    </div>
+                    <span style="font-size:13px;">{{ s.teacher }}</span>
+                </div>
+            </td>
+            <td style="text-align:center;">
+                <span style="font-weight:800;color:#7c3aed;">{{ s.classes }}</span>
+            </td>
+            <td style="text-align:center;">
+                <span style="font-weight:800;color:#0891b2;">{{ s.students }}</span>
+            </td>
+            <td style="text-align:center;">
+                <span class="role-badge" style="background:#f3e8ff;color:#7c3aed;">{{ s.credits }} cr</span>
+            </td>
+            <td>
+                <div style="display:flex;gap:6px;">
+                    <button class="btn btn-outline btn-sm" onclick="openModal('modal-edit-subject')"><i class="fa fa-pencil"></i></button>
+                    <button class="btn-danger-sm" onclick="confirm('Delete {{ s.name }}?')"><i class="fa fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Create Subject Modal ─────────────────────────────────────── #}
+<div class="a-modal-overlay" id="modal-create-subject">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-book a-accent" style="margin-right:6px;"></i>Create New Subject</span>
+            <button class="a-modal-close" onclick="closeModal('modal-create-subject')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_subjects') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_subject_create') }}">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="form-control" name="name" required></div>
+                <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="form-control" name="code" placeholder="e.g. MATH-102"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Assigned Teacher</label>
+                <select class="form-control" name="teacher_id">
+                    {% for t in teachers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">Credits</label><input type="number" class="form-control" name="credits" value="3" min="1" max="6"></div>
+                <div class="form-group"><label class="form-label">Color</label><input type="color" class="form-control" name="color" value="#7c3aed" style="height:38px;"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2"></textarea></div>
+            <div style="display:flex;gap:10px;margin-top:6px;">
+                <button type="submit" class="btn-purple"><i class="fa fa-save"></i> Create Subject</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-create-subject')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="a-modal-overlay" id="modal-edit-subject">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-pencil a-accent" style="margin-right:6px;"></i>Edit Subject</span>
+            <button class="a-modal-close" onclick="closeModal('modal-edit-subject')">×</button>
+        </div>
+        <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="form-control" value="Mathematics"></div>
+        <div class="form-group"><label class="form-label">Assigned Teacher</label><select class="form-control">{% for t in teachers %}<option>{{ t.name }}</option>{% endfor %}</select></div>
+        <div class="form-group"><label class="form-label">Credits</label><input type="number" class="form-control" value="4"></div>
+        <button class="btn-purple"><i class="fa fa-save"></i> Save Changes</button>
+    </div>
+</div>
+
+<script>
+function filterSubjects() {
+    var q = document.getElementById('subj-search').value.toLowerCase();
+    document.querySelectorAll('.subj-row').forEach(function(row) {
+        row.style.display = !q || row.dataset.name.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

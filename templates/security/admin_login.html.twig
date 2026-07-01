@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin Login — City School</title>
+    <link rel="stylesheet" href="/fonts/font-awesome.min.css">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#1a0533 0%,#2d1b69 50%,#4c1d95 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+        .login-wrap{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(124,58,237,.35);}
+        .login-brand{text-align:center;margin-bottom:28px;}
+        .login-icon{width:56px;height:56px;border-radius:14px;background:#f3e8ff;display:inline-flex;align-items:center;justify-content:center;font-size:24px;color:#7c3aed;margin-bottom:10px;}
+        .login-title{font-size:22px;font-weight:900;color:#1e293b;}
+        .login-sub{font-size:13px;color:#64748b;margin-top:4px;}
+        .form-group{margin-bottom:16px;}
+        label{display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;}
+        input[type=text],input[type=password]{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:border .2s;}
+        input[type=text]:focus,input[type=password]:focus{border-color:#7c3aed;}
+        .btn-login{width:100%;padding:11px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;transition:background .2s;}
+        .btn-login:hover{background:#6d28d9;}
+        .alert-err{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+        .hint{margin-top:16px;padding:12px 14px;background:#f3e8ff;border-radius:8px;font-size:12px;color:#5b21b6;}
+        .hint b{color:#7c3aed;}
+        .other-portals{text-align:center;margin-top:20px;font-size:12px;color:#94a3b8;}
+        .other-portals a{color:#7c3aed;text-decoration:none;font-weight:600;}
+        .other-portals a:hover{text-decoration:underline;}
+    </style>
+</head>
+<body>
+<div class="login-wrap">
+    <div class="login-brand">
+        <div class="login-icon"><i class="fa fa-shield"></i></div>
+        <div class="login-title">Admin Panel</div>
+        <div class="login-sub">City School — Super Admin Access</div>
+    </div>
+
+    {% if error %}
+    <div class="alert-err"><i class="fa fa-exclamation-circle"></i> {{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ path('admin_login') }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="_username" value="{{ last_username }}" autocomplete="username" autofocus>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="_password" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-login"><i class="fa fa-shield"></i> Sign In as Admin</button>
+    </form>
+
+    <div class="hint">
+        <b>Demo credentials:</b><br>
+        Username: <b>admin</b> &nbsp;/&nbsp; Password: <b>student123</b>
+    </div>
+
+    <div class="other-portals">
+        <a href="{{ path('portal_login') }}">Student Portal</a> &nbsp;·&nbsp;
+        <a href="{{ path('teacher_login') }}">Teacher Portal</a> &nbsp;·&nbsp;
+        <a href="{{ path('home') }}"><i class="fa fa-home"></i> Return to Homepage</a>
+    </div>
+</div>
+</body>
+</html>

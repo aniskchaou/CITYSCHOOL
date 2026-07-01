@@ -1,0 +1,398 @@
+/* =========================================================
+   City School – Teacher Portal Styles
+   Extends portal.css — override accent colors + teacher UI
+   ========================================================= */
+
+/* ── Theme overrides ───────────────────────────────────────────────────────── */
+.teacher-portal-body {
+  font-family: 'Inter', sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+  min-height: 100vh;
+}
+
+.teacher-portal-body .portal-sidebar {
+  background: #0c1a2e;
+}
+
+.teacher-portal-body .sidebar-brand {
+  border-bottom: 1px solid #1a2d47;
+}
+
+.teacher-portal-body .brand-icon {
+  background: #0891b2;
+}
+
+.teacher-portal-body .sidebar-nav a:hover,
+.teacher-portal-body .sidebar-nav a.active {
+  background: #1a2d47;
+  color: #fff;
+}
+
+.teacher-portal-body .sidebar-nav a.active {
+  border-left: 3px solid #0891b2;
+}
+
+.teacher-portal-body .topbar-icon-btn span.dot {
+  background: #0891b2;
+}
+
+/* ── Teacher Login page ───────────────────────────────────────────────────── */
+.teacher-portal-body .login-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0f172a 100%);
+}
+
+.teacher-portal-body .login-card {
+  max-width: 440px;
+}
+
+.teacher-portal-body .login-brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.teacher-portal-body .login-brand-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26px;
+  margin-bottom: 10px;
+  box-shadow: 0 8px 20px rgba(8, 145, 178, 0.35);
+}
+
+.teacher-portal-body .login-brand-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.teacher-portal-body .login-brand-sub {
+  font-size: 13px;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.teacher-portal-body .login-hint {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f0f9ff;
+  color: #0c4a6e;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* ── Teacher accent color utilities ───────────────────────────────────────── */
+.t-accent       { color: #0891b2; }
+.t-accent-bg    { background: #0891b2; color: #fff; }
+.t-accent-soft  { background: #e0f2fe; color: #0369a1; }
+
+/* ── Grading panel ─────────────────────────────────────────────────────────── */
+.grade-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  margin-bottom: 14px;
+}
+
+.grade-card.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.grade-card.graded {
+  border-left: 4px solid #22c55e;
+  opacity: .7;
+}
+
+.auto-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  border: 1px solid #bfdbfe;
+}
+
+.score-input {
+  width: 80px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: #1e293b;
+  transition: border-color .2s;
+}
+
+.score-input:focus {
+  outline: none;
+  border-color: #0891b2;
+}
+
+/* ── Attendance grid ───────────────────────────────────────────────────────── */
+.att-grid {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 0;
+}
+
+.att-grid-header {
+  background: #f8fafc;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.att-row {
+  display: contents;
+}
+
+.att-row > div {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+}
+
+.att-radio-group {
+  display: flex;
+  gap: 6px;
+}
+
+.att-radio-btn {
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all .15s;
+}
+
+.att-radio-btn.present  { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.att-radio-btn.absent   { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+.att-radio-btn.late     { background: #fef9c3; color: #a16207; border-color: #fde68a; }
+
+.att-radio-btn.selected-present { background: #15803d; color: #fff; }
+.att-radio-btn.selected-absent  { background: #b91c1c; color: #fff; }
+.att-radio-btn.selected-late    { background: #a16207; color: #fff; }
+
+/* ── Announcement composer ─────────────────────────────────────────────────── */
+.announce-form {
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.announce-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.announce-item.pinned {
+  border-left: 4px solid #0891b2;
+}
+
+/* ── Quiz builder ──────────────────────────────────────────────────────────── */
+.quiz-stats-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.quiz-stat-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: #475569;
+}
+
+/* ── Analytics charts ─────────────────────────────────────────────────────── */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+}
+
+/* ── Live class controls ──────────────────────────────────────────────────── */
+.live-control-panel {
+  background: linear-gradient(135deg, #0c1a2e 0%, #0f2744 100%);
+  border-radius: 14px;
+  padding: 28px;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.live-control-panel .live-stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.live-stat {
+  text-align: center;
+}
+
+.live-stat-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0891b2;
+}
+
+.live-stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.btn-end-live {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.btn-start-live {
+  background: #0891b2;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ── Student performance table ────────────────────────────────────────────── */
+.perf-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  overflow: hidden;
+  min-width: 80px;
+}
+
+.perf-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .4s ease;
+}
+
+/* ── Reusable template section header ─────────────────────────────────────── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ── Modal overlay ─────────────────────────────────────────────────────────── */
+.t-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+
+.t-modal-overlay.open {
+  display: flex;
+}
+
+.t-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px;
+  width: min(540px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+
+.t-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.t-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.t-modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px;
+  line-height: 1;
+}
+
+/* ── btn-teal variant ─────────────────────────────────────────────────────── */
+.btn-teal {
+  background: #0891b2;
+  color: #fff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: background .15s;
+}
+
+.btn-teal:hover { background: #0e7490; color: #fff; }

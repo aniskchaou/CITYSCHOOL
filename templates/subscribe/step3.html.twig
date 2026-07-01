@@ -1,0 +1,51 @@
+{% extends 'subscribe/layout.html.twig' %}
+{% block title %}Step 3 – School Information{% endblock %}
+
+{% block content %}
+<h2 class="sub-title">School information</h2>
+<p class="sub-subtitle">Tell us where your school is located. This helps us configure regional defaults.</p>
+
+<form method="post" action="{{ path('subscribe_step3') }}" novalidate>
+
+    <div class="form-group {% if errors.address is defined %}has-error{% endif %}">
+        <label for="address">School Address</label>
+        <input type="text" id="address" name="address" class="form-control"
+               value="{{ data.address ?? '' }}"
+               placeholder="123 Main St, City, State / Province" required autofocus>
+        {% if errors.address is defined %}
+            <div class="form-error">{{ errors.address }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group {% if errors.country is defined %}has-error{% endif %}">
+        <label for="country">Country</label>
+        <select id="country" name="country" class="form-control" required>
+            <option value="">— Select Country —</option>
+            {% for code, name in countries %}
+                <option value="{{ code }}" {% if data.country is defined and data.country == code %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+        {% if errors.country is defined %}
+            <div class="form-error">{{ errors.country }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group {% if errors.timezone is defined %}has-error{% endif %}">
+        <label for="timezone">Timezone</label>
+        <select id="timezone" name="timezone" class="form-control" required>
+            <option value="">— Select Timezone —</option>
+            {% for tz, label in timezones %}
+                <option value="{{ tz }}" {% if data.timezone is defined and data.timezone == tz %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% if errors.timezone is defined %}
+            <div class="form-error">{{ errors.timezone }}</div>
+        {% endif %}
+    </div>
+
+    <div style="margin-top:22px;display:flex;gap:10px">
+        <a href="{{ path('subscribe_step2') }}" class="sub-btn outline">← Back</a>
+        <button type="submit" class="sub-btn">Continue to Payment →</button>
+    </div>
+</form>
+{% endblock %}

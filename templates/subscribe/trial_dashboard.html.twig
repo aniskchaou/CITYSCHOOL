@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trial Dashboard - City School</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:'Montserrat',sans-serif;background:#eef4f9;color:#15314a}a{text-decoration:none}
+.hero{background:linear-gradient(135deg,#0f3a60,#1a7aa3);color:#fff;padding:36px 24px 120px}.wrap{max-width:1120px;margin:0 auto}
+.hero h1{margin:0 0 8px;font-size:34px;font-family:'Arvo',serif}.hero p{margin:0;color:#d5ebfa;max-width:720px;line-height:1.7}
+.countdown{margin-top:20px;display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);padding:12px 16px;border-radius:999px;font-weight:800}
+.countdown.expired{background:#fff1f0;color:#7b241c}.panel-grid{display:grid;grid-template-columns:2fr 1fr;gap:22px;margin-top:-74px;padding:0 24px 48px}.card{background:#fff;border-radius:18px;box-shadow:0 16px 40px rgba(15,58,96,.12);padding:22px}
+.banner{border-radius:16px;padding:16px 18px;margin-bottom:18px;font-size:14px;line-height:1.6}.banner.warn{background:#fff7df;border:1px solid #f0d879;color:#7a5a00}.banner.danger{background:#fff1f0;border:1px solid #f2b8b5;color:#7b241c}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.kpi{padding:16px;border-radius:14px;background:#f5f9fd;border:1px solid #d7e7f3}.kpi .label{font-size:12px;color:#6d8aa1;text-transform:uppercase;font-weight:800;letter-spacing:.05em}.kpi .value{margin-top:8px;font-size:28px;font-weight:900;color:#0f3a60}
+.feature-list,.locked-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}.feature-list li,.locked-list li{padding:12px 14px;border-radius:12px}.feature-list li{background:#edf8f0;color:#1f6f43}.locked-list li{background:#faf3ef;color:#8d4f33;border:1px dashed #efc3ab}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.btn.primary{background:#1a7aa3;color:#fff}.btn.secondary{background:#fff;color:#1a7aa3;border:2px solid #1a7aa3}
+@media (max-width:900px){.panel-grid{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="wrap">
+    <h1>{{ portalContext.school_name }} free trial</h1>
+    <p>Explore the core school management workflow now. Premium modules stay locked until you upgrade to a paid subscription.</p>
+    <div class="countdown {% if expired %}expired{% endif %}">
+      {% if expired %}
+        Trial expired. Upgrade to continue using the platform.
+      {% else %}
+        {{ daysRemaining }} day{{ daysRemaining == 1 ? '' : 's' }} left in your 14-day trial
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="panel-grid wrap">
+  <div>
+    <div class="card">
+      <div class="banner {% if expired %}danger{% else %}warn{% endif %}">
+        {% if expired %}
+          Your trial access has ended. Upgrade now to unlock billing, analytics, integrations, and keep your configuration active.
+        {% else %}
+          Your trial is active. You can use the core admin workflow now, while premium modules remain gated until you subscribe.
+        {% endif %}
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="label">Plan Preview</div><div class="value">{{ portalContext.plan }}</div></div>
+        <div class="kpi"><div class="label">Billing Cycle</div><div class="value">{{ portalContext.billing_cycle|capitalize }}</div></div>
+        <div class="kpi"><div class="label">Status</div><div class="value">{{ expired ? 'Upgrade needed' : 'Trialing' }}</div></div>
+      </div>
+
+      <h3 style="margin:0 0 12px;color:#0f3a60">Included during trial</h3>
+      <ul class="feature-list">
+        <li>Student, teacher, and parent portal navigation</li>
+        <li>School profile setup and academic structure preview</li>
+        <li>Attendance, grading, and announcements workflow demo</li>
+      </ul>
+
+      <div class="actions">
+        <a class="btn primary" href="{{ path('pricing') }}">Upgrade Now</a>
+        <a class="btn secondary" href="{{ path('index') }}">Back to Website</a>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="card">
+      <h3 style="margin:0 0 12px;color:#0f3a60">Premium modules locked</h3>
+      <ul class="locked-list">
+        {% for feature in limitedFeatures %}
+          <li>{{ feature }}</li>
+        {% endfor %}
+      </ul>
+      <p style="margin:14px 0 0;color:#6d8aa1;font-size:13px;line-height:1.7">Reminder emails are scheduled before expiry so your team has time to upgrade without losing access.</p>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

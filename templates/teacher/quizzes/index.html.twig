@@ -1,0 +1,160 @@
+{% extends 'teacher/base.html.twig' %}
+{% block title %}Quizzes & Tests{% endblock %}
+{% block page_title %}Quizzes & Tests{% endblock %}
+
+{% block content %}
+
+<div class="section-header">
+    <div class="stats-grid" style="margin-bottom:0;gap:12px;">
+        <div class="stat-card" style="padding:12px 16px;">
+            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;width:36px;height:36px;font-size:14px;"><i class="fa fa-circle"></i></div>
+            <div><div class="stat-value" style="font-size:18px;">{{ quizzes|filter(q => q.status=='active')|length }}</div><div class="stat-label">Active</div></div>
+        </div>
+        <div class="stat-card" style="padding:12px 16px;">
+            <div class="stat-icon" style="background:#fef9c3;color:#a16207;width:36px;height:36px;font-size:14px;"><i class="fa fa-clock-o"></i></div>
+            <div><div class="stat-value" style="font-size:18px;">{{ quizzes|filter(q => q.status=='upcoming')|length }}</div><div class="stat-label">Upcoming</div></div>
+        </div>
+        <div class="stat-card" style="padding:12px 16px;">
+            <div class="stat-icon" style="background:#f1f5f9;color:#64748b;width:36px;height:36px;font-size:14px;"><i class="fa fa-lock"></i></div>
+            <div><div class="stat-value" style="font-size:18px;">{{ quizzes|filter(q => q.status=='closed')|length }}</div><div class="stat-label">Closed</div></div>
+        </div>
+    </div>
+    <button class="btn-teal" onclick="openModal('modal-new-quiz')">
+        <i class="fa fa-plus"></i> New Quiz
+    </button>
+</div>
+
+<div class="grid-auto" style="margin-top:20px;">
+    {% for q in quizzes %}
+    <div class="card" style="border-top:4px solid {% if q.status=='active' %}#22c55e{% elseif q.status=='upcoming' %}#f59e0b{% else %}#94a3b8{% endif %};">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="font-size:16px;font-weight:800;">{{ q.title }}</div>
+            <span class="badge badge-{% if q.status=='active' %}success{% elseif q.status=='upcoming' %}warning{% else %}secondary{% endif %}">
+                {% if q.status == 'active' %}<span class="dot" style="width:6px;height:6px;background:#16a34a;border-radius:50%;display:inline-block;margin-right:3px;animation:blink 1s infinite;"></span>{% endif %}
+                {{ q.status|capitalize }}
+            </span>
+        </div>
+
+        <div style="font-size:13px;color:#64748b;margin-bottom:12px;">{{ q.course }}</div>
+
+        <div class="quiz-stats-row">
+            <span class="quiz-stat-pill"><i class="fa fa-list" style="margin-right:3px;"></i>{{ q.questions }} questions</span>
+            <span class="quiz-stat-pill"><i class="fa fa-clock-o" style="margin-right:3px;"></i>{{ q.duration }} min</span>
+            <span class="quiz-stat-pill"><i class="fa fa-users" style="margin-right:3px;"></i>{{ q.attempts }} attempts</span>
+        </div>
+
+        {% if q.status == 'closed' or q.status == 'active' %}
+        <div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:8px;">Results Overview</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:12px;color:#64748b;">Average Score</span>
+                <span style="font-size:12px;font-weight:700;">{{ q.avg }}%</span>
+            </div>
+            <div class="progress-bar-wrap" style="margin-bottom:8px;">
+                <div class="progress-bar-fill" style="width:{{ q.avg }}%;background:{% if q.avg>=80 %}#22c55e{% elseif q.avg>=60 %}#0891b2{% else %}#f59e0b{% endif %};height:8px;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:12px;color:#64748b;">Pass Rate</span>
+                <span style="font-size:12px;font-weight:700;color:{% if q.pass_rate>=70 %}#16a34a{% else %}#f59e0b{% endif %};">{{ q.pass_rate }}%</span>
+            </div>
+        </div>
+        {% else %}
+        <div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:8px;font-size:12px;color:#64748b;">
+            <i class="fa fa-calendar" style="margin-right:5px;"></i>
+            Opens: {{ q.opens }} → Closes: {{ q.closes }}
+        </div>
+        {% endif %}
+
+        <div style="display:flex;gap:8px;margin-top:14px;">
+            {% if q.status == 'upcoming' %}
+            <button class="btn-teal" style="flex:1;justify-content:center;font-size:12px;" onclick="alert('Edit quiz settings')">
+                <i class="fa fa-pencil"></i> Edit
+            </button>
+            {% elseif q.status == 'active' %}
+            <button class="btn-teal" style="flex:1;justify-content:center;font-size:12px;" onclick="alert('View live results')">
+                <i class="fa fa-bar-chart"></i> Live Results
+            </button>
+            {% else %}
+            <button class="btn-teal" style="flex:1;justify-content:center;font-size:12px;" onclick="alert('View full report')">
+                <i class="fa fa-file-text-o"></i> Full Report
+            </button>
+            {% endif %}
+            {% if q.status != 'active' %}
+            <button class="btn btn-outline btn-sm" onclick="if(confirm('Duplicate this quiz?')){}">
+                <i class="fa fa-copy"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Create Quiz Modal ── #}
+<div class="t-modal-overlay" id="modal-new-quiz">
+    <div class="t-modal">
+        <div class="t-modal-header">
+            <div class="t-modal-title">Create New Quiz</div>
+            <button class="t-modal-close" onclick="closeModal('modal-new-quiz')">&times;</button>
+        </div>
+        <form method="post" action="{{ path('teacher_quizzes') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('quiz_create') }}">
+            <div class="form-group">
+                <label class="form-label">Quiz Title *</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Chapter 3 Review Quiz" required>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Course *</label>
+                    <select name="course_id" class="form-control" required>
+                        {% for c in courses %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration (minutes)</label>
+                    <input type="number" name="duration" class="form-control" value="30" min="5">
+                </div>
+            </div>
+            <div class="grid-2" style="gap:12px;">
+                <div class="form-group">
+                    <label class="form-label">Opens *</label>
+                    <input type="datetime-local" name="opens" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Closes *</label>
+                    <input type="datetime-local" name="closes" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Number of Questions</label>
+                <input type="number" name="questions" class="form-control" value="10" min="1" max="100">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Question Types</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                    {% for qtype in ['Multiple Choice', 'True/False', 'Short Answer', 'Fill in the Blank'] %}
+                    <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;">
+                        <input type="checkbox" name="qtypes[]" value="{{ qtype }}" checked style="width:14px;height:14px;">
+                        {{ qtype }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <input type="checkbox" name="auto_grade" id="quiz_auto_grade" checked style="width:16px;height:16px;">
+                <label for="quiz_auto_grade" style="font-size:13px;font-weight:600;cursor:pointer;">
+                    <i class="fa fa-bolt" style="color:#0891b2;"></i> Enable auto-grading for objective questions
+                </label>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <input type="checkbox" name="shuffle" id="quiz_shuffle" checked style="width:16px;height:16px;">
+                <label for="quiz_shuffle" style="font-size:13px;cursor:pointer;">Shuffle questions for each student</label>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button type="submit" class="btn-teal"><i class="fa fa-save"></i> Create Quiz</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-new-quiz')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

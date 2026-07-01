@@ -1,0 +1,385 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Users{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+
+{# ── Stats ───────────────────────────────────────────────────── #}
+{% set students = users|filter(u => u.role == 'ROLE_STUDENT') %}
+{% set teachers = users|filter(u => u.role == 'ROLE_TEACHER') %}
+{% set parents  = users|filter(u => u.role == 'ROLE_PARENT') %}
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa fa-users"></i></div><div class="stat-body"><div class="stat-value">{{ users|length }}</div><div class="stat-label">Total Users</div></div></div>
+    <div class="stat-card green"><div class="stat-icon" style="background:#dcfce7;color:#22c55e;"><i class="fa fa-book"></i></div><div class="stat-body"><div class="stat-value">{{ students|length }}</div><div class="stat-label">Students</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon" style="background:#e0f2fe;color:#0891b2;"><i class="fa fa-user-circle"></i></div><div class="stat-body"><div class="stat-value">{{ teachers|length }}</div><div class="stat-label">Teachers</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon" style="background:#fef9c3;color:#b45309;"><i class="fa fa-user"></i></div><div class="stat-body"><div class="stat-value">{{ parents|length }}</div><div class="stat-label">Parents</div></div></div>
+</div>
+
+{# ── Toolbar ─────────────────────────────────────────────────── #}
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+    <div class="filter-bar" style="flex:1;margin-bottom:0;">
+        <i class="fa fa-search" style="color:#94a3b8;"></i>
+        <input type="search" id="user-search" placeholder="Search name, username or email…" oninput="filterUsers()">
+        <select id="role-filter" onchange="filterUsers()">
+            <option value="">All Roles</option>
+            <option value="ROLE_STUDENT">Students</option>
+            <option value="ROLE_TEACHER">Teachers</option>
+            <option value="ROLE_PARENT">Parents</option>
+        </select>
+        <select id="status-filter" onchange="filterUsers()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-import')"><i class="fa fa-upload"></i> Import CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="alert('Export started!')"><i class="fa fa-download"></i> Export</button>
+            <button class="btn btn-outline btn-sm" onclick="openModal('modal-role-template')"><i class="fa fa-clone"></i> Role Templates</button>
+        <button class="btn-purple" onclick="openModal('modal-create-user')"><i class="fa fa-user-plus"></i> Add User</button>
+    </div>
+</div>
+
+{# ── Bulk bar ─────────────────────────────────────────────────── #}
+<div class="bulk-bar" id="bulk-bar">
+    <i class="fa fa-check-square-o"></i>
+    <span id="bulk-count">0 selected</span>
+    <button class="btn btn-outline btn-sm" onclick="alert('Bulk role change')"><i class="fa fa-exchange"></i> Change Role</button>
+    <button class="btn-danger-sm" onclick="alert('Bulk deactivate')"><i class="fa fa-ban"></i> Deactivate</button>
+    <button class="btn btn-outline btn-sm" onclick="alert('Export selected')"><i class="fa fa-download"></i> Export</button>
+</div>
+
+{# ── Pending Self-Registration Requests ───────────────────────── #}
+<div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-user-plus a-accent" style="margin-right:6px;"></i>Pending Self-Registration Requests</span>
+        <span class="role-badge status-pending">{{ pending_requests|length }} pending</span>
+    </div>
+
+    {% if pending_requests is empty %}
+    <div style="padding:8px 2px 4px;color:#64748b;font-size:13px;">No pending student/parent self-registration requests.</div>
+    {% else %}
+    <table class="portal-table">
+        <thead>
+        <tr>
+            <th>Applicant</th>
+            <th>Role</th>
+            <th>Requested Details</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for req in pending_requests %}
+        <tr>
+            <td>
+                <div style="font-weight:700;">{{ req.full_name }}</div>
+                <div style="font-size:12px;color:#64748b;">@{{ req.username }} · {{ req.email }}</div>
+            </td>
+            <td><span class="role-badge {{ req.role == 'parent' ? 'role-parent' : 'role-student' }}">{{ req.role|upper }}</span></td>
+            <td style="font-size:13px;line-height:1.6;">
+                {% if req.role == 'parent' %}
+                    Child: <strong>{{ req.child_name }}</strong> ({{ req.child_class }})
+                {% else %}
+                    Class Level: <strong>{{ req.class_level }}</strong>
+                {% endif %}
+            </td>
+            <td style="font-size:12px;color:#64748b;">{{ req.created_at }}</td>
+            <td>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <form method="post" action="{{ path('admin_users') }}" style="display:inline;">
+                        <input type="hidden" name="action" value="approve_registration">
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
+                        <button class="btn-purple btn-sm" type="submit"><i class="fa fa-check"></i> Approve</button>
+                    </form>
+                    <form method="post" action="{{ path('admin_users') }}" style="display:inline;">
+                        <input type="hidden" name="action" value="reject_registration">
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
+                        <button class="btn-danger-sm" type="submit"><i class="fa fa-ban"></i> Reject</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+{# ── Approved Self-Registration Requests ──────────────────────── #}
+<div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+        <span class="card-title"><i class="fa fa-check-circle a-accent" style="margin-right:6px;"></i>Approved Self-Registrations</span>
+        <span class="role-badge status-active">{{ approved_requests|length }} approved</span>
+    </div>
+
+    {% if approved_requests is empty %}
+    <div style="padding:8px 2px 4px;color:#64748b;font-size:13px;">No approved self-registrations yet.</div>
+    {% else %}
+    <table class="portal-table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Class / Linked Child</th>
+            <th>Approved At</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for req in approved_requests|reverse %}
+        <tr>
+            <td>
+                <div style="font-weight:700;">{{ req.name }}</div>
+                <div style="font-size:12px;color:#64748b;">{{ req.email }}</div>
+            </td>
+            <td style="font-weight:700;">@{{ req.username }}</td>
+            <td><span class="role-badge {{ req.role == 'ROLE_PARENT' ? 'role-parent' : 'role-student' }}">{{ req.role|replace({'ROLE_':''}) }}</span></td>
+            <td style="font-size:13px;">{{ req.class }}</td>
+            <td style="font-size:12px;color:#64748b;">{{ req.approved_at ?? req.joined }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+{# ── Table ───────────────────────────────────────────────────── #}
+<div class="card">
+    <table class="portal-table" id="user-table">
+        <thead>
+            <tr>
+                <th style="width:36px;"><input type="checkbox" id="select-all"></th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Class / Dept</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for u in users %}
+        <tr class="user-row" data-role="{{ u.role }}" data-status="{{ u.status }}" data-name="{{ u.name|lower }} {{ u.username|lower }} {{ u.email|lower }}">
+            <td><input type="checkbox" class="row-check"></td>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="av-init av-{{ u.role == 'ROLE_STUDENT' ? 'student' : (u.role == 'ROLE_TEACHER' ? 'teacher' : 'parent') }}">
+                        {{ u.name|split(' ')|first|slice(0,1) }}{{ u.name|split(' ')|last|slice(0,1) }}
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:13px;">{{ u.name }}</div>
+                        <div style="font-size:11px;color:#64748b;">@{{ u.username }} · {{ u.email }}</div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="role-badge role-{{ u.role == 'ROLE_STUDENT' ? 'student' : (u.role == 'ROLE_TEACHER' ? 'teacher' : 'parent') }}">
+                    {{ u.role|replace({'ROLE_': ''}) }}
+                </span>
+            </td>
+            <td style="font-size:13px;">{{ u.class }}</td>
+            <td><span class="role-badge status-{{ u.status }}">{{ u.status }}</span></td>
+            <td style="font-size:12px;color:#64748b;">{{ u.joined }}</td>
+            <td>
+                <div style="display:flex;gap:6px;">
+                    {% if u.role == 'ROLE_STUDENT' %}
+                    <form method="post" action="{{ path('admin_impersonate_student') }}" style="display:inline;">
+                        <input type="hidden" name="username" value="{{ u.username }}">
+                        <button class="btn btn-outline btn-sm" type="submit" title="Impersonate student"><i class="fa fa-sign-in"></i></button>
+                    </form>
+                    {% endif %}
+                    <button class="btn btn-outline btn-sm" onclick="openModal('modal-edit-user')"><i class="fa fa-pencil"></i></button>
+                    <button class="btn-danger-sm" onclick="confirm('Deactivate {{ u.name }}?')"><i class="fa fa-ban"></i></button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Create User Modal ────────────────────────────────────────── #}
+<div class="a-modal-overlay" id="modal-create-user">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-user-plus a-accent" style="margin-right:6px;"></i>Add New User</span>
+            <button class="a-modal-close" onclick="closeModal('modal-create-user')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_users') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_user_create') }}">
+                <input type="hidden" name="action" value="create">
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-control" name="first_name" required></div>
+                <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-control" name="last_name" required></div>
+            </div>
+            <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" name="email" required></div>
+            <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-control" name="username" required></div>
+            <div class="grid-2" style="gap:14px;">
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-control" name="role" id="modal-role">
+                        <option value="ROLE_STUDENT">Student</option>
+                        <option value="ROLE_TEACHER">Teacher</option>
+                        <option value="ROLE_PARENT">Parent</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group" id="modal-class-wrap">
+                    <label class="form-label">Class</label>
+                    <select class="form-control" name="class_id">
+                        <option value="">— Select Class —</option>
+                        {% for c in classes %}
+                        <option value="{{ c.id }}">{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Temporary Password</label><input type="password" class="form-control" name="password" required></div>
+            <div style="display:flex;gap:10px;margin-top:6px;">
+                <button type="submit" class="btn-purple"><i class="fa fa-save"></i> Create User</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-create-user')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ── Edit User Modal (placeholder) ───────────────────────────── #}
+<div class="a-modal-overlay" id="modal-edit-user">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-pencil a-accent" style="margin-right:6px;"></i>Edit User</span>
+            <button class="a-modal-close" onclick="closeModal('modal-edit-user')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_users') }}">
+        <input type="hidden" name="action" value="update">
+        <div class="form-group"><label class="form-label">Role</label>
+            <select class="form-control">
+                <option>ROLE_STUDENT</option><option>ROLE_TEACHER</option><option>ROLE_PARENT</option><option>ROLE_ADMIN</option>
+            </select>
+        </div>
+        <div class="form-group"><label class="form-label">Permissions Override</label>
+            <select class="form-control" multiple>
+                <option>grades.view</option><option>grades.update</option><option>attendance.mark</option><option>fees.manage</option><option>messages.send</option>
+            </select>
+        </div>
+        <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-control"><option>active</option><option>inactive</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Reset Password</label><input type="password" class="form-control" placeholder="Leave blank to keep current"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-purple"><i class="fa fa-save"></i> Save Changes</button>
+            <button class="btn btn-outline btn-sm" name="action" value="reset_password"><i class="fa fa-key"></i> Reset Password</button>
+            <button class="btn btn-outline btn-sm" name="action" value="activate"><i class="fa fa-check-circle"></i> Activate</button>
+            <button class="btn-danger-sm" name="action" value="deactivate"><i class="fa fa-ban"></i> Deactivate</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+{# ── Import CSV Modal ─────────────────────────────────────────── #}
+<div class="a-modal-overlay" id="modal-import">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-upload a-accent" style="margin-right:6px;"></i>Bulk Import Users (CSV/Excel)</span>
+            <button class="a-modal-close" onclick="closeModal('modal-import')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_users') }}">
+        <input type="hidden" name="action" value="bulk_import">
+        <p style="font-size:13px;color:#64748b;margin-bottom:14px;">Upload a CSV/Excel with columns: <code>first_name, last_name, email, username, role, class, parent_email</code></p>
+        <div class="form-group"><label class="form-label">File</label><input type="file" class="form-control" accept=".csv,.xlsx,.xls"></div>
+        <div class="form-group">
+            <label class="form-label">Default Role</label>
+            <select class="form-control"><option>ROLE_STUDENT</option><option>ROLE_TEACHER</option></select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px;">
+            <button class="btn-purple" type="submit"><i class="fa fa-upload"></i> Start Import</button>
+            <button class="btn btn-outline" onclick="closeModal('modal-import')">Cancel</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+<div class="a-modal-overlay" id="modal-role-template">
+    <div class="a-modal">
+        <div class="a-modal-header">
+            <span class="a-modal-title"><i class="fa fa-clone a-accent" style="margin-right:6px;"></i>Role Templates (Premium)</span>
+            <button class="a-modal-close" onclick="closeModal('modal-role-template')">×</button>
+        </div>
+        <form method="post" action="{{ path('admin_users') }}">
+            <input type="hidden" name="action" value="apply_role_template">
+            <div class="form-group"><label class="form-label">Template</label>
+                <select class="form-control" name="template_name">
+                    {% for t in role_templates %}
+                    <option>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label class="form-label">Apply To Role</label>
+                <select class="form-control" name="target_role"><option>ROLE_TEACHER</option><option>ROLE_PARENT</option><option>ROLE_STUDENT</option></select>
+            </div>
+            <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Apply Template</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid-2" style="gap:20px;margin-top:18px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-object-group a-accent" style="margin-right:6px;"></i>Smart Grouping (Premium)</span></div>
+        <table class="portal-table">
+            <thead><tr><th>Group</th><th>Rule</th><th>Users</th></tr></thead>
+            <tbody>
+            {% for g in smart_groups %}
+            <tr><td style="font-weight:700;">{{ g.name }}</td><td>{{ g.rule }}</td><td>{{ g.users }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fa fa-magic a-accent" style="margin-right:6px;"></i>Auto-Enrollment Rules (Premium)</span></div>
+        <table class="portal-table" style="margin-bottom:10px;">
+            <thead><tr><th>Rule</th><th>Trigger</th><th>Action</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for r in auto_rules %}
+            <tr>
+                <td style="font-weight:700;">{{ r.name }}</td>
+                <td>{{ r.trigger }}</td>
+                <td>{{ r.action }}</td>
+                <td><span class="role-badge {{ r.status == 'active' ? 'status-active' : 'status-inactive' }}">{{ r.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ path('admin_users') }}" style="display:flex;gap:8px;">
+            <input type="hidden" name="action" value="save_auto_rule">
+            <button class="btn-purple" type="submit"><i class="fa fa-save"></i> Save Rules</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-link a-accent" style="margin-right:6px;"></i>User Access Operations</span></div>
+    <form method="post" action="{{ path('admin_users') }}">
+        <div class="grid-2" style="gap:14px;">
+            <div class="form-group"><label class="form-label">Assign Student to Class/Section</label><select class="form-control" name="class_id">{% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+            <div class="form-group"><label class="form-label">Operation</label><select class="form-control" name="action"><option value="assign_class">Assign Class</option><option value="link_parent">Link Parent to Student</option><option value="reset_password">Reset Password</option><option value="activate">Activate Account</option><option value="deactivate">Deactivate Account</option></select></div>
+        </div>
+        <button class="btn-purple" type="submit"><i class="fa fa-check"></i> Run Operation</button>
+    </form>
+</div>
+
+<script>
+function filterUsers() {
+    var q    = document.getElementById('user-search').value.toLowerCase();
+    var role = document.getElementById('role-filter').value;
+    var stat = document.getElementById('status-filter').value;
+    document.querySelectorAll('.user-row').forEach(function(row) {
+        var matchQ    = !q    || row.dataset.name.includes(q);
+        var matchRole = !role || row.dataset.role === role;
+        var matchStat = !stat || row.dataset.status === stat;
+        row.style.display = (matchQ && matchRole && matchStat) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
